@@ -148,7 +148,7 @@
             </div>
             
             <form id="login-form" onsubmit="handleAuth(event, 'login')">
-                <input type="text" id="login-user" placeholder="Tên đăng nhập" required>
+                <input type="text" id="login-user" placeholder="Tên đăng nhập (VD: Trung6011)" required>
                 <input type="password" id="login-pass" placeholder="Mật khẩu" required>
                 <button type="submit" style="width: 100%;">Đăng Nhập</button>
             </form>
@@ -275,6 +275,18 @@
                 <button id="btn-toggle-mic" onclick="toggleAudioMute()" class="call-control-btn" title="Bật/Tắt Mic"><i class="fa-solid fa-microphone"></i></button>
                 <button id="btn-toggle-cam" onclick="toggleVideoMute()" class="call-control-btn" title="Bật/Tắt Camera"><i class="fa-solid fa-video"></i></button>
                 <button onclick="endCall()" class="call-control-btn btn-end-call" title="Kết thúc cuộc gọi"><i class="fa-solid fa-phone-slash"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="modal-confirm-delete" class="modal">
+        <div class="modal-content" style="text-align: center; max-width: 350px;">
+            <h3 style="margin-bottom: 15px; color: #ff4444;"><i class="fa-solid fa-triangle-exclamation"></i> Xóa bài viết?</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 20px; color: var(--text-secondary);">Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa bài viết này không?</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="closeDeleteModal()" style="flex: 1; background: var(--bg-input); border-color: var(--border-color);">Hủy</button>
+                <button onclick="executeDeletePost()" style="flex: 1; background: #c62828; color: #fff; border: none;">Xóa</button>
             </div>
         </div>
     </div>
@@ -943,15 +955,31 @@
             hideLoading();
         };
 
-        window.deletePost = async (postId) => {
-            if(confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
-                try {
-                    await deleteDoc(doc(db, "posts", postId));
-                    showToast("Đã xóa bài viết!");
-                } catch(e) {
-                    showToast("Không thể xóa: " + e.message);
-                }
+        let postToDeleteId = null;
+
+        window.deletePost = (postId) => {
+            postToDeleteId = postId;
+            document.getElementById('modal-confirm-delete').style.display = 'flex';
+        };
+
+        window.closeDeleteModal = () => {
+            postToDeleteId = null;
+            document.getElementById('modal-confirm-delete').style.display = 'none';
+        };
+
+        window.executeDeletePost = async () => {
+            if(!postToDeleteId) return;
+            const postId = postToDeleteId;
+            closeDeleteModal();
+            
+            showLoading("Đang xóa...");
+            try {
+                await deleteDoc(doc(db, "posts", postId));
+                showToast("Đã xóa bài viết!");
+            } catch(e) {
+                showToast("Không thể xóa: " + e.message);
             }
+            hideLoading();
         };
 
         function listenFeed() {
