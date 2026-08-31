@@ -5,58 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>9c2network.io.vn</title>
     <style>
-        /* CSS GIAO DIỆN ĐEN TRẮNG - MOBILE FIRST */
         :root {
             --bg-color: #000000;
             --card-bg: #121212;
-            --border-color: #333333;
+            --border-color: #262626;
             --text-color: #ffffff;
-            --text-sub: #aaaaaa;
+            --text-sub: #a8a8a8;
+            --messenger-blue: #0084ff;
+            --chat-recv-bg: #242526;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 70px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 60px; overflow-x: hidden; }
 
-        /* HEADER & NAVIGATION */
         header { position: sticky; top: 0; z-index: 100; background: var(--bg-color); border-bottom: 1px solid var(--border-color); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { font-size: 1.2rem; font-weight: 900; letter-spacing: 1px; }
+        header h1 { font-size: 1.2rem; font-weight: 900; }
 
         .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--bg-color); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-        .nav-item { color: var(--text-sub); text-decoration: none; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+        .nav-item { color: var(--text-sub); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
         .nav-item.active { color: var(--text-color); font-weight: bold; }
 
-        /* CONTAINERS & SECTIONS */
         .container { padding: 12px; max-width: 600px; margin: 0 auto; }
         .page { display: none; }
         .page.active { display: block; }
 
-        /* FORMS & BUTTONS */
         input, textarea, button, select { width: 100%; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px; border-radius: 8px; font-size: 0.95rem; margin-bottom: 10px; outline: none; }
-        button { background: #ffffff; color: #000000; font-weight: bold; border: none; cursor: pointer; transition: opacity 0.2s; }
+        button { background: #ffffff; color: #000000; font-weight: bold; border: none; cursor: pointer; }
         button:active { opacity: 0.8; }
         button.btn-outline { background: transparent; color: var(--text-color); border: 1px solid var(--border-color); }
         button.btn-danger { background: #ff4444; color: #fff; }
 
-        /* CARD STYLE */
         .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
 
-        /* PROFILE STYLE */
         .profile-header { position: relative; margin-bottom: 40px; }
         .cover-img { width: 100%; height: 130px; background: #222; object-fit: cover; border-radius: 8px 8px 0 0; }
         .avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--bg-color); position: absolute; bottom: -30px; left: 16px; background: #444; object-fit: cover; }
         .profile-info { margin-top: 35px; padding: 0 8px; }
 
-        /* POST STYLE */
         .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .post-avatar { width: 36px; height: 36px; border-radius: 50%; background: #333; object-fit: cover; }
-        .post-media { width: 100%; max-height: 350px; object-fit: cover; border-radius: 6px; margin: 8px 0; border: 1px solid var(--border-color); }
+        .post-media-container { width: 100%; margin: 8px 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+        .post-media-container img, .post-media-container video { width: 100%; display: block; max-height: 400px; object-fit: contain; background: #000; }
         .post-actions { display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 8px; font-size: 0.85rem; color: var(--text-sub); }
 
-        /* MESSAGES & CALL OVERLAY */
-        .msg-bubble { max-width: 80%; padding: 8px 12px; border-radius: 12px; margin-bottom: 8px; font-size: 0.9rem; word-break: break-word; }
-        .msg-sent { background: #fff; color: #000; margin-left: auto; }
-        .msg-received { background: var(--card-bg); border: 1px solid var(--border-color); color: #fff; }
+        /* GIAO DIỆN MESSENGER STYLE */
+        .messenger-container { display: flex; flex-direction: column; height: calc(100vh - 140px); background: #000; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
+        .chat-topbar { background: #121212; padding: 10px 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .chat-user-input { background: #1f1f1f; border: none; padding: 6px 12px; margin-bottom: 0; width: 60%; border-radius: 20px; font-size: 0.85rem; color: #fff; }
+        .chat-call-btns { display: flex; gap: 8px; }
+        .icon-btn { width: 34px; height: 34px; border-radius: 50%; background: #262626; display: flex; align-items: center; justify-content: center; border: none; font-size: 0.9rem; margin: 0; }
+
+        .chat-messages-area { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #000; }
         
+        .msg-row { display: flex; align-items: flex-end; gap: 8px; max-width: 80%; }
+        .msg-row.sent { margin-left: auto; flex-direction: row-reverse; }
+        .msg-row.received { margin-right: auto; }
+        .msg-avatar-small { width: 28px; height: 28px; border-radius: 50%; background: #444; font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; font-weight: bold; }
+
+        .msg-bubble-msg { padding: 9px 14px; border-radius: 18px; font-size: 0.9rem; line-height: 1.35; word-break: break-word; }
+        .msg-row.sent .msg-bubble-msg { background: var(--messenger-blue); color: #fff; border-bottom-right-radius: 4px; }
+        .msg-row.received .msg-bubble-msg { background: var(--chat-recv-bg); color: #fff; border-bottom-left-radius: 4px; }
+        .msg-media-img { max-width: 100%; border-radius: 12px; margin-top: 6px; display: block; border: 1px solid var(--border-color); }
+
+        .chat-bottombar { background: #121212; padding: 8px 10px; border-top: 1px solid var(--border-color); display: flex; align-items: center; gap: 6px; }
+        .chat-bottombar input[type="text"] { background: #1f1f1f; border: none; margin-bottom: 0; border-radius: 20px; padding: 10px 14px; font-size: 0.9rem; }
+        .btn-send-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--messenger-blue); border: none; color: #fff; font-size: 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-bottom: 0; }
+
         #call-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; flex-direction: column; justify-content: space-between; padding: 40px 20px; align-items: center; }
         .video-container { display: flex; flex-direction: column; gap: 10px; width: 100%; }
         video { width: 100%; height: 200px; background: #111; border-radius: 8px; border: 1px solid var(--border-color); object-fit: cover; }
@@ -64,7 +77,7 @@
 </head>
 <body>
 
-    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
+    <!-- AUTH -->
     <div id="page-auth" class="container" style="margin-top: 40px;">
         <h1 style="text-align: center; margin-bottom: 20px; font-size: 2rem;">9c2network</h1>
         <div class="card">
@@ -75,7 +88,7 @@
         </div>
     </div>
 
-    <!-- MÀN HÌNH CHÍNH CỦA ỨNG DỤNG -->
+    <!-- MAIN APP -->
     <div id="app-structure" style="display: none;">
         <header>
             <h1>9c2network</h1>
@@ -87,38 +100,51 @@
             <div class="card">
                 <input type="text" id="post-title" placeholder="Tiêu đề bài đăng...">
                 <textarea id="post-content" rows="2" placeholder="Bạn đang nghĩ gì?"></textarea>
-                <input type="text" id="post-media" placeholder="Link Đường dẫn Ảnh / Video / Stream...">
+                <input type="text" id="post-media-url" placeholder="Nhập Link Ảnh/Video (URL)...">
+                <input type="file" id="post-media-file" accept="image/*,video/*">
                 <select id="post-type">
-                    <option value="text">Văn bản</option>
                     <option value="image">Hình ảnh</option>
                     <option value="video">Video</option>
+                    <option value="text">Chỉ chữ (Text)</option>
                     <option value="live">Livestream</option>
                 </select>
                 <button id="btn-create-post">Đăng Bài</button>
             </div>
-            <div id="feed-list"></div>
+            <div id="feed-list">Đang tải bài viết...</div>
         </div>
 
-        <!-- TÌM KIẾM / KẾT BẠN -->
+        <!-- TÌM KIẾM -->
         <div id="page-friends" class="page container">
             <div class="card">
-                <input type="text" id="search-input" placeholder="Nhập tên người dùng tìm kiếm...">
+                <input type="text" id="search-input" placeholder="Nhập tên người dùng...">
                 <button id="btn-search" class="btn-outline">Tìm Kiếm</button>
             </div>
             <div id="search-results"></div>
         </div>
 
-        <!-- TIN NHẮN & CUỘC GỌI -->
-        <div id="page-messages" class="page container">
-            <div class="card">
-                <input type="text" id="msg-receiver" placeholder="Gửi tới (Tên người dùng)...">
-                <div id="chat-box" style="height: 250px; overflow-y: auto; display: flex; flex-direction: column; margin-bottom: 10px; padding: 5px;"></div>
-                <input type="text" id="msg-input" placeholder="Nhập tin nhắn...">
-                <input type="text" id="msg-media" placeholder="URL Ảnh/Video (Tùy chọn)">
-                <button id="btn-send-msg">Gửi Tin Nhắn</button>
-                <div style="display: flex; gap: 10px; margin-top: 5px;">
-                    <button id="btn-audio-call" class="btn-outline" style="font-size: 0.8rem;">📞 Gọi Âm Thanh</button>
-                    <button id="btn-video-call" class="btn-outline" style="font-size: 0.8rem;">📹 Gọi Video</button>
+        <!-- TIN NHẮN MESSENGER STYLE -->
+        <div id="page-messages" class="page container" style="padding: 6px;">
+            <div class="messenger-container">
+                <!-- TOPBAR -->
+                <div class="chat-topbar">
+                    <input type="text" id="msg-receiver" class="chat-user-input" placeholder="Nhập tên người nhận...">
+                    <div class="chat-call-btns">
+                        <button id="btn-audio-call" class="icon-btn" title="Gọi thoại">📞</button>
+                        <button id="btn-video-call" class="icon-btn" title="Gọi video">📹</button>
+                    </div>
+                </div>
+
+                <!-- CHAT BOX -->
+                <div id="chat-box" class="chat-messages-area">
+                    <p style="text-align: center; color: var(--text-sub); font-size: 0.8rem; margin-top: 20px;">Nhập tên bạn bè ở trên để bắt đầu trò chuyện</p>
+                </div>
+
+                <!-- BOTTOM INPUT -->
+                <div class="chat-bottombar">
+                    <label for="msg-file-input" class="icon-btn" style="cursor: pointer;">📷</label>
+                    <input type="file" id="msg-file-input" accept="image/*" style="display: none;">
+                    <input type="text" id="msg-input" placeholder="Tin nhắn...">
+                    <button id="btn-send-msg" class="btn-send-icon">➔</button>
                 </div>
             </div>
         </div>
@@ -131,7 +157,7 @@
                     <img id="profile-avatar" class="avatar-img" src="https://via.placeholder.com/150/444/fff?text=Avatar">
                 </div>
                 <div class="profile-info">
-                    <h2 id="profile-name">Tên người dùng</h2>
+                    <h2 id="profile-name">User</h2>
                     <br>
                     <input type="text" id="edit-name" placeholder="Tên hiển thị mới">
                     <input type="text" id="edit-avatar" placeholder="Link Avatar mới">
@@ -140,12 +166,10 @@
                     <button id="btn-logout" class="btn-danger">Đăng Xuất</button>
                 </div>
             </div>
-
-            <h3 style="margin: 15px 0 10px 0;">Lịch sử bài đăng của bạn</h3>
+            <h3 style="margin: 15px 0 10px 0;">Bài viết của bạn</h3>
             <div id="profile-posts"></div>
         </div>
 
-        <!-- THANH ĐIỀU HƯỚNG DƯỚI DÀNH CHO ĐIỆN THOẠI -->
         <nav class="nav-bottom">
             <div class="nav-item active" onclick="switchTab('feed', this)">🏠<span>Bảng tin</span></div>
             <div class="nav-item" onclick="switchTab('friends', this)">🔍<span>Kết bạn</span></div>
@@ -154,23 +178,22 @@
         </nav>
     </div>
 
-    <!-- KHUNG HIỂN THỊ CUỘC GỌI VIDEO/VOICE -->
+    <!-- CALL MODAL -->
     <div id="call-modal">
-        <h2 id="call-title">Đang kết nối cuộc gọi...</h2>
+        <h2 id="call-title">Đang kết nối...</h2>
         <div class="video-container">
             <video id="localVideo" autoplay playsinline muted></video>
             <video id="remoteVideo" autoplay playsinline></video>
         </div>
-        <button id="btn-end-call" class="btn-danger">Tắt Cuộc Gọi</button>
+        <button id="btn-end-call" class="btn-danger">Kết thúc cuộc gọi</button>
     </div>
 
-    <!-- KHỞI TẠO FIREBASE SDK -->
+    <!-- FIREBASE SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG FIREBASE CỦA BẠN ĐÃ ĐƯỢC DÁN VÀO ĐÂY
         const firebaseConfig = { 
             apiKey : "AIzaSyDYMDR5k9x9LwSs2GCjVyLJWNEUCnXXiJU" , 
             authDomain : "c2network.firebaseapp.com" , 
@@ -188,25 +211,21 @@
         let currentUserData = null;
         let localStream = null;
 
-        // CHUYỂN TAB TRÊN ĐIỆN THOẠI
         window.switchTab = function(pageName, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
             document.getElementById(`page-${pageName}`).classList.add('active');
             element.classList.add('active');
-
             if(pageName === 'profile') loadProfilePosts();
         }
 
         const formatEmail = (user) => `${user.toLowerCase().trim()}@9c2network.io.vn`;
 
-        // ĐĂNG KÝ
+        // AUTH
         document.getElementById('btn-register').onclick = async () => {
             const user = document.getElementById('auth-username').value;
             const pass = document.getElementById('auth-password').value;
-            if(!user || !pass) return alert("Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
-            
+            if(!user || !pass) return alert("Vui lòng nhập Username và Password");
             try {
                 const res = await createUserWithEmailAndPassword(auth, formatEmail(user), pass);
                 await addDoc(collection(db, "users"), {
@@ -217,22 +236,18 @@
                     cover: 'https://via.placeholder.com/600x200/222/fff?text=9c2network'
                 });
                 alert("Đăng ký thành công!");
-            } catch (err) { alert("Lỗi đăng ký: " + err.message); }
+            } catch (err) { alert("Lỗi: " + err.message); }
         };
 
-        // ĐĂNG NHẬP
         document.getElementById('btn-login').onclick = async () => {
             const user = document.getElementById('auth-username').value;
             const pass = document.getElementById('auth-password').value;
-            try {
-                await signInWithEmailAndPassword(auth, formatEmail(user), pass);
-            } catch (err) { alert("Lỗi đăng nhập: Kiểm tra lại tên tài khoản hoặc mật khẩu!"); }
+            try { await signInWithEmailAndPassword(auth, formatEmail(user), pass); } 
+            catch (err) { alert("Lỗi đăng nhập: " + err.message); }
         };
 
-        // ĐĂNG XUẤT
         document.getElementById('btn-logout').onclick = () => signOut(auth);
 
-        // THEO DÕI ĐĂNG NHẬP REALTIME
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const q = query(collection(db, "users"), where("uid", "==", user.uid));
@@ -252,29 +267,43 @@
             }
         });
 
-        // ĐĂNG BÀI VIẾT
+        const readFileAsBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        };
+
+        // BẢNG TIN
         document.getElementById('btn-create-post').onclick = async () => {
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-content').value;
-            const media = document.getElementById('post-media').value;
+            const urlMedia = document.getElementById('post-media-url').value;
+            const fileMedia = document.getElementById('post-media-file').files[0];
             const type = document.getElementById('post-type').value;
 
-            if(!content) return alert("Vui lòng nhập nội dung bài đăng!");
+            if(!content && !urlMedia && !fileMedia) return alert("Vui lòng nhập nội dung!");
+
+            let mediaSrc = urlMedia;
+            if (fileMedia) mediaSrc = await readFileAsBase64(fileMedia);
 
             await addDoc(collection(db, "posts"), {
                 author: currentUserData.username,
-                title, content, media, type,
-                likes: [],
-                comments: [],
+                title: title || '',
+                content: content || '',
+                media: mediaSrc || '',
+                type: type,
                 createdAt: new Date()
             });
 
             document.getElementById('post-title').value = '';
             document.getElementById('post-content').value = '';
-            document.getElementById('post-media').value = '';
+            document.getElementById('post-media-url').value = '';
+            document.getElementById('post-media-file').value = '';
         };
 
-        // BẢNG TIN REALTIME
         function listenFeed() {
             const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
             onSnapshot(q, (snapshot) => {
@@ -283,51 +312,109 @@
                 snapshot.forEach(docSnap => {
                     const p = docSnap.data();
                     let mediaHtml = '';
-                    if(p.type === 'image' && p.media) mediaHtml = `<img src="${p.media}" class="post-media">`;
-                    if(p.type === 'video' && p.media) mediaHtml = `<video src="${p.media}" controls class="post-media"></video>`;
-                    if(p.type === 'live') mediaHtml = `<div style="background:#fff; color:#000; padding:4px 8px; font-weight:bold; font-size:11px; display:inline-block; border-radius:4px; margin-top:5px;">🔴 LIVESTREAM TỰ ĐỘNG</div>`;
-
+                    if(p.media) {
+                        if(p.type === 'image' || p.media.startsWith('data:image')) mediaHtml = `<div class="post-media-container"><img src="${p.media}"></div>`;
+                        else if(p.type === 'video' || p.media.startsWith('data:video')) mediaHtml = `<div class="post-media-container"><video src="${p.media}" controls></video></div>`;
+                    }
                     feed.innerHTML += `
                         <div class="card">
-                            <div class="post-header">
-                                <div class="post-avatar"></div>
-                                <strong>@${p.author}</strong>
-                            </div>
+                            <div class="post-header"><strong>@${p.author}</strong></div>
                             ${p.title ? `<h4>${p.title}</h4>` : ''}
-                            <p>${p.content}</p>
+                            ${p.content ? `<p>${p.content}</p>` : ''}
                             ${mediaHtml}
-                            <div class="post-actions">
-                                <span>👍 Thích (${p.likes ? p.likes.length : 0})</span>
-                                <span>💬 Bình luận</span>
-                                <span>↪️ Chia sẻ</span>
-                            </div>
+                            <div class="post-actions"><span>👍 Thích</span><span>💬 Bình luận</span></div>
                         </div>
                     `;
                 });
             });
         }
 
-        // CẬP NHẬT TRANG CÁ NHÂN
+        // CHAT MESSENGER LOGIC
+        const sendMessage = async () => {
+            const to = document.getElementById('msg-receiver').value.trim();
+            const text = document.getElementById('msg-input').value.trim();
+            const fileInput = document.getElementById('msg-file-input');
+
+            if(!to) return alert("Vui lòng nhập tên người nhận!");
+            if(!text && !fileInput.files[0]) return;
+
+            let mediaSrc = '';
+            if(fileInput.files[0]) {
+                mediaSrc = await readFileAsBase64(fileInput.files[0]);
+            }
+
+            await addDoc(collection(db, "messages"), {
+                from: currentUserData.username,
+                to: to,
+                text: text,
+                media: mediaSrc,
+                createdAt: new Date()
+            });
+
+            document.getElementById('msg-input').value = '';
+            fileInput.value = '';
+        };
+
+        document.getElementById('btn-send-msg').onclick = sendMessage;
+        document.getElementById('msg-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function listenMessages() {
+            const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+            onSnapshot(q, (snap) => {
+                const box = document.getElementById('chat-box');
+                const receiver = document.getElementById('msg-receiver').value.trim();
+                box.innerHTML = '';
+
+                snap.forEach(docSnap => {
+                    const m = docSnap.data();
+                    const isMe = m.from === currentUserData.username;
+                    
+                    // Lọc tin nhắn của cuộc trò chuyện hiện tại
+                    if ((isMe && m.to === receiver) || (m.from === receiver && m.to === currentUserData.username)) {
+                        const avatarLetter = (isMe ? currentUserData.username : m.from)[0].toUpperCase();
+                        
+                        box.innerHTML += `
+                            <div class="msg-row ${isMe ? 'sent' : 'received'}">
+                                <div class="msg-avatar-small">${avatarLetter}</div>
+                                <div>
+                                    ${m.text ? `<div class="msg-bubble-msg">${m.text}</div>` : ''}
+                                    ${m.media ? `<img src="${m.media}" class="msg-media-img">` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        document.getElementById('msg-receiver').addEventListener('input', listenMessages);
+
+        // CALL MODAL LOGIC
+        async function startCall(videoEnabled) {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: videoEnabled, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('call-modal').style.display = 'flex';
+                document.getElementById('call-title').innerText = videoEnabled ? "Đang gọi Video..." : "Đang gọi Voice...";
+            } catch (err) { alert("Không thể truy cập Microphone/Camera!"); }
+        }
+
+        document.getElementById('btn-audio-call').onclick = () => startCall(false);
+        document.getElementById('btn-video-call').onclick = () => startCall(true);
+        document.getElementById('btn-end-call').onclick = () => {
+            if(localStream) localStream.getTracks().forEach(track => track.stop());
+            document.getElementById('call-modal').style.display = 'none';
+        };
+
+        // PROFILE
         function loadProfileUI() {
             document.getElementById('profile-name').innerText = currentUserData.displayName;
             document.getElementById('profile-avatar').src = currentUserData.avatar;
             document.getElementById('profile-cover').src = currentUserData.cover;
         }
-
-        document.getElementById('btn-save-profile').onclick = async () => {
-            const name = document.getElementById('edit-name').value;
-            const avatar = document.getElementById('edit-avatar').value;
-            const cover = document.getElementById('edit-cover').value;
-
-            const updates = {};
-            if(name) updates.displayName = name;
-            if(avatar) updates.avatar = avatar;
-            if(cover) updates.cover = cover;
-
-            await updateDoc(doc(db, "users", currentUserData.id), updates);
-            alert("Đã cập nhật thông tin trang cá nhân!");
-            location.reload();
-        };
 
         async function loadProfilePosts() {
             const q = query(collection(db, "posts"), where("author", "==", currentUserData.username));
@@ -339,80 +426,6 @@
                 container.innerHTML += `<div class="card"><p>${p.content}</p></div>`;
             });
         }
-
-        // TÌM KIẾM BẠN BÈ
-        document.getElementById('btn-search').onclick = async () => {
-            const text = document.getElementById('search-input').value;
-            const q = query(collection(db, "users"), where("username", "==", text));
-            const snap = await getDocs(q);
-            const res = document.getElementById('search-results');
-            res.innerHTML = '';
-            snap.forEach(docSnap => {
-                const u = docSnap.data();
-                res.innerHTML += `
-                    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>@${u.username} (${u.displayName})</span>
-                        <button class="btn-outline" style="width:auto; padding:6px 12px;">+ Kết bạn</button>
-                    </div>
-                `;
-            });
-        };
-
-        // GỬI TIN NHẮN REALTIME
-        document.getElementById('btn-send-msg').onclick = async () => {
-            const to = document.getElementById('msg-receiver').value;
-            const text = document.getElementById('msg-input').value;
-            const media = document.getElementById('msg-media').value;
-
-            if(!to || !text) return alert("Vui lòng nhập tên người nhận và tin nhắn");
-
-            await addDoc(collection(db, "messages"), {
-                from: currentUserData.username,
-                to, text, media,
-                createdAt: new Date()
-            });
-
-            document.getElementById('msg-input').value = '';
-        };
-
-        function listenMessages() {
-            const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
-            onSnapshot(q, (snap) => {
-                const box = document.getElementById('chat-box');
-                box.innerHTML = '';
-                snap.forEach(docSnap => {
-                    const m = docSnap.data();
-                    if(m.from === currentUserData.username || m.to === currentUserData.username) {
-                        const isMe = m.from === currentUserData.username;
-                        box.innerHTML += `
-                            <div class="msg-bubble ${isMe ? 'msg-sent' : 'msg-received'}">
-                                <small style="display:block; font-size:10px; margin-bottom:2px;">${m.from}</small>
-                                ${m.text}
-                                ${m.media ? `<br><img src="${m.media}" style="max-width:100%; border-radius:4px; margin-top:4px;">` : ''}
-                            </div>
-                        `;
-                    }
-                });
-            });
-        }
-
-        // TÍNH NĂNG GỌI VIDEO / AUDIO
-        async function startCall(videoEnabled) {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: videoEnabled, audio: true });
-                document.getElementById('localVideo').srcObject = localStream;
-                document.getElementById('call-modal').style.display = 'flex';
-                document.getElementById('call-title').innerText = videoEnabled ? "Đang mở Camera Gọi Video..." : "Đang kết nối Gọi Âm thanh...";
-            } catch (err) { alert("Không thể truy cập thiết bị Camera/Microphone trên máy của bạn!"); }
-        }
-
-        document.getElementById('btn-audio-call').onclick = () => startCall(false);
-        document.getElementById('btn-video-call').onclick = () => startCall(true);
-
-        document.getElementById('btn-end-call').onclick = () => {
-            if(localStream) localStream.getTracks().forEach(track => track.stop());
-            document.getElementById('call-modal').style.display = 'none';
-        };
     </script>
 </body>
 </html>
