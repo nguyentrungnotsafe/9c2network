@@ -507,19 +507,13 @@
                 await uploadBytes(fileRef, file);
                 return await getDownloadURL(fileRef);
             } catch (storageError) {
-                console.warn("Firebase Storage không khả dụng, đang kích hoạt cơ chế dự phòng siêu tốc:", storageError);
+                console.warn("Firebase Storage không khả dụng, đang kích hoạt cơ chế dự phòng:", storageError);
                 // Cơ chế tự động dự phòng khi gặp lỗi kết nối/CORS/quyền truy cập Firebase Storage
                 if (file.type.startsWith('image/')) {
-                    return await compressImageToDataUrl(file, 850, 0.7);
-                } else if (file.type.startsWith('video/')) {
-                    if (file.size <= 2 * 1024 * 1024) {
-                        return await fileToDataURL(file);
-                    } else {
-                        showToast("Lưu ý: Video kích thước lớn được phát từ bộ nhớ tạm.");
-                        return URL.createObjectURL(file);
-                    }
+                    showToast("Lưu ý: Đang dùng bộ nhớ tạm (dự phòng) do Storage chưa mở quyền...");
+                    return await compressImageToDataUrl(file, 850, 0.65);
                 } else {
-                    return await fileToDataURL(file);
+                    throw new Error("Không thể tải lên Video: Vui lòng vào Firebase cấu hình lại quyền cho Storage (Storage Rules)!");
                 }
             }
         }
@@ -558,13 +552,6 @@
                 document.getElementById('chat-room').style.display = 'none';
             }
         };
-
-        async function uploadFileToStorage(file, folder) {
-            if(!file) return null;
-            const fileRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
-            await uploadBytes(fileRef, file);
-            return await getDownloadURL(fileRef);
-        }
 
         window.handleAuth = async (e, type) => {
             e.preventDefault();
@@ -640,15 +627,14 @@
 
             const q = query(
                 collection(db, "calls"), 
-                where("receiverUid", "==", auth.currentUser.uid),
-                where("status", "==", "calling")
+                where("receiverUid", "==", auth.currentUser.uid)
             );
 
             unsubscribeIncomingCalls = onSnapshot(q, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added") {
                         const callData = { id: change.doc.id, ...change.doc.data() };
-                        if (!currentCallId) {
+                        if (callData.status === "calling" && !currentCallId) {
                             pendingIncomingCallDoc = callData;
                             showIncomingCallModal(callData);
                         }
