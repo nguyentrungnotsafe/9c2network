@@ -11,6 +11,7 @@
             --bg-main: #000000; --bg-card: #0f0f0f; --bg-input: #1a1a1a;
             --border-color: #333333; --text-primary: #ffffff; --text-secondary: #aaaaaa;
             --accent-white: #ffffff; --accent-black: #000000;
+            --danger-red: #e53935;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
@@ -39,7 +40,7 @@
         .page { display: none; animation: fadeIn 0.2s ease-in-out; } .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-around; padding: 10px 0; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 0.75rem; border: none; background: none; padding: 5px 15px; }
         .nav-item.active { color: var(--text-primary); }
         .nav-item i { font-size: 1.2rem; }
@@ -47,7 +48,7 @@
         .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .user-info-sm { display: flex; align-items: center; gap: 10px; }
-        .avatar-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); background: #222; }
+        .avatar-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); background: #222; flex-shrink: 0; }
         .post-media-box { width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: #000; margin: 10px 0; overflow: hidden; display: flex; justify-content: center; min-height: 200px; align-items: center; }
         .post-media-box img, .post-media-box video { width: 100%; max-height: 450px; object-fit: contain; }
         .post-actions { display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 10px; }
@@ -68,15 +69,29 @@
         .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; position: absolute; top: -45px; left: 15px; background: #111; }
         .profile-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
 
+        /* Chat Layout Styles */
         .chat-layout { height: calc(100vh - 140px); display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
+        .chat-top-actions { padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); }
         .chat-list-view { flex: 1; overflow-y: auto; }
-        .chat-user-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
+        .chat-user-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; position: relative; }
         .chat-user-item:hover { background: #161616; }
+        .group-badge { background: #333; color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+
         .chat-room-view { display: none; flex-direction: column; height: 100%; }
         .chat-room-header { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; background: var(--bg-main); }
         .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #080808; }
 
-        /* CSS cho tính năng Cuộc gọi âm thanh & Video */
+        /* Voice Recorder & Audio Player Styles */
+        .voice-recording-bar { display: none; flex: 1; align-items: center; gap: 10px; background: var(--bg-input); padding: 6px 15px; border-radius: 20px; border: 1px solid var(--danger-red); }
+        .recording-pulse { width: 12px; height: 12px; border-radius: 50%; background: var(--danger-red); animation: pulseRecord 1s infinite alternate; }
+        @keyframes pulseRecord { from { opacity: 1; transform: scale(1); } to { opacity: 0.3; transform: scale(0.8); } }
+        .recording-time { font-size: 0.85rem; font-weight: bold; color: #ff5555; }
+        
+        audio { outline: none; height: 36px; max-width: 250px; border-radius: 20px; filter: invert(0.9) hue-rotate(180deg); }
+        
+        .msg-sender-name { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 3px; font-weight: bold; }
+
+        /* Audio & Call UI */
         .call-hdr-btn { background: none; border: none; color: var(--text-primary); font-size: 1.1rem; padding: 6px 10px; border-radius: 6px; }
         .call-hdr-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
         
@@ -118,12 +133,16 @@
         .chat-input-area { padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border-color); background: var(--bg-main); align-items: center; }
         .chat-input-area input[type="text"] { margin-bottom: 0; border-radius: 20px; padding: 10px 15px; }
 
+        /* Group Member Selection List */
+        .member-checkbox-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-bottom: 1px solid var(--border-color); cursor: pointer; }
+        .member-checkbox-item input[type="checkbox"] { width: auto; margin-bottom: 0; cursor: pointer; }
+
         #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
         .spinner { border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff; border-radius: 50%; width: 36px; height: 36px; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
-        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 450px; padding: 20px; }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 450px; padding: 20px; max-height: 90vh; overflow-y: auto; }
 
         /* Notification Toast */
         #toast { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ffffff; color: #000000; padding: 10px 20px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; z-index: 10000; box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
@@ -195,24 +214,47 @@
 
             <div id="page-messages" class="page">
                 <div class="chat-layout">
+                    <div class="chat-top-actions">
+                        <span style="font-size: 0.9rem; font-weight: bold;"><i class="fa-solid fa-comments"></i> Trò chuyện</span>
+                        <button onclick="openCreateGroupModal()" style="font-size: 0.8rem; padding: 6px 12px;"><i class="fa-solid fa-users-plus"></i> Tạo Nhóm Chat</button>
+                    </div>
                     <div class="chat-list-view" id="chat-list"></div>
                     
                     <div class="chat-room-view" id="chat-room">
                         <div class="chat-room-header">
                             <i class="fa-solid fa-chevron-left" onclick="closeChatRoom()" style="cursor: pointer; padding: 5px; font-size: 1.1rem;"></i>
                             <img id="chat-active-avatar" src="" class="avatar-sm">
-                            <strong id="chat-active-name">--</strong>
+                            <div>
+                                <strong id="chat-active-name">--</strong>
+                                <span id="chat-type-badge" class="group-badge" style="display:none;">Nhóm</span>
+                            </div>
                             <div style="margin-left: auto; display: flex; gap: 8px;">
-                                <button class="call-hdr-btn" onclick="initiateCall('audio')" title="Gọi thoại"><i class="fa-solid fa-phone"></i></button>
-                                <button class="call-hdr-btn" onclick="initiateCall('video')" title="Gọi video"><i class="fa-solid fa-video"></i></button>
+                                <button id="hdr-btn-audio-call" class="call-hdr-btn" onclick="initiateCall('audio')" title="Gọi thoại"><i class="fa-solid fa-phone"></i></button>
+                                <button id="hdr-btn-video-call" class="call-hdr-btn" onclick="initiateCall('video')" title="Gọi video"><i class="fa-solid fa-video"></i></button>
                             </div>
                         </div>
                         <div class="chat-messages" id="chat-messages-box"></div>
+                        
                         <div class="chat-input-area">
-                            <label for="chat-file" style="cursor: pointer; font-size: 1.2rem; padding: 5px;"><i class="fa-solid fa-image"></i></label>
-                            <input type="file" id="chat-file" accept="image/*,video/*" style="display: none;" onchange="sendChatFile(this)">
-                            <input type="text" id="chat-text" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendChatText()">
-                            <button onclick="sendChatText()" style="padding: 10px 15px; border-radius: 20px;"><i class="fa-solid fa-paper-plane"></i></button>
+                            <div id="voice-recording-ui" class="voice-recording-bar">
+                                <div class="recording-pulse"></div>
+                                <span class="recording-time" id="voice-timer">00:00</span>
+                                <span style="font-size: 0.8rem; color: var(--text-secondary); flex: 1;">Đang ghi âm...</span>
+                                <button onclick="cancelVoiceRecording()" style="padding: 4px 8px; font-size: 0.8rem; border: none; background: transparent; color: #ff5555;"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="stopAndSendVoiceRecording()" style="padding: 4px 10px; font-size: 0.8rem; background: var(--accent-white); color: #000; border: none; border-radius: 12px;"><i class="fa-solid fa-paper-plane"></i> Gửi</button>
+                            </div>
+
+                            <div id="normal-chat-controls" style="display: flex; width: 100%; gap: 8px; align-items: center;">
+                                <label for="chat-file" style="cursor: pointer; font-size: 1.2rem; padding: 5px;"><i class="fa-solid fa-image"></i></label>
+                                <input type="file" id="chat-file" accept="image/*,video/*" style="display: none;" onchange="sendChatFile(this)">
+                                
+                                <button onclick="startVoiceRecording()" style="border: none; background: none; font-size: 1.2rem; padding: 5px; color: var(--text-primary);" title="Gửi bản ghi âm">
+                                    <i class="fa-solid fa-microphone"></i>
+                                </button>
+                                
+                                <input type="text" id="chat-text" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendChatText()">
+                                <button onclick="sendChatText()" style="padding: 10px 15px; border-radius: 20px;"><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -242,6 +284,25 @@
             <button class="nav-item" onclick="switchPage('messages', this)"><i class="fa-solid fa-message"></i> Tin nhắn</button>
             <button class="nav-item" onclick="switchPage('profile', this)"><i class="fa-solid fa-user"></i> Hồ sơ</button>
         </nav>
+    </div>
+
+    <!-- Modal Tạo Nhóm Chat Mới -->
+    <div id="modal-create-group" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;"><i class="fa-solid fa-users"></i> Tạo Nhóm Trò Chuyện</h2>
+            <label>Tên Nhóm:</label>
+            <input type="text" id="group-name-input" placeholder="VD: Nhóm Học Tập 9C2...">
+            
+            <label>Chọn Thành Viên:</label>
+            <div id="group-members-checklist" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 5px; margin-bottom: 15px;">
+                <p style="text-align: center; color: var(--text-secondary); padding: 10px;">Đang tải danh sách...</p>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="closeCreateGroupModal()">Hủy</button>
+                <button onclick="submitCreateGroup()"><i class="fa-solid fa-check"></i> Tạo Nhóm</button>
+            </div>
+        </div>
     </div>
 
     <!-- Incoming Call Ringing Modal -->
@@ -334,7 +395,7 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // Cấu hình WebRTC và State cuộc gọi
+        // WebRTC Config
         const rtcConfiguration = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -354,7 +415,49 @@
         let isAudioMuted = false;
         let isVideoMuted = false;
 
-        // Trình phát nhạc chuông gọi điện bằng Web Audio API
+        let currentUserDoc = null;
+        let activeChatTargetId = null; // Can be User UID or Group ID
+        let activeChatType = 'private'; // 'private' or 'group'
+        const usersCache = {};
+        const groupsCache = {};
+        const expandedComments = new Set();
+
+        // Voice Recorder State Variables
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordTimerInterval = null;
+        let recordStartTime = 0;
+
+        const showLoading = (text) => { 
+            document.getElementById('loading-text').innerText = text; 
+            document.getElementById('loading-overlay').style.display = 'flex'; 
+        };
+        const hideLoading = () => document.getElementById('loading-overlay').style.display = 'none';
+        
+        const showToast = (msg) => {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        };
+
+        const escapeHtml = (str) => {
+            if(!str) return '';
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        };
+
+        const formatEmail = (user) => `${user.toLowerCase().trim()}@9c2network.io.vn`;
+        
+        const timeAgo = (timestamp) => {
+            if (!timestamp) return 'Vừa xong';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'Vừa xong';
+            if (seconds < 3600) return Math.floor(seconds/60) + ' phút trước';
+            if (seconds < 86400) return Math.floor(seconds/3600) + ' giờ trước';
+            return Math.floor(seconds/86400) + ' ngày trước';
+        };
+
         function playRingtone() {
             stopRingtone();
             try {
@@ -392,41 +495,6 @@
             }
         }
 
-        let currentUserDoc = null;
-        let activeChatUserId = null;
-        const usersCache = {};
-        const expandedComments = new Set();
-
-        const showLoading = (text) => { 
-            document.getElementById('loading-text').innerText = text; 
-            document.getElementById('loading-overlay').style.display = 'flex'; 
-        };
-        const hideLoading = () => document.getElementById('loading-overlay').style.display = 'none';
-        
-        const showToast = (msg) => {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 2500);
-        };
-
-        const escapeHtml = (str) => {
-            if(!str) return '';
-            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        };
-
-        const formatEmail = (user) => `${user.toLowerCase().trim()}@9c2network.io.vn`;
-        
-        const timeAgo = (timestamp) => {
-            if (!timestamp) return 'Vừa xong';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            const seconds = Math.floor((new Date() - date) / 1000);
-            if (seconds < 60) return 'Vừa xong';
-            if (seconds < 3600) return Math.floor(seconds/60) + ' phút trước';
-            if (seconds < 86400) return Math.floor(seconds/3600) + ' giờ trước';
-            return Math.floor(seconds/86400) + ' ngày trước';
-        };
-
         async function compressImageToDataUrl(file, maxWidth = 900, quality = 0.7) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -449,15 +517,6 @@
                     img.onerror = () => resolve(e.target.result);
                     img.src = e.target.result;
                 };
-                reader.onerror = () => resolve(null);
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function fileToDataURL(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
                 reader.onerror = () => resolve(null);
                 reader.readAsDataURL(file);
             });
@@ -501,22 +560,159 @@
         async function uploadFileToStorage(file, folder) {
             if (!file) return null;
             try {
-                // Thử tải lên Firebase Storage trực tiếp
                 const sanitizeName = file.name ? file.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'file';
                 const fileRef = ref(storage, `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}_${sanitizeName}`);
                 await uploadBytes(fileRef, file);
                 return await getDownloadURL(fileRef);
             } catch (storageError) {
-                console.warn("Firebase Storage không khả dụng, đang kích hoạt cơ chế dự phòng:", storageError);
-                // Cơ chế tự động dự phòng khi gặp lỗi kết nối/CORS/quyền truy cập Firebase Storage
-                if (file.type.startsWith('image/')) {
-                    showToast("Lưu ý: Đang dùng bộ nhớ tạm (dự phòng) do Storage chưa mở quyền...");
+                console.warn("Storage fallback triggered:", storageError);
+                if (file.type && file.type.startsWith('image/')) {
+                    showToast("Lưu ý: Đang dùng bộ nhớ tạm cho ảnh...");
                     return await compressImageToDataUrl(file, 850, 0.65);
                 } else {
-                    throw new Error("Không thể tải lên Video: Vui lòng vào Firebase cấu hình lại quyền cho Storage (Storage Rules)!");
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(file);
+                    });
                 }
             }
         }
+
+        window.startVoiceRecording = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) audioChunks.push(event.data);
+                };
+
+                mediaRecorder.start();
+                recordStartTime = Date.now();
+
+                document.getElementById('normal-chat-controls').style.display = 'none';
+                document.getElementById('voice-recording-ui').style.display = 'flex';
+                
+                document.getElementById('voice-timer').innerText = "00:00";
+                recordTimerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
+                    const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                    const secs = String(elapsed % 60).padStart(2, '0');
+                    document.getElementById('voice-timer').innerText = `${mins}:${secs}`;
+                }, 1000);
+
+            } catch (err) {
+                showToast("Không thể kích hoạt Micro: " + err.message);
+            }
+        };
+
+        window.cancelVoiceRecording = () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+            }
+            clearInterval(recordTimerInterval);
+            audioChunks = [];
+            document.getElementById('voice-recording-ui').style.display = 'none';
+            document.getElementById('normal-chat-controls').style.display = 'flex';
+        };
+
+        window.stopAndSendVoiceRecording = () => {
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                clearInterval(recordTimerInterval);
+
+                document.getElementById('voice-recording-ui').style.display = 'none';
+                document.getElementById('normal-chat-controls').style.display = 'flex';
+
+                if (audioBlob.size < 500) {
+                    showToast("Bản ghi quá ngắn!");
+                    return;
+                }
+
+                showLoading("Đang xử lý & gửi bản ghi...");
+                try {
+                    const audioFile = new File([audioBlob], `voice_${Date.now()}.webm`, { type: 'audio/webm' });
+                    const voiceUrl = await uploadFileToStorage(audioFile, "voiceMessages");
+                    
+                    await sendMessageData("", voiceUrl, "audio");
+                } catch (err) {
+                    showToast("Lỗi gửi ghi âm: " + err.message);
+                }
+                hideLoading();
+            };
+
+            mediaRecorder.stop();
+        };
+
+        window.openCreateGroupModal = () => {
+            const listContainer = document.getElementById('group-members-checklist');
+            listContainer.innerHTML = '';
+            
+            let hasUsers = false;
+            Object.values(usersCache).forEach(u => {
+                if (currentUserDoc && u.uid !== currentUserDoc.uid) {
+                    hasUsers = true;
+                    listContainer.innerHTML += `
+                        <label class="member-checkbox-item">
+                            <input type="checkbox" class="group-member-checkbox" value="${u.uid}">
+                            <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:30px; height:30px;">
+                            <span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span>
+                        </label>
+                    `;
+                }
+            });
+
+            if (!hasUsers) {
+                listContainer.innerHTML = '<p style="text-align:center; color:gray; padding:10px;">Chưa tìm thấy thành viên khác trong hệ thống.</p>';
+            }
+
+            document.getElementById('group-name-input').value = '';
+            document.getElementById('modal-create-group').style.display = 'flex';
+        };
+
+        window.closeCreateGroupModal = () => {
+            document.getElementById('modal-create-group').style.display = 'none';
+        };
+
+        window.submitCreateGroup = async () => {
+            if (!currentUserDoc) return;
+            const groupName = document.getElementById('group-name-input').value.trim();
+            if (!groupName) return showToast("Vui lòng nhập tên nhóm!");
+
+            const selectedCheckboxes = document.querySelectorAll('.group-member-checkbox:checked');
+            const selectedMemberUids = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+            if (selectedMemberUids.length === 0) return showToast("Vui lòng chọn ít nhất 1 thành viên!");
+
+            // Thêm bản thân vào nhóm
+            selectedMemberUids.push(currentUserDoc.uid);
+
+            showLoading("Đang khởi tạo nhóm...");
+            try {
+                const groupRef = await addDoc(collection(db, "groups"), {
+                    name: groupName,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(groupName)}&background=000&color=fff`,
+                    createdBy: currentUserDoc.uid,
+                    members: selectedMemberUids,
+                    createdAt: serverTimestamp()
+                });
+
+                closeCreateGroupModal();
+                showToast("Đã tạo nhóm thành công!");
+                
+                // Tự động mở nhóm mới tạo
+                openGroupChat(groupRef.id, groupName, `https://ui-avatars.com/api/?name=${encodeURIComponent(groupName)}&background=000&color=fff`);
+            } catch (err) {
+                showToast("Lỗi tạo nhóm: " + err.message);
+            }
+            hideLoading();
+        };
 
         window.toggleAuth = (type) => {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -547,7 +743,7 @@
             window.scrollTo({top: 0});
             if(pageId === 'profile') renderProfilePage();
             if(pageId === 'friends') searchUsers();
-            if(pageId === 'messages' && !activeChatUserId) {
+            if(pageId === 'messages' && !activeChatTargetId) {
                 document.getElementById('chat-list').style.display = 'block';
                 document.getElementById('chat-room').style.display = 'none';
             }
@@ -610,7 +806,7 @@
                 });
 
                 listenFeed();
-                listenChatUsers();
+                listenChatList();
                 listenIncomingCalls();
             } else {
                 document.getElementById('auth-container').style.display = 'flex';
@@ -620,7 +816,6 @@
             }
         });
 
-        // Lắng nghe thông báo cuộc gọi tới cho User đang đăng nhập
         function listenIncomingCalls() {
             if (!auth.currentUser) return;
             if (unsubscribeIncomingCalls) unsubscribeIncomingCalls();
@@ -640,7 +835,7 @@
                         }
                     }
                 });
-            }, (err) => console.error("Incoming call listener error:", err));
+            }, (err) => console.error("Incoming call error:", err));
         }
 
         function showIncomingCallModal(data) {
@@ -650,7 +845,6 @@
             document.getElementById('incoming-call-modal').style.display = 'flex';
             playRingtone();
 
-            // Lắng nghe xem người gọi có hủy cuộc gọi trước khi trả lời không
             const callRef = doc(db, "calls", data.id);
             const unsubTemp = onSnapshot(callRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -665,15 +859,15 @@
             });
         }
 
-        // Khởi tạo cuộc gọi đi (Initiate Call)
         window.initiateCall = async (type) => {
-            if (!currentUserDoc || !activeChatUserId) return showToast("Không tìm thấy thông tin đối phương!");
-            const targetUser = usersCache[activeChatUserId];
+            if (!currentUserDoc || !activeChatTargetId || activeChatType !== 'private') {
+                return showToast("Gọi thoại/video hiện chỉ hỗ trợ cho trò chuyện 1-1!");
+            }
+            const targetUser = usersCache[activeChatTargetId];
             if (!targetUser) return showToast("Không tìm thấy thông tin người nhận!");
 
             showLoading("Đang khởi tạo kết nối...");
             try {
-                // Tạo Media Stream local
                 localStream = await navigator.mediaDevices.getUserMedia({
                     audio: true,
                     video: type === 'video'
@@ -697,40 +891,30 @@
                 remoteVideoEl.srcObject = remoteStream;
                 localVideoEl.srcObject = localStream;
 
-                // Tạo Call Document trên Firestore
                 const callRef = doc(collection(db, "calls"));
                 currentCallId = callRef.id;
 
                 const callerCandidatesColl = collection(callRef, "callerCandidates");
                 peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        addDoc(callerCandidatesColl, event.candidate.toJSON());
-                    }
+                    if (event.candidate) addDoc(callerCandidatesColl, event.candidate.toJSON());
                 };
 
-                // Tạo WebRTC Offer
                 const offerDescription = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offerDescription);
-
-                const offer = {
-                    sdp: offerDescription.sdp,
-                    type: offerDescription.type
-                };
 
                 await setDoc(callRef, {
                     callerUid: currentUserDoc.uid,
                     callerName: currentUserDoc.displayName || currentUserDoc.username,
                     callerAvatar: currentUserDoc.avatar,
-                    receiverUid: activeChatUserId,
+                    receiverUid: activeChatTargetId,
                     receiverName: targetUser.displayName || targetUser.username,
                     receiverAvatar: targetUser.avatar,
                     type: type,
                     status: 'calling',
-                    offer: offer,
+                    offer: { sdp: offerDescription.sdp, type: offerDescription.type },
                     createdAt: serverTimestamp()
                 });
 
-                // Theo dõi trạng thái cuộc gọi từ phía Receiver
                 unsubscribeCallDoc = onSnapshot(callRef, async (snapshot) => {
                     const data = snapshot.data();
                     if (!data) return;
@@ -741,13 +925,11 @@
                         const answerDescription = new RTCSessionDescription(data.answer);
                         await peerConnection.setRemoteDescription(answerDescription);
 
-                        // Lắng nghe ICE Candidates từ Receiver
                         const receiverCandidatesColl = collection(callRef, "receiverCandidates");
                         onSnapshot(receiverCandidatesColl, (snap) => {
                             snap.docChanges().forEach((change) => {
                                 if (change.type === "added") {
-                                    const candidate = new RTCIceCandidate(change.doc.data());
-                                    peerConnection.addIceCandidate(candidate);
+                                    peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
                                 }
                             });
                         });
@@ -763,14 +945,12 @@
                 });
 
             } catch (err) {
-                console.error("Initiate call error:", err);
                 showToast("Không thể mở micro/camera: " + err.message);
                 cleanupCall();
             }
             hideLoading();
         };
 
-        // Trả lời cuộc gọi đến (Accept Incoming Call)
         window.acceptIncomingCall = async () => {
             if (!pendingIncomingCallDoc) return;
             const data = pendingIncomingCallDoc;
@@ -803,57 +983,41 @@
                 const callRef = doc(db, "calls", currentCallId);
                 const receiverCandidatesColl = collection(callRef, "receiverCandidates");
                 peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        addDoc(receiverCandidatesColl, event.candidate.toJSON());
-                    }
+                    if (event.candidate) addDoc(receiverCandidatesColl, event.candidate.toJSON());
                 };
 
-                // Set Remote Offer từ Caller
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-
-                // Tạo Answer
                 const answerDescription = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answerDescription);
 
-                const answer = {
-                    type: answerDescription.type,
-                    sdp: answerDescription.sdp
-                };
-
                 await updateDoc(callRef, {
-                    answer: answer,
+                    answer: { type: answerDescription.type, sdp: answerDescription.sdp },
                     status: 'accepted'
                 });
 
-                // Lắng nghe ICE candidates từ Caller
                 const callerCandidatesColl = collection(callRef, "callerCandidates");
                 onSnapshot(callerCandidatesColl, (snap) => {
                     snap.docChanges().forEach((change) => {
                         if (change.type === "added") {
-                            const candidate = new RTCIceCandidate(change.doc.data());
-                            peerConnection.addIceCandidate(candidate);
+                            peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
                         }
                     });
                 });
 
-                // Lắng nghe nếu cuộc gọi bị dừng
                 unsubscribeCallDoc = onSnapshot(callRef, (snapshot) => {
-                    const st = snapshot.data()?.status;
-                    if (st === 'ended') {
+                    if (snapshot.data()?.status === 'ended') {
                         showToast("Cuộc gọi đã kết thúc.");
                         cleanupCall();
                     }
                 });
 
             } catch (err) {
-                console.error("Accept call error:", err);
-                showToast("Lỗi kết nối cuộc gọi: " + err.message);
+                showToast("Lỗi kết nối: " + err.message);
                 cleanupCall();
             }
             hideLoading();
         };
 
-        // Từ chối cuộc gọi đến (Decline Incoming Call)
         window.declineIncomingCall = async () => {
             stopRingtone();
             document.getElementById('incoming-call-modal').style.display = 'none';
@@ -865,48 +1029,34 @@
             }
         };
 
-        // Bật/Tắt Mic & Camera
         window.toggleAudioMute = () => {
             if (!localStream) return;
-            const audioTrack = localStream.getAudioTracks()[0];
-            if (audioTrack) {
+            const track = localStream.getAudioTracks()[0];
+            if (track) {
                 isAudioMuted = !isAudioMuted;
-                audioTrack.enabled = !isAudioMuted;
+                track.enabled = !isAudioMuted;
                 const btn = document.getElementById('btn-toggle-mic');
-                if (isAudioMuted) {
-                    btn.classList.add('active-off');
-                    btn.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
-                } else {
-                    btn.classList.remove('active-off');
-                    btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
-                }
+                btn.classList.toggle('active-off', isAudioMuted);
+                btn.innerHTML = `<i class="fa-solid fa-microphone${isAudioMuted ? '-slash' : ''}"></i>`;
             }
         };
 
         window.toggleVideoMute = () => {
             if (!localStream) return;
-            const videoTrack = localStream.getVideoTracks()[0];
-            if (videoTrack) {
+            const track = localStream.getVideoTracks()[0];
+            if (track) {
                 isVideoMuted = !isVideoMuted;
-                videoTrack.enabled = !isVideoMuted;
+                track.enabled = !isVideoMuted;
                 const btn = document.getElementById('btn-toggle-cam');
-                if (isVideoMuted) {
-                    btn.classList.add('active-off');
-                    btn.innerHTML = '<i class="fa-solid fa-video-slash"></i>';
-                } else {
-                    btn.classList.remove('active-off');
-                    btn.innerHTML = '<i class="fa-solid fa-video"></i>';
-                }
+                btn.classList.toggle('active-off', isVideoMuted);
+                btn.innerHTML = `<i class="fa-solid fa-video${isVideoMuted ? '-slash' : ''}"></i>`;
             }
         };
 
-        // Kết thúc cuộc gọi (End Call)
         window.endCall = async () => {
             stopRingtone();
             if (currentCallId) {
-                try {
-                    await updateDoc(doc(db, "calls", currentCallId), { status: 'ended' });
-                } catch (e) { console.error(e); }
+                try { await updateDoc(doc(db, "calls", currentCallId), { status: 'ended' }); } catch (e) {}
             }
             cleanupCall();
         };
@@ -934,23 +1084,12 @@
         function cleanupCall() {
             stopRingtone();
             if (unsubscribeCallDoc) { unsubscribeCallDoc(); unsubscribeCallDoc = null; }
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
+            if (localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; }
+            if (peerConnection) { peerConnection.close(); peerConnection = null; }
             currentCallId = null;
             pendingIncomingCallDoc = null;
             isAudioMuted = false;
             isVideoMuted = false;
-
-            const btnMic = document.getElementById('btn-toggle-mic');
-            const btnCam = document.getElementById('btn-toggle-cam');
-            if (btnMic) { btnMic.classList.remove('active-off'); btnMic.innerHTML = '<i class="fa-solid fa-microphone"></i>'; }
-            if (btnCam) { btnCam.classList.remove('active-off'); btnCam.innerHTML = '<i class="fa-solid fa-video"></i>'; }
 
             document.getElementById('active-call-modal').style.display = 'none';
             document.getElementById('incoming-call-modal').style.display = 'none';
@@ -972,9 +1111,7 @@
 
                 if (file) {
                     let uploadFile = file;
-                    if(file.type.startsWith('image/')) {
-                        uploadFile = await compressImage(file, 1080, 0.75);
-                    }
+                    if(file.type.startsWith('image/')) uploadFile = await compressImage(file, 1080, 0.75);
                     mediaUrl = await uploadFileToStorage(uploadFile, "posts");
                     mediaType = file.type.startsWith('video/') ? 'video' : 'image';
                 }
@@ -1004,7 +1141,6 @@
         };
 
         let postToDeleteId = null;
-
         window.deletePost = (postId) => {
             postToDeleteId = postId;
             document.getElementById('modal-confirm-delete').style.display = 'flex';
@@ -1019,7 +1155,6 @@
             if(!postToDeleteId) return;
             const postId = postToDeleteId;
             closeDeleteModal();
-            
             showLoading("Đang xóa...");
             try {
                 await deleteDoc(doc(db, "posts", postId));
@@ -1031,15 +1166,12 @@
         };
 
         function listenFeed() {
-            const q = collection(db, "posts");
-            onSnapshot(q, (snapshot) => {
+            onSnapshot(collection(db, "posts"), (snapshot) => {
                 const list = document.getElementById('feed-list');
                 list.innerHTML = '';
                 
                 let posts = [];
-                snapshot.forEach(docSnap => {
-                    posts.push({ id: docSnap.id, ...docSnap.data() });
-                });
+                snapshot.forEach(docSnap => posts.push({ id: docSnap.id, ...docSnap.data() }));
 
                 posts.sort((a, b) => {
                     const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
@@ -1128,10 +1260,9 @@
             input.value = '';
             expandedComments.add(postId);
 
-            // Optimistic UI Append for Comments
             const commentsList = document.getElementById(`comments-list-${postId}`);
             if (commentsList) {
-                const tempCommentHtml = `
+                commentsList.insertAdjacentHTML('beforeend', `
                     <div class="comment-item">
                         <img src="${currentUserDoc.avatar || 'https://ui-avatars.com/api/?name=User'}">
                         <div class="comment-box">
@@ -1139,8 +1270,7 @@
                             <p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(text)}</p>
                         </div>
                     </div>
-                `;
-                commentsList.insertAdjacentHTML('beforeend', tempCommentHtml);
+                `);
             }
 
             try {
@@ -1201,7 +1331,7 @@
                 posts.forEach(p => {
                     list.innerHTML += `<div class="card"><p style="font-weight:600;">${escapeHtml(p.title || 'Bài viết')}</p><p style="margin-top:5px; font-size:0.9rem;">${escapeHtml(p.content || '')}</p></div>`;
                 });
-            }, (err) => console.error("Profile posts error:", err));
+            });
         }
 
         window.saveProfile = async () => {
@@ -1241,9 +1371,7 @@
         window.searchUsers = async () => {
             const text = document.getElementById('search-input').value.toLowerCase().trim();
             try {
-                const q = query(collection(db, "users"));
-                const snap = await getDocs(q);
-                
+                const snap = await getDocs(query(collection(db, "users")));
                 const list = document.getElementById('search-results');
                 list.innerHTML = '';
                 
@@ -1266,27 +1394,53 @@
             }
         };
 
-        function listenChatUsers() {
-            const q = query(collection(db, "users"));
-            onSnapshot(q, (snap) => {
-                const list = document.getElementById('chat-list');
-                list.innerHTML = '';
-                snap.forEach(d => {
-                    const u = d.data();
-                    if(currentUserDoc && u.uid !== currentUserDoc.uid) {
-                        usersCache[u.uid] = u;
-                        list.innerHTML += `
-                            <div class="chat-user-item" onclick="openChatById('${u.uid}')">
-                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
-                                <div>
-                                    <strong style="font-size:0.95rem;">${escapeHtml(u.displayName || 'User')}</strong>
-                                    <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(u.username || 'user')}</p>
-                                </div>
+        function listenChatList() {
+            // Lắng nghe người dùng & nhóm để hiển thị danh sách hội thoại
+            onSnapshot(collection(db, "users"), (userSnap) => {
+                userSnap.forEach(d => { usersCache[d.id] = d.data(); });
+                renderCombinedChatList();
+            });
+
+            onSnapshot(collection(db, "groups"), (groupSnap) => {
+                groupSnap.forEach(d => { groupsCache[d.id] = { id: d.id, ...d.data() }; });
+                renderCombinedChatList();
+            });
+        }
+
+        function renderCombinedChatList() {
+            const list = document.getElementById('chat-list');
+            list.innerHTML = '';
+
+            // 1. Hiển thị danh sách nhóm chat của user hiện tại
+            Object.values(groupsCache).forEach(g => {
+                if (currentUserDoc && g.members && g.members.includes(currentUserDoc.uid)) {
+                    list.innerHTML += `
+                        <div class="chat-user-item" onclick="openGroupChat('${g.id}', '${escapeHtml(g.name)}', '${g.avatar}')">
+                            <img src="${g.avatar || 'https://ui-avatars.com/api/?name=Group'}" class="avatar-sm" loading="lazy">
+                            <div style="flex:1;">
+                                <strong style="font-size:0.95rem;">${escapeHtml(g.name)}</strong>
+                                <span class="group-badge">Nhóm (${g.members.length})</span>
+                                <p style="font-size:0.75rem; color:var(--text-secondary);">Nhóm trò chuyện chung</p>
                             </div>
-                        `;
-                    }
-                });
-            }, (err) => console.error("Chat list error:", err));
+                        </div>
+                    `;
+                }
+            });
+
+            // 2. Hiển thị danh sách cá nhân 1-1
+            Object.values(usersCache).forEach(u => {
+                if (currentUserDoc && u.uid !== currentUserDoc.uid) {
+                    list.innerHTML += `
+                        <div class="chat-user-item" onclick="openChatById('${u.uid}')">
+                            <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
+                            <div>
+                                <strong style="font-size:0.95rem;">${escapeHtml(u.displayName || 'User')}</strong>
+                                <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(u.username || 'user')}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
         }
 
         let unsubscribeChat = null;
@@ -1294,13 +1448,19 @@
         window.openChatById = (uid) => {
             const u = usersCache[uid];
             if (u) {
+                activeChatType = 'private';
                 openChat(u.uid, u.displayName || u.username, u.avatar);
             }
         };
 
-        window.openChat = (uid, name, avatar) => {
+        window.openGroupChat = (groupId, name, avatar) => {
+            activeChatType = 'group';
+            openChat(groupId, name, avatar);
+        };
+
+        window.openChat = (targetId, name, avatar) => {
             if (!currentUserDoc) return;
-            activeChatUserId = uid;
+            activeChatTargetId = targetId;
 
             switchPage('messages', null);
 
@@ -1308,8 +1468,25 @@
             document.getElementById('chat-room').style.display = 'flex';
             document.getElementById('chat-active-avatar').src = avatar || 'https://ui-avatars.com/api/?name=User';
             document.getElementById('chat-active-name').innerText = name || 'User';
+
+            const callAudioBtn = document.getElementById('hdr-btn-audio-call');
+            const callVideoBtn = document.getElementById('hdr-btn-video-call');
+            const typeBadge = document.getElementById('chat-type-badge');
+
+            if (activeChatType === 'group') {
+                callAudioBtn.style.display = 'none';
+                callVideoBtn.style.display = 'none';
+                typeBadge.style.display = 'inline-block';
+            } else {
+                callAudioBtn.style.display = 'inline-block';
+                callVideoBtn.style.display = 'inline-block';
+                typeBadge.style.display = 'none';
+            }
             
-            const chatId = currentUserDoc.uid < uid ? `${currentUserDoc.uid}_${uid}` : `${uid}_${currentUserDoc.uid}`;
+            // Tính chatId: nhóm thì dùng groupId, 1-1 thì ghép 2 UID theo thứ tự alphabetic
+            const chatId = activeChatType === 'group' 
+                ? targetId 
+                : (currentUserDoc.uid < targetId ? `${currentUserDoc.uid}_${targetId}` : `${targetId}_${currentUserDoc.uid}`);
             
             if(unsubscribeChat) unsubscribeChat();
             const q = query(collection(db, "messages"), where("chatId", "==", chatId));
@@ -1330,13 +1507,24 @@
                 msgs.forEach(m => {
                     const isMe = m.senderId === currentUserDoc.uid;
                     let mediaHtml = '';
-                    if(m.mediaUrl) {
-                        mediaHtml = m.mediaType === 'video' 
-                            ? `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>` 
-                            : `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`;
+                    
+                    if (m.mediaUrl) {
+                        if (m.mediaType === 'audio') {
+                            mediaHtml = `<audio src="${m.mediaUrl}" controls style="margin-top:5px;"></audio>`;
+                        } else if (m.mediaType === 'video') {
+                            mediaHtml = `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>`;
+                        } else {
+                            mediaHtml = `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`;
+                        }
                     }
+
+                    const senderNameHtml = (activeChatType === 'group' && !isMe) 
+                        ? `<div class="msg-sender-name">${escapeHtml(m.senderName || 'Thành viên')}</div>` 
+                        : '';
+
                     box.innerHTML += `
                         <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
+                            ${senderNameHtml}
                             ${m.text ? `<div>${escapeHtml(m.text)}</div>` : ''}
                             ${mediaHtml}
                         </div>
@@ -1347,19 +1535,37 @@
         };
 
         window.closeChatRoom = () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') cancelVoiceRecording();
             document.getElementById('chat-room').style.display = 'none';
             document.getElementById('chat-list').style.display = 'block';
-            activeChatUserId = null;
+            activeChatTargetId = null;
             if(unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
         };
 
+        async function sendMessageData(text = "", mediaUrl = "", mediaType = "text") {
+            if (!currentUserDoc || !activeChatTargetId) return;
+            const chatId = activeChatType === 'group' 
+                ? activeChatTargetId 
+                : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`);
+
+            await addDoc(collection(db, "messages"), {
+                chatId: chatId, 
+                senderId: currentUserDoc.uid,
+                senderName: currentUserDoc.displayName || currentUserDoc.username,
+                receiverId: activeChatTargetId,
+                text: text, 
+                mediaUrl: mediaUrl, 
+                mediaType: mediaType, 
+                createdAt: serverTimestamp()
+            });
+        }
+
         window.sendChatText = async () => {
-            if (!currentUserDoc || !activeChatUserId) return;
+            if (!currentUserDoc || !activeChatTargetId) return;
             const input = document.getElementById('chat-text');
             const text = input.value.trim();
             if(!text) return;
 
-            const chatId = currentUserDoc.uid < activeChatUserId ? `${currentUserDoc.uid}_${activeChatUserId}` : `${activeChatUserId}_${currentUserDoc.uid}`;
             input.value = '';
 
             // Optimistic Instant UI Append
@@ -1371,15 +1577,7 @@
             box.scrollTop = box.scrollHeight;
 
             try {
-                await addDoc(collection(db, "messages"), {
-                    chatId: chatId, 
-                    senderId: currentUserDoc.uid, 
-                    receiverId: activeChatUserId,
-                    text: text, 
-                    mediaUrl: "", 
-                    mediaType: "text", 
-                    createdAt: serverTimestamp()
-                });
+                await sendMessageData(text, "", "text");
             } catch(e) {
                 tempBubble.style.background = '#aa0000';
                 showToast("Không thể gửi: " + e.message);
@@ -1387,29 +1585,19 @@
         };
 
         window.sendChatFile = async (inputEl) => {
-            if (!currentUserDoc || !activeChatUserId) return;
+            if (!currentUserDoc || !activeChatTargetId) return;
             const file = inputEl.files[0];
             if(!file) return;
             
             showLoading("Đang nén & gửi tập tin...");
             try {
                 let uploadFile = file;
-                if(file.type.startsWith('image/')) {
-                    uploadFile = await compressImage(file, 800, 0.7);
-                }
+                if(file.type.startsWith('image/')) uploadFile = await compressImage(file, 800, 0.7);
+                
                 const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia");
                 const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
-                const chatId = currentUserDoc.uid < activeChatUserId ? `${currentUserDoc.uid}_${activeChatUserId}` : `${activeChatUserId}_${currentUserDoc.uid}`;
                 
-                await addDoc(collection(db, "messages"), {
-                    chatId: chatId, 
-                    senderId: currentUserDoc.uid, 
-                    receiverId: activeChatUserId,
-                    text: "", 
-                    mediaUrl: mediaUrl, 
-                    mediaType: mediaType, 
-                    createdAt: serverTimestamp()
-                });
+                await sendMessageData("", mediaUrl, mediaType);
             } catch(e) { 
                 showToast("Lỗi gửi tập tin: " + e.message); 
             }
