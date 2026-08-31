@@ -24,7 +24,6 @@
         input[type="file"] { padding: 8px; color: var(--text-secondary); cursor: pointer; }
         input[type="file"]::file-selector-button { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 10px; }
 
-        /* AUTH SCREEN */
         #auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         .auth-box { background: var(--bg-card); border: 1px solid var(--border-color); padding: 30px; width: 100%; max-width: 400px; border-radius: 12px; text-align: center; }
         .auth-box h1 { font-size: 1.8rem; margin-bottom: 5px; } .auth-box p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 25px; }
@@ -32,39 +31,39 @@
         .auth-tab { flex: 1; padding: 10px; background: none; border: none; color: var(--text-secondary); }
         .auth-tab.active { color: var(--text-primary); border-bottom: 2px solid var(--text-primary); }
 
-        /* MAIN LAYOUT */
         #app-container { display: none; flex-direction: column; min-height: 100vh; }
         header { background: var(--bg-main); border-bottom: 1px solid var(--border-color); padding: 12px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-weight: 700; font-size: 1.2rem; color: #fff; text-decoration: none; }
         
         .main-content { max-width: 600px; margin: 0 auto; width: 100%; padding: 15px; }
-        .page { display: none; animation: fadeIn 0.3s; } .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .page { display: none; animation: fadeIn 0.2s ease-in-out; } .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 0.75rem; border: none; background: none; padding: 5px 15px; }
         .nav-item.active { color: var(--text-primary); }
         .nav-item i { font-size: 1.2rem; }
 
-        /* POST CARDS & COMMENTS */
         .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .user-info-sm { display: flex; align-items: center; gap: 10px; }
-        .avatar-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); }
-        .post-media-box { width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: #000; margin: 10px 0; overflow: hidden; display: flex; justify-content: center; }
-        .post-media-box img, .post-media-box video { width: 100%; max-height: 400px; object-fit: contain; }
+        .avatar-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); background: #222; }
+        .post-media-box { width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: #000; margin: 10px 0; overflow: hidden; display: flex; justify-content: center; min-height: 200px; align-items: center; }
+        .post-media-box img, .post-media-box video { width: 100%; max-height: 450px; object-fit: contain; }
         .post-actions { display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 10px; }
-        .action-btn { background: none; border: none; color: var(--text-secondary); font-size: 0.9rem; flex: 1; display: flex; justify-content: center; align-items: center; gap: 5px; }
-        .action-btn.liked { color: var(--accent-white); font-weight: bold; }
-        .delete-btn { background: none; border: none; color: #ff4444; font-size: 0.8rem; padding: 5px; }
+        .action-btn { background: none; border: none; color: var(--text-secondary); font-size: 0.9rem; flex: 1; display: flex; justify-content: center; align-items: center; gap: 6px; padding: 6px; border-radius: 4px; }
+        .action-btn:hover { background: rgba(255,255,255,0.05); }
+        .action-btn.liked { color: #ff4444; font-weight: bold; }
+        .delete-btn { background: none; border: none; color: #ff4444; font-size: 0.85rem; padding: 5px 8px; border-radius: 4px; }
+        .delete-btn:hover { background: rgba(255,68,68,0.1); }
 
         .comment-section { margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px; }
         .comment-item { display: flex; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; align-items: flex-start; }
-        .comment-item img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+        .comment-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #222; }
         .comment-box { background: var(--bg-input); padding: 8px 12px; border-radius: 12px; flex: 1; }
 
         .profile-header-card { padding: 0; overflow: hidden; }
-        .cover-photo { width: 100%; height: 150px; object-fit: cover; background: #222; }
+        .cover-photo { width: 100%; height: 160px; object-fit: cover; background: #222; }
         .profile-details { padding: 15px; position: relative; }
         .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; position: absolute; top: -45px; left: 15px; background: #111; }
         .profile-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
@@ -76,19 +75,58 @@
         .chat-room-view { display: none; flex-direction: column; height: 100%; }
         .chat-room-header { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; background: var(--bg-main); }
         .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #080808; }
-        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; }
+
+        /* CSS cho tính năng Cuộc gọi âm thanh & Video */
+        .call-hdr-btn { background: none; border: none; color: var(--text-primary); font-size: 1.1rem; padding: 6px 10px; border-radius: 6px; }
+        .call-hdr-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        
+        .call-card { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px; }
+        .incoming-ring-avatar { position: relative; margin-bottom: 10px; }
+        .incoming-ring-avatar .avatar-large { position: static; width: 100px; height: 100px; animation: pulseRing 1.5s infinite; }
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        .call-actions-row { display: flex; gap: 20px; width: 100%; justify-content: center; margin-top: 15px; }
+        .btn-call-accept { background: #2e7d32; color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+        .btn-call-accept:hover { background: #1b5e20; color: #fff; }
+        .btn-call-decline { background: #c62828; color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+        .btn-call-decline:hover { background: #b71c1c; color: #fff; }
+
+        .call-screen-container { width: 100%; max-width: 600px; background: #000; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; height: 80vh; position: relative; }
+        .video-container { flex: 1; position: relative; background: #080808; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #remote-video { width: 100%; height: 100%; object-fit: cover; }
+        .local-pip-video { position: absolute; top: 15px; right: 15px; width: 110px; height: 150px; border-radius: 10px; object-fit: cover; border: 2px solid var(--border-color); background: #1a1a1a; z-index: 10; }
+        
+        .audio-avatar-box { display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 5; text-align: center; }
+        .audio-avatar-box img { position: static; width: 110px; height: 110px; margin-bottom: 12px; }
+
+        .call-status-bar { padding: 8px; text-align: center; background: rgba(0,0,0,0.6); font-size: 0.85rem; color: var(--text-secondary); }
+        .active-call-controls { display: flex; justify-content: center; gap: 20px; padding: 20px; background: var(--bg-card); border-top: 1px solid var(--border-color); }
+        .call-control-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; padding: 0; background: var(--bg-input); }
+        .call-control-btn.active-off { background: #ff4444; color: #fff; }
+        .btn-end-call { background: #c62828; color: #fff; border: none; }
+        .btn-end-call:hover { background: #b71c1c; color: #fff; }
+
+        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .msg-bubble.sent { align-self: flex-end; background: var(--accent-white); color: var(--accent-black); border-bottom-right-radius: 4px; }
         .msg-bubble.received { align-self: flex-start; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
+        .msg-bubble.sending { opacity: 0.7; }
         .chat-input-area { padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border-color); background: var(--bg-main); align-items: center; }
         .chat-input-area input[type="text"] { margin-bottom: 0; border-radius: 20px; padding: 10px 15px; }
 
-        /* OVERLAYS & MODALS */
         #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
-        .spinner { border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+        .spinner { border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff; border-radius: 50%; width: 36px; height: 36px; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
         .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 450px; padding: 20px; }
+
+        /* Notification Toast */
+        #toast { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ffffff; color: #000000; padding: 10px 20px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; z-index: 10000; box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
@@ -97,6 +135,8 @@
         <div class="spinner"></div>
         <p id="loading-text">Đang xử lý...</p>
     </div>
+
+    <div id="toast">Thông báo</div>
 
     <div id="auth-container">
         <div class="auth-box">
@@ -108,7 +148,7 @@
             </div>
             
             <form id="login-form" onsubmit="handleAuth(event, 'login')">
-                <input type="text" id="login-user" placeholder="Tên đăng nhập (VD: Trung6011)" required>
+                <input type="text" id="login-user" placeholder="Tên đăng nhập" required>
                 <input type="password" id="login-pass" placeholder="Mật khẩu" required>
                 <button type="submit" style="width: 100%;">Đăng Nhập</button>
             </form>
@@ -132,14 +172,13 @@
         </header>
 
         <main class="main-content">
-            <!-- PAGE: FEED -->
             <div id="page-feed" class="page active">
                 <div class="card">
                     <h3 style="font-size: 1rem; margin-bottom: 10px;"><i class="fa-solid fa-pen"></i> Tạo bài viết</h3>
                     <input type="text" id="post-title" placeholder="Tiêu đề (không bắt buộc)...">
                     <textarea id="post-content" rows="3" placeholder="Nội dung bài viết..."></textarea>
                     
-                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Đính kèm Ảnh / Video:</label>
+                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Đính kèm Ảnh / Video (đã tự động nén siêu tốc):</label>
                     <input type="file" id="post-file" accept="image/*,video/*">
                     
                     <button onclick="createPost()" style="width: 100%; margin-top: 5px;">Đăng Bài</button>
@@ -147,7 +186,6 @@
                 <div id="feed-list"></div>
             </div>
 
-            <!-- PAGE: SEARCH FRIENDS -->
             <div id="page-friends" class="page">
                 <div class="card">
                     <input type="text" id="search-input" placeholder="Nhập tên người dùng cần tìm..." oninput="searchUsers()">
@@ -155,7 +193,6 @@
                 <div id="search-results" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
             </div>
 
-            <!-- PAGE: MESSAGES -->
             <div id="page-messages" class="page">
                 <div class="chat-layout">
                     <div class="chat-list-view" id="chat-list"></div>
@@ -165,6 +202,10 @@
                             <i class="fa-solid fa-chevron-left" onclick="closeChatRoom()" style="cursor: pointer; padding: 5px; font-size: 1.1rem;"></i>
                             <img id="chat-active-avatar" src="" class="avatar-sm">
                             <strong id="chat-active-name">--</strong>
+                            <div style="margin-left: auto; display: flex; gap: 8px;">
+                                <button class="call-hdr-btn" onclick="initiateCall('audio')" title="Gọi thoại"><i class="fa-solid fa-phone"></i></button>
+                                <button class="call-hdr-btn" onclick="initiateCall('video')" title="Gọi video"><i class="fa-solid fa-video"></i></button>
+                            </div>
                         </div>
                         <div class="chat-messages" id="chat-messages-box"></div>
                         <div class="chat-input-area">
@@ -177,7 +218,6 @@
                 </div>
             </div>
 
-            <!-- PAGE: PROFILE -->
             <div id="page-profile" class="page">
                 <div class="card profile-header-card">
                     <img id="profile-cover" src="" class="cover-photo">
@@ -196,7 +236,6 @@
             </div>
         </main>
 
-        <!-- BOTTOM NAV BAR -->
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchPage('feed', this)"><i class="fa-solid fa-house"></i> Bảng tin</button>
             <button class="nav-item" onclick="switchPage('friends', this)"><i class="fa-solid fa-magnifying-glass"></i> Tìm bạn</button>
@@ -205,6 +244,42 @@
         </nav>
     </div>
 
+    <!-- Incoming Call Ringing Modal -->
+    <div id="incoming-call-modal" class="modal">
+        <div class="modal-content call-card">
+            <div class="incoming-ring-avatar">
+                <img id="incoming-caller-avatar" src="https://ui-avatars.com/api/?name=User" class="avatar-large">
+            </div>
+            <h3 id="incoming-caller-name" style="margin-top: 10px;">--</h3>
+            <p id="incoming-call-type" style="color: var(--text-secondary); margin-bottom: 20px; font-size:0.9rem;">Đang gọi cho bạn...</p>
+            <div class="call-actions-row">
+                <button onclick="declineIncomingCall()" class="btn-call-decline"><i class="fa-solid fa-phone-slash"></i> Từ chối</button>
+                <button onclick="acceptIncomingCall()" class="btn-call-accept"><i class="fa-solid fa-phone"></i> Trả lời</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Ongoing Call Screen Modal -->
+    <div id="active-call-modal" class="modal">
+        <div class="call-screen-container">
+            <div class="video-container">
+                <video id="remote-video" autoplay playsinline></video>
+                <video id="local-video" autoplay playsinline muted class="local-pip-video"></video>
+                <div id="audio-call-avatar-placeholder" class="audio-avatar-box">
+                    <img id="active-call-user-avatar" src="https://ui-avatars.com/api/?name=User" class="avatar-large">
+                    <h3 id="active-call-user-name" style="margin-top:10px;">--</h3>
+                </div>
+            </div>
+            <div class="call-status-bar" id="call-status-text">Đang kết nối...</div>
+            <div class="active-call-controls">
+                <button id="btn-toggle-mic" onclick="toggleAudioMute()" class="call-control-btn" title="Bật/Tắt Mic"><i class="fa-solid fa-microphone"></i></button>
+                <button id="btn-toggle-cam" onclick="toggleVideoMute()" class="call-control-btn" title="Bật/Tắt Camera"><i class="fa-solid fa-video"></i></button>
+                <button onclick="endCall()" class="call-control-btn btn-end-call" title="Kết thúc cuộc gọi"><i class="fa-solid fa-phone-slash"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
     <div id="modal-edit-profile" class="modal">
         <div class="modal-content">
             <h2 style="margin-bottom: 15px;">Chỉnh sửa Hồ Sơ</h2>
@@ -247,16 +322,87 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
+        // Cấu hình WebRTC và State cuộc gọi
+        const rtcConfiguration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+
+        let peerConnection = null;
+        let localStream = null;
+        let remoteStream = null;
+        let currentCallId = null;
+        let pendingIncomingCallDoc = null;
+        let unsubscribeCallDoc = null;
+        let unsubscribeIncomingCalls = null;
+        let audioContext = null;
+        let ringtoneTimer = null;
+        let isAudioMuted = false;
+        let isVideoMuted = false;
+
+        // Trình phát nhạc chuông gọi điện bằng Web Audio API
+        function playRingtone() {
+            stopRingtone();
+            try {
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') audioContext.resume();
+                
+                const playTone = () => {
+                    if (!audioContext || audioContext.state === 'closed') return;
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(480, audioContext.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.4);
+                    
+                    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.start();
+                    osc.stop(audioContext.currentTime + 0.6);
+                };
+
+                playTone();
+                ringtoneTimer = setInterval(playTone, 1400);
+            } catch (e) {
+                console.warn("Ringtone audio warning:", e);
+            }
+        }
+
+        function stopRingtone() {
+            if (ringtoneTimer) {
+                clearInterval(ringtoneTimer);
+                ringtoneTimer = null;
+            }
+        }
+
         let currentUserDoc = null;
         let activeChatUserId = null;
         const usersCache = {};
-        const expandedComments = new Set(); // Preserves comment box visibility state across updates
+        const expandedComments = new Set();
 
         const showLoading = (text) => { 
             document.getElementById('loading-text').innerText = text; 
             document.getElementById('loading-overlay').style.display = 'flex'; 
         };
         const hideLoading = () => document.getElementById('loading-overlay').style.display = 'none';
+        
+        const showToast = (msg) => {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        };
+
+        const escapeHtml = (str) => {
+            if(!str) return '';
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        };
+
         const formatEmail = (user) => `${user.toLowerCase().trim()}@9c2network.io.vn`;
         
         const timeAgo = (timestamp) => {
@@ -268,6 +414,41 @@
             if (seconds < 86400) return Math.floor(seconds/3600) + ' giờ trước';
             return Math.floor(seconds/86400) + ' ngày trước';
         };
+
+        async function compressImage(file, maxWidth = 1080, quality = 0.75) {
+            if (!file || !file.type.startsWith('image/')) return file;
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        canvas.toBlob((blob) => {
+                            if (!blob) { resolve(file); return; }
+                            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            resolve(compressedFile);
+                        }, 'image/jpeg', quality);
+                    };
+                    img.onerror = () => resolve(file);
+                };
+                reader.onerror = () => resolve(file);
+            });
+        }
 
         window.toggleAuth = (type) => {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -336,7 +517,7 @@
                     });
                 }
             } catch (error) {
-                alert("Lỗi xác thực: " + error.message);
+                showToast("Lỗi xác thực: " + error.message);
             }
             hideLoading();
         };
@@ -369,28 +550,372 @@
 
                 listenFeed();
                 listenChatUsers();
+                listenIncomingCalls();
             } else {
                 document.getElementById('auth-container').style.display = 'flex';
                 document.getElementById('app-container').style.display = 'none';
                 currentUserDoc = null;
+                if (unsubscribeIncomingCalls) unsubscribeIncomingCalls();
             }
         });
 
+        // Lắng nghe thông báo cuộc gọi tới cho User đang đăng nhập
+        function listenIncomingCalls() {
+            if (!auth.currentUser) return;
+            if (unsubscribeIncomingCalls) unsubscribeIncomingCalls();
+
+            const q = query(
+                collection(db, "calls"), 
+                where("receiverUid", "==", auth.currentUser.uid),
+                where("status", "==", "calling")
+            );
+
+            unsubscribeIncomingCalls = onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        const callData = { id: change.doc.id, ...change.doc.data() };
+                        if (!currentCallId) {
+                            pendingIncomingCallDoc = callData;
+                            showIncomingCallModal(callData);
+                        }
+                    }
+                });
+            }, (err) => console.error("Incoming call listener error:", err));
+        }
+
+        function showIncomingCallModal(data) {
+            document.getElementById('incoming-caller-avatar').src = data.callerAvatar || 'https://ui-avatars.com/api/?name=User';
+            document.getElementById('incoming-caller-name').innerText = data.callerName || 'Người dùng';
+            document.getElementById('incoming-call-type').innerText = data.type === 'video' ? 'Cuộc gọi Video đến...' : 'Cuộc gọi âm thanh đến...';
+            document.getElementById('incoming-call-modal').style.display = 'flex';
+            playRingtone();
+
+            // Lắng nghe xem người gọi có hủy cuộc gọi trước khi trả lời không
+            const callRef = doc(db, "calls", data.id);
+            const unsubTemp = onSnapshot(callRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const st = docSnap.data().status;
+                    if (st === 'ended' || st === 'declined') {
+                        stopRingtone();
+                        document.getElementById('incoming-call-modal').style.display = 'none';
+                        pendingIncomingCallDoc = null;
+                        unsubTemp();
+                    }
+                }
+            });
+        }
+
+        // Khởi tạo cuộc gọi đi (Initiate Call)
+        window.initiateCall = async (type) => {
+            if (!currentUserDoc || !activeChatUserId) return showToast("Không tìm thấy thông tin đối phương!");
+            const targetUser = usersCache[activeChatUserId];
+            if (!targetUser) return showToast("Không tìm thấy thông tin người nhận!");
+
+            showLoading("Đang khởi tạo kết nối...");
+            try {
+                // Tạo Media Stream local
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: type === 'video'
+                });
+
+                setupCallUI(type, targetUser.displayName || targetUser.username, targetUser.avatar);
+                document.getElementById('call-status-text').innerText = "Đang đổ chuông...";
+                playRingtone();
+
+                peerConnection = new RTCPeerConnection(rtcConfiguration);
+                remoteStream = new MediaStream();
+
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+                peerConnection.ontrack = (event) => {
+                    event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
+                };
+
+                const remoteVideoEl = document.getElementById('remote-video');
+                const localVideoEl = document.getElementById('local-video');
+                remoteVideoEl.srcObject = remoteStream;
+                localVideoEl.srcObject = localStream;
+
+                // Tạo Call Document trên Firestore
+                const callRef = doc(collection(db, "calls"));
+                currentCallId = callRef.id;
+
+                const callerCandidatesColl = collection(callRef, "callerCandidates");
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        addDoc(callerCandidatesColl, event.candidate.toJSON());
+                    }
+                };
+
+                // Tạo WebRTC Offer
+                const offerDescription = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offerDescription);
+
+                const offer = {
+                    sdp: offerDescription.sdp,
+                    type: offerDescription.type
+                };
+
+                await setDoc(callRef, {
+                    callerUid: currentUserDoc.uid,
+                    callerName: currentUserDoc.displayName || currentUserDoc.username,
+                    callerAvatar: currentUserDoc.avatar,
+                    receiverUid: activeChatUserId,
+                    receiverName: targetUser.displayName || targetUser.username,
+                    receiverAvatar: targetUser.avatar,
+                    type: type,
+                    status: 'calling',
+                    offer: offer,
+                    createdAt: serverTimestamp()
+                });
+
+                // Theo dõi trạng thái cuộc gọi từ phía Receiver
+                unsubscribeCallDoc = onSnapshot(callRef, async (snapshot) => {
+                    const data = snapshot.data();
+                    if (!data) return;
+
+                    if (data.status === 'accepted' && data.answer && !peerConnection.currentRemoteDescription) {
+                        stopRingtone();
+                        document.getElementById('call-status-text').innerText = "Đã kết nối";
+                        const answerDescription = new RTCSessionDescription(data.answer);
+                        await peerConnection.setRemoteDescription(answerDescription);
+
+                        // Lắng nghe ICE Candidates từ Receiver
+                        const receiverCandidatesColl = collection(callRef, "receiverCandidates");
+                        onSnapshot(receiverCandidatesColl, (snap) => {
+                            snap.docChanges().forEach((change) => {
+                                if (change.type === "added") {
+                                    const candidate = new RTCIceCandidate(change.doc.data());
+                                    peerConnection.addIceCandidate(candidate);
+                                }
+                            });
+                        });
+                    } else if (data.status === 'declined') {
+                        stopRingtone();
+                        showToast("Người nhận đã từ chối cuộc gọi.");
+                        cleanupCall();
+                    } else if (data.status === 'ended') {
+                        stopRingtone();
+                        showToast("Cuộc gọi đã kết thúc.");
+                        cleanupCall();
+                    }
+                });
+
+            } catch (err) {
+                console.error("Initiate call error:", err);
+                showToast("Không thể mở micro/camera: " + err.message);
+                cleanupCall();
+            }
+            hideLoading();
+        };
+
+        // Trả lời cuộc gọi đến (Accept Incoming Call)
+        window.acceptIncomingCall = async () => {
+            if (!pendingIncomingCallDoc) return;
+            const data = pendingIncomingCallDoc;
+            stopRingtone();
+            document.getElementById('incoming-call-modal').style.display = 'none';
+
+            showLoading("Đang kết nối cuộc gọi...");
+            try {
+                currentCallId = data.id;
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: data.type === 'video'
+                });
+
+                setupCallUI(data.type, data.callerName, data.callerAvatar);
+                document.getElementById('call-status-text').innerText = "Đã kết nối";
+
+                peerConnection = new RTCPeerConnection(rtcConfiguration);
+                remoteStream = new MediaStream();
+
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+                peerConnection.ontrack = (event) => {
+                    event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
+                };
+
+                document.getElementById('remote-video').srcObject = remoteStream;
+                document.getElementById('local-video').srcObject = localStream;
+
+                const callRef = doc(db, "calls", currentCallId);
+                const receiverCandidatesColl = collection(callRef, "receiverCandidates");
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        addDoc(receiverCandidatesColl, event.candidate.toJSON());
+                    }
+                };
+
+                // Set Remote Offer từ Caller
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+
+                // Tạo Answer
+                const answerDescription = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answerDescription);
+
+                const answer = {
+                    type: answerDescription.type,
+                    sdp: answerDescription.sdp
+                };
+
+                await updateDoc(callRef, {
+                    answer: answer,
+                    status: 'accepted'
+                });
+
+                // Lắng nghe ICE candidates từ Caller
+                const callerCandidatesColl = collection(callRef, "callerCandidates");
+                onSnapshot(callerCandidatesColl, (snap) => {
+                    snap.docChanges().forEach((change) => {
+                        if (change.type === "added") {
+                            const candidate = new RTCIceCandidate(change.doc.data());
+                            peerConnection.addIceCandidate(candidate);
+                        }
+                    });
+                });
+
+                // Lắng nghe nếu cuộc gọi bị dừng
+                unsubscribeCallDoc = onSnapshot(callRef, (snapshot) => {
+                    const st = snapshot.data()?.status;
+                    if (st === 'ended') {
+                        showToast("Cuộc gọi đã kết thúc.");
+                        cleanupCall();
+                    }
+                });
+
+            } catch (err) {
+                console.error("Accept call error:", err);
+                showToast("Lỗi kết nối cuộc gọi: " + err.message);
+                cleanupCall();
+            }
+            hideLoading();
+        };
+
+        // Từ chối cuộc gọi đến (Decline Incoming Call)
+        window.declineIncomingCall = async () => {
+            stopRingtone();
+            document.getElementById('incoming-call-modal').style.display = 'none';
+            if (pendingIncomingCallDoc) {
+                try {
+                    await updateDoc(doc(db, "calls", pendingIncomingCallDoc.id), { status: 'declined' });
+                } catch (e) { console.error(e); }
+                pendingIncomingCallDoc = null;
+            }
+        };
+
+        // Bật/Tắt Mic & Camera
+        window.toggleAudioMute = () => {
+            if (!localStream) return;
+            const audioTrack = localStream.getAudioTracks()[0];
+            if (audioTrack) {
+                isAudioMuted = !isAudioMuted;
+                audioTrack.enabled = !isAudioMuted;
+                const btn = document.getElementById('btn-toggle-mic');
+                if (isAudioMuted) {
+                    btn.classList.add('active-off');
+                    btn.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+                } else {
+                    btn.classList.remove('active-off');
+                    btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                }
+            }
+        };
+
+        window.toggleVideoMute = () => {
+            if (!localStream) return;
+            const videoTrack = localStream.getVideoTracks()[0];
+            if (videoTrack) {
+                isVideoMuted = !isVideoMuted;
+                videoTrack.enabled = !isVideoMuted;
+                const btn = document.getElementById('btn-toggle-cam');
+                if (isVideoMuted) {
+                    btn.classList.add('active-off');
+                    btn.innerHTML = '<i class="fa-solid fa-video-slash"></i>';
+                } else {
+                    btn.classList.remove('active-off');
+                    btn.innerHTML = '<i class="fa-solid fa-video"></i>';
+                }
+            }
+        };
+
+        // Kết thúc cuộc gọi (End Call)
+        window.endCall = async () => {
+            stopRingtone();
+            if (currentCallId) {
+                try {
+                    await updateDoc(doc(db, "calls", currentCallId), { status: 'ended' });
+                } catch (e) { console.error(e); }
+            }
+            cleanupCall();
+        };
+
+        function setupCallUI(type, partnerName, partnerAvatar) {
+            document.getElementById('active-call-modal').style.display = 'flex';
+            document.getElementById('active-call-user-name').innerText = partnerName || 'Người dùng';
+            document.getElementById('active-call-user-avatar').src = partnerAvatar || 'https://ui-avatars.com/api/?name=User';
+
+            const placeholder = document.getElementById('audio-call-avatar-placeholder');
+            const remoteVideo = document.getElementById('remote-video');
+            const localVideo = document.getElementById('local-video');
+
+            if (type === 'audio') {
+                placeholder.style.display = 'flex';
+                remoteVideo.style.display = 'none';
+                localVideo.style.display = 'none';
+            } else {
+                placeholder.style.display = 'none';
+                remoteVideo.style.display = 'block';
+                localVideo.style.display = 'block';
+            }
+        }
+
+        function cleanupCall() {
+            stopRingtone();
+            if (unsubscribeCallDoc) { unsubscribeCallDoc(); unsubscribeCallDoc = null; }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            currentCallId = null;
+            pendingIncomingCallDoc = null;
+            isAudioMuted = false;
+            isVideoMuted = false;
+
+            const btnMic = document.getElementById('btn-toggle-mic');
+            const btnCam = document.getElementById('btn-toggle-cam');
+            if (btnMic) { btnMic.classList.remove('active-off'); btnMic.innerHTML = '<i class="fa-solid fa-microphone"></i>'; }
+            if (btnCam) { btnCam.classList.remove('active-off'); btnCam.innerHTML = '<i class="fa-solid fa-video"></i>'; }
+
+            document.getElementById('active-call-modal').style.display = 'none';
+            document.getElementById('incoming-call-modal').style.display = 'none';
+        }
+
         window.createPost = async () => {
-            if (!currentUserDoc) return alert("Đang tải dữ liệu người dùng, vui lòng thử lại sau giây lát!");
+            if (!currentUserDoc) return showToast("Đang tải dữ liệu, vui lòng đợi giây lát!");
             const title = document.getElementById('post-title').value.trim();
             const content = document.getElementById('post-content').value.trim();
-            const file = document.getElementById('post-file').files[0];
+            const fileInput = document.getElementById('post-file');
+            const file = fileInput.files[0];
 
-            if(!content && !file && !title) return alert("Vui lòng nhập nội dung hoặc chọn đính kèm ảnh/video!");
+            if(!content && !file && !title) return showToast("Vui lòng nhập nội dung hoặc đính kèm ảnh/video!");
 
-            showLoading("Đang đăng bài...");
+            showLoading("Đang nén & đăng bài...");
             try {
                 let mediaUrl = "";
                 let mediaType = "text";
 
                 if (file) {
-                    mediaUrl = await uploadFileToStorage(file, "posts");
+                    let uploadFile = file;
+                    if(file.type.startsWith('image/')) {
+                        uploadFile = await compressImage(file, 1080, 0.75);
+                    }
+                    mediaUrl = await uploadFileToStorage(uploadFile, "posts");
                     mediaType = file.type.startsWith('video/') ? 'video' : 'image';
                 }
 
@@ -410,16 +935,22 @@
 
                 document.getElementById('post-title').value = '';
                 document.getElementById('post-content').value = '';
-                document.getElementById('post-file').value = '';
+                fileInput.value = '';
+                showToast("Đã đăng bài thành công!");
             } catch (error) {
-                alert("Lỗi đăng bài: " + error.message);
+                showToast("Lỗi đăng bài: " + error.message);
             }
             hideLoading();
         };
 
         window.deletePost = async (postId) => {
             if(confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
-                await deleteDoc(doc(db, "posts", postId));
+                try {
+                    await deleteDoc(doc(db, "posts", postId));
+                    showToast("Đã xóa bài viết!");
+                } catch(e) {
+                    showToast("Không thể xóa: " + e.message);
+                }
             }
         };
 
@@ -434,7 +965,6 @@
                     posts.push({ id: docSnap.id, ...docSnap.data() });
                 });
 
-                // Safe descending sort in memory by timestamp
                 posts.sort((a, b) => {
                     const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
                     const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0);
@@ -450,16 +980,16 @@
                     let mediaHtml = '';
                     if (p.mediaUrl) {
                         mediaHtml = p.mediaType === 'video' 
-                            ? `<div class="post-media-box"><video src="${p.mediaUrl}" controls></video></div>`
+                            ? `<div class="post-media-box"><video src="${p.mediaUrl}" controls preload="metadata"></video></div>`
                             : `<div class="post-media-box"><img src="${p.mediaUrl}" loading="lazy"></div>`;
                     }
 
                     let commentsHtml = (p.comments || []).map(c => `
                         <div class="comment-item">
-                            <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}">
+                            <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}" loading="lazy">
                             <div class="comment-box">
-                                <strong style="font-size:0.85rem;">${c.name}</strong>
-                                <p style="margin-top:2px; font-size:0.9rem;">${c.text}</p>
+                                <strong style="font-size:0.85rem;">${escapeHtml(c.name)}</strong>
+                                <p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(c.text)}</p>
                             </div>
                         </div>
                     `).join('');
@@ -468,16 +998,16 @@
                         <div class="card">
                             <div class="post-header">
                                 <div class="user-info-sm">
-                                    <img src="${p.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm">
+                                    <img src="${p.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
                                     <div>
-                                        <strong>${p.authorName || 'Ẩn danh'}</strong>
-                                        <p style="font-size:0.75rem; color:var(--text-secondary);">@${p.authorUsername || 'user'} • ${timeAgo(p.createdAt)}</p>
+                                        <strong>${escapeHtml(p.authorName || 'Ẩn danh')}</strong>
+                                        <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(p.authorUsername || 'user')} • ${timeAgo(p.createdAt)}</p>
                                     </div>
                                 </div>
                                 ${isAuthor ? `<button class="delete-btn" onclick="deletePost('${p.id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
                             </div>
-                            ${p.title ? `<h4 style="margin-bottom:5px;">${p.title}</h4>` : ''}
-                            ${p.content ? `<p style="white-space: pre-wrap; font-size:0.95rem;">${p.content}</p>` : ''}
+                            ${p.title ? `<h4 style="margin-bottom:5px;">${escapeHtml(p.title)}</h4>` : ''}
+                            ${p.content ? `<p style="white-space: pre-wrap; font-size:0.95rem;">${escapeHtml(p.content)}</p>` : ''}
                             ${mediaHtml}
                             <div class="post-actions">
                                 <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}', ${Boolean(isLiked)})">
@@ -488,7 +1018,7 @@
                                 </button>
                             </div>
                             <div class="comment-section" id="comments-${p.id}" style="display: ${isOpen ? 'block' : 'none'};">
-                                ${commentsHtml}
+                                <div id="comments-list-${p.id}">${commentsHtml}</div>
                                 <div style="display:flex; gap:10px; margin-top:10px;">
                                     <input type="text" id="comment-input-${p.id}" placeholder="Viết bình luận..." style="margin-bottom:0; flex:1;" onkeypress="if(event.key==='Enter') addComment('${p.id}')">
                                     <button onclick="addComment('${p.id}')" style="padding: 10px 15px;"><i class="fa-solid fa-paper-plane"></i></button>
@@ -497,9 +1027,7 @@
                         </div>
                     `;
                 });
-            }, (err) => {
-                console.error("Lỗi tải feed:", err);
-            });
+            }, (err) => console.error("Lỗi tải feed:", err));
         }
 
         window.toggleCommentSection = (postId) => {
@@ -521,8 +1049,25 @@
             const text = input.value.trim();
             if (!text) return;
 
+            input.value = '';
+            expandedComments.add(postId);
+
+            // Optimistic UI Append for Comments
+            const commentsList = document.getElementById(`comments-list-${postId}`);
+            if (commentsList) {
+                const tempCommentHtml = `
+                    <div class="comment-item">
+                        <img src="${currentUserDoc.avatar || 'https://ui-avatars.com/api/?name=User'}">
+                        <div class="comment-box">
+                            <strong style="font-size:0.85rem;">${escapeHtml(currentUserDoc.displayName || currentUserDoc.username)}</strong>
+                            <p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(text)}</p>
+                        </div>
+                    </div>
+                `;
+                commentsList.insertAdjacentHTML('beforeend', tempCommentHtml);
+            }
+
             try {
-                expandedComments.add(postId);
                 await updateDoc(doc(db, "posts", postId), {
                     comments: arrayUnion({
                         uid: currentUserDoc.uid,
@@ -532,9 +1077,8 @@
                         createdAt: Date.now()
                     })
                 });
-                input.value = '';
             } catch (e) {
-                alert("Lỗi thêm bình luận: " + e.message);
+                showToast("Lỗi gửi bình luận: " + e.message);
             }
         };
 
@@ -579,11 +1123,9 @@
 
                 list.innerHTML = '';
                 posts.forEach(p => {
-                    list.innerHTML += `<div class="card"><p style="font-weight:600;">${p.title || 'Bài viết'}</p><p style="margin-top:5px; font-size:0.9rem;">${p.content || ''}</p></div>`;
+                    list.innerHTML += `<div class="card"><p style="font-weight:600;">${escapeHtml(p.title || 'Bài viết')}</p><p style="margin-top:5px; font-size:0.9rem;">${escapeHtml(p.content || '')}</p></div>`;
                 });
-            }, (err) => {
-                console.error("Profile posts error:", err);
-            });
+            }, (err) => console.error("Profile posts error:", err));
         }
 
         window.saveProfile = async () => {
@@ -593,12 +1135,18 @@
             const avatarFile = document.getElementById('edit-avatar-file').files[0];
             const coverFile = document.getElementById('edit-cover-file').files[0];
 
-            showLoading("Đang lưu thông tin...");
+            showLoading("Đang nén & lưu thông tin...");
             try {
                 let updates = { displayName: name, bio: bio };
 
-                if(avatarFile) updates.avatar = await uploadFileToStorage(avatarFile, "avatars");
-                if(coverFile) updates.cover = await uploadFileToStorage(coverFile, "covers");
+                if(avatarFile) {
+                    const compressedAvatar = await compressImage(avatarFile, 300, 0.8);
+                    updates.avatar = await uploadFileToStorage(compressedAvatar, "avatars");
+                }
+                if(coverFile) {
+                    const compressedCover = await compressImage(coverFile, 1000, 0.75);
+                    updates.cover = await uploadFileToStorage(compressedCover, "covers");
+                }
 
                 await updateDoc(doc(db, "users", currentUserDoc.uid), updates);
                 
@@ -607,8 +1155,9 @@
                 snap.forEach(d => updateDoc(doc(db, "posts", d.id), { authorName: name, authorAvatar: updates.avatar || currentUserDoc.avatar }));
 
                 document.getElementById('modal-edit-profile').style.display = 'none';
+                showToast("Đã cập nhật hồ sơ!");
             } catch (err) {
-                alert("Lỗi lưu hồ sơ: " + err.message);
+                showToast("Lỗi lưu hồ sơ: " + err.message);
             }
             hideLoading();
         };
@@ -628,9 +1177,9 @@
                         usersCache[u.uid] = u;
                         list.innerHTML += `
                             <div class="card" style="text-align:center; padding: 15px 10px;">
-                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:60px; height:60px; margin:0 auto 10px;">
-                                <strong style="display:block; font-size:0.9rem;">${u.displayName || 'User'}</strong>
-                                <p style="font-size:0.75rem; color:gray; margin-bottom:10px;">@${u.username || 'user'}</p>
+                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:60px; height:60px; margin:0 auto 10px;" loading="lazy">
+                                <strong style="display:block; font-size:0.9rem;">${escapeHtml(u.displayName || 'User')}</strong>
+                                <p style="font-size:0.75rem; color:gray; margin-bottom:10px;">@${escapeHtml(u.username || 'user')}</p>
                                 <button onclick="openChatById('${u.uid}')" style="width:100%; font-size:0.8rem;"><i class="fa-solid fa-message"></i> Nhắn tin</button>
                             </div>
                         `;
@@ -652,10 +1201,10 @@
                         usersCache[u.uid] = u;
                         list.innerHTML += `
                             <div class="chat-user-item" onclick="openChatById('${u.uid}')">
-                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm">
+                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
                                 <div>
-                                    <strong style="font-size:0.95rem;">${u.displayName || 'User'}</strong>
-                                    <p style="font-size:0.75rem; color:var(--text-secondary);">@${u.username || 'user'}</p>
+                                    <strong style="font-size:0.95rem;">${escapeHtml(u.displayName || 'User')}</strong>
+                                    <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(u.username || 'user')}</p>
                                 </div>
                             </div>
                         `;
@@ -677,7 +1226,6 @@
             if (!currentUserDoc) return;
             activeChatUserId = uid;
 
-            // Automatically switch tab view to Messages
             switchPage('messages', null);
 
             document.getElementById('chat-list').style.display = 'none';
@@ -707,17 +1255,18 @@
                     const isMe = m.senderId === currentUserDoc.uid;
                     let mediaHtml = '';
                     if(m.mediaUrl) {
-                        mediaHtml = m.mediaType === 'video' ? `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>` 
-                                                            : `<img src="${m.mediaUrl}" style="width:100%; border-radius:8px; margin-top:5px;">`;
+                        mediaHtml = m.mediaType === 'video' 
+                            ? `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>` 
+                            : `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`;
                     }
                     box.innerHTML += `
                         <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
-                            ${m.text ? `<div>${m.text}</div>` : ''}
+                            ${m.text ? `<div>${escapeHtml(m.text)}</div>` : ''}
                             ${mediaHtml}
                         </div>
                     `;
                 });
-                setTimeout(() => { box.scrollTop = box.scrollHeight; }, 50);
+                setTimeout(() => { box.scrollTop = box.scrollHeight; }, 30);
             }, (err) => console.error("Message room error:", err));
         };
 
@@ -736,7 +1285,15 @@
 
             const chatId = currentUserDoc.uid < activeChatUserId ? `${currentUserDoc.uid}_${activeChatUserId}` : `${activeChatUserId}_${currentUserDoc.uid}`;
             input.value = '';
-            
+
+            // Optimistic Instant UI Append
+            const box = document.getElementById('chat-messages-box');
+            const tempBubble = document.createElement('div');
+            tempBubble.className = 'msg-bubble sent sending';
+            tempBubble.innerHTML = `<div>${escapeHtml(text)}</div>`;
+            box.appendChild(tempBubble);
+            box.scrollTop = box.scrollHeight;
+
             try {
                 await addDoc(collection(db, "messages"), {
                     chatId: chatId, 
@@ -748,7 +1305,8 @@
                     createdAt: serverTimestamp()
                 });
             } catch(e) {
-                alert("Không thể gửi tin nhắn: " + e.message);
+                tempBubble.style.background = '#aa0000';
+                showToast("Không thể gửi: " + e.message);
             }
         };
 
@@ -757,9 +1315,13 @@
             const file = inputEl.files[0];
             if(!file) return;
             
-            showLoading("Đang gửi tập tin...");
+            showLoading("Đang nén & gửi tập tin...");
             try {
-                const mediaUrl = await uploadFileToStorage(file, "chatMedia");
+                let uploadFile = file;
+                if(file.type.startsWith('image/')) {
+                    uploadFile = await compressImage(file, 800, 0.7);
+                }
+                const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia");
                 const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
                 const chatId = currentUserDoc.uid < activeChatUserId ? `${currentUserDoc.uid}_${activeChatUserId}` : `${activeChatUserId}_${currentUserDoc.uid}`;
                 
@@ -773,7 +1335,7 @@
                     createdAt: serverTimestamp()
                 });
             } catch(e) { 
-                alert("Lỗi gửi tập tin: " + e.message); 
+                showToast("Lỗi gửi tập tin: " + e.message); 
             }
             inputEl.value = '';
             hideLoading();
