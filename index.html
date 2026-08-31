@@ -146,6 +146,16 @@
 
         /* Notification Toast */
         #toast { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ffffff; color: #000000; padding: 10px 20px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; z-index: 10000; box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
+        
+        .profile-stats { display: flex; justify-content: space-around; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .stat-box { text-align: center; }
+        .stat-box strong { display: block; font-size: 1.1rem; }
+        .stat-box span { font-size: 0.75rem; color: var(--text-secondary); }
+
+        .notif-item { display: flex; gap: 10px; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); }
+        .notif-item img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .notif-actions { display: flex; gap: 5px; margin-left: auto; }
+        .notif-actions button { padding: 6px 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -185,6 +195,10 @@
         <header>
             <a href="#" class="logo">9c2network</a>
             <div style="display: flex; gap: 15px; align-items: center;">
+                <div style="position: relative; cursor: pointer; padding: 5px;" onclick="openNotifications()">
+                    <i class="fa-solid fa-bell" style="font-size: 1.2rem;"></i>
+                    <span id="notif-badge" style="display: none; position: absolute; top: 0; right: 0; background: var(--danger-red); color: white; border-radius: 50%; font-size: 0.6rem; font-weight: bold; padding: 2px 5px;">0</span>
+                </div>
                 <span id="header-username" style="font-size: 0.9rem; color: var(--text-secondary);"></span>
                 <i class="fa-solid fa-right-from-bracket" onclick="handleLogout()" style="cursor: pointer; font-size: 1.2rem;" title="Đăng xuất"></i>
             </div>
@@ -271,6 +285,13 @@
                         <h2 id="profile-name" style="margin-top: 10px;">--</h2>
                         <p id="profile-handle" style="color: var(--text-secondary); font-size: 0.9rem;">@--</p>
                         <p id="profile-bio" style="margin-top: 10px; font-size: 0.95rem;">--</p>
+                        
+                        <div class="profile-stats">
+                            <div class="stat-box"><strong id="stat-posts">0</strong><span>Bài viết</span></div>
+                            <div class="stat-box"><strong id="stat-followers">0</strong><span>Người theo dõi</span></div>
+                            <div class="stat-box"><strong id="stat-following">0</strong><span>Đang theo dõi</span></div>
+                            <div class="stat-box"><strong id="stat-likes">0</strong><span>Lượt thích</span></div>
+                        </div>
                     </div>
                 </div>
                 <h3 style="margin: 20px 0 10px;"><i class="fa-solid fa-images"></i> Bài viết của bạn</h3>
@@ -367,6 +388,10 @@
             <label>Đổi Ảnh bìa:</label>
             <input type="file" id="edit-cover-file" accept="image/*">
             
+            <div style="margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <button onclick="confirmDeleteMyAccount()" style="width: 100%; background: #c62828; color: #fff; border: none;"><i class="fa-solid fa-triangle-exclamation"></i> Xóa Tài Khoản Này Vĩnh Viễn</button>
+            </div>
+
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
                 <button onclick="document.getElementById('modal-edit-profile').style.display='none'">Hủy</button>
                 <button onclick="saveProfile()">Lưu Thay Đổi</button>
@@ -374,9 +399,34 @@
         </div>
     </div>
 
+    <!-- Confirm Delete Account Modal -->
+    <div id="modal-confirm-delete-account" class="modal">
+        <div class="modal-content" style="text-align: center; max-width: 380px;">
+            <h3 style="margin-bottom: 15px; color: #ff4444;"><i class="fa-solid fa-triangle-exclamation"></i> Xóa vĩnh viễn tài khoản?</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 20px; color: var(--text-secondary);">Tất cả bài viết, tin nhắn và thông tin cá nhân của bạn sẽ bị xóa hoàn toàn khỏi hệ thống. Hành động này không thể hoàn tác!</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="closeDeleteAccountModal()" style="flex: 1; background: var(--bg-input); border-color: var(--border-color);">Hủy</button>
+                <button onclick="executeDeleteMyAccount()" style="flex: 1; background: #c62828; color: #fff; border: none;">Xóa Tài Khoản</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="modal-notifications" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;"><i class="fa-solid fa-bell"></i> Thông báo</h2>
+            <div id="notif-list" style="max-height: 300px; overflow-y: auto;">
+                <p style="text-align:center; color:var(--text-secondary); padding: 10px;">Không có thông báo mới.</p>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
+                <button onclick="closeNotifications()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, setDoc, query, where, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
@@ -421,6 +471,12 @@
         const usersCache = {};
         const groupsCache = {};
         const expandedComments = new Set();
+        
+        window.mySentRequests = [];
+        window.myPendingRequests = [];
+        let unsubscribeSentReqs = null;
+        let unsubscribePendingReqs = null;
+        window.currentViewedProfileUid = null;
 
         // Voice Recorder State Variables
         let mediaRecorder = null;
@@ -456,6 +512,62 @@
             if (seconds < 3600) return Math.floor(seconds/60) + ' phút trước';
             if (seconds < 86400) return Math.floor(seconds/3600) + ' giờ trước';
             return Math.floor(seconds/86400) + ' ngày trước';
+        };
+
+        window.createPostHTML = (p, currentUid) => {
+            const isLiked = currentUid && p.likes && Array.isArray(p.likes) && p.likes.includes(currentUid);
+            const isAuthor = currentUid && p.authorUid === currentUid;
+            const isOpen = expandedComments.has(p.id);
+            
+            let mediaHtml = '';
+            if (p.mediaUrl) {
+                mediaHtml = p.mediaType === 'video' 
+                    ? `<div class="post-media-box"><video src="${p.mediaUrl}" controls preload="metadata"></video></div>`
+                    : `<div class="post-media-box"><img src="${p.mediaUrl}" loading="lazy"></div>`;
+            }
+
+            let commentsHtml = (p.comments || []).map(c => `
+                <div class="comment-item">
+                    <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}" loading="lazy" style="cursor:pointer;" onclick="viewUserProfile('${c.uid}')">
+                    <div class="comment-box">
+                        <strong style="font-size:0.85rem; cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}</strong>
+                        <p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(c.text)}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="card">
+                    <div class="post-header">
+                        <div class="user-info-sm" style="cursor:pointer;" onclick="viewUserProfile('${p.authorUid}')">
+                            <img src="${p.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
+                            <div>
+                                <strong>${escapeHtml(p.authorName || 'Ẩn danh')}</strong>
+                                <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(p.authorUsername || 'user')} • ${timeAgo(p.createdAt)}</p>
+                            </div>
+                        </div>
+                        ${isAuthor ? `<button class="delete-btn" onclick="deletePost('${p.id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    </div>
+                    ${p.title ? `<h4 style="margin-bottom:5px;">${escapeHtml(p.title)}</h4>` : ''}
+                    ${p.content ? `<p style="white-space: pre-wrap; font-size:0.95rem;">${escapeHtml(p.content)}</p>` : ''}
+                    ${mediaHtml}
+                    <div class="post-actions">
+                        <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}', ${Boolean(isLiked)})">
+                            <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${p.likes ? p.likes.length : 0}
+                        </button>
+                        <button class="action-btn" onclick="toggleCommentSection('${p.id}')">
+                            <i class="fa-regular fa-comment"></i> ${p.comments ? p.comments.length : 0}
+                        </button>
+                    </div>
+                    <div class="comment-section" id="comments-${p.id}" style="display: ${isOpen ? 'block' : 'none'};">
+                        <div id="comments-list-${p.id}">${commentsHtml}</div>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <input type="text" id="comment-input-${p.id}" placeholder="Viết bình luận..." style="margin-bottom:0; flex:1;" onkeypress="if(event.key==='Enter') addComment('${p.id}')">
+                            <button onclick="addComment('${p.id}')" style="padding: 10px 15px;"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
         };
 
         function playRingtone() {
@@ -775,7 +887,8 @@
                         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
                         cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
                         bio: "Người dùng mới tại 9c2network",
-                        friends: []
+                        followers: [],
+                        following: []
                     });
                 }
             } catch (error) {
@@ -803,23 +916,148 @@
                             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackUser)}&background=random`,
                             cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
                             bio: "Người dùng mới tại 9c2network",
-                            friends: []
+                            followers: [],
+                            following: []
                         };
                     }
                     document.getElementById('header-username').innerText = `@${currentUserDoc.username || 'user'}`;
-                    if(document.getElementById('page-profile').classList.contains('active')) renderProfilePage();
+                    if(document.getElementById('page-profile').classList.contains('active')) renderProfilePage(window.currentViewedProfileUid);
                 });
 
                 listenFeed();
                 listenChatList();
                 listenIncomingCalls();
+                listenFriendRequests();
             } else {
                 document.getElementById('auth-container').style.display = 'flex';
                 document.getElementById('app-container').style.display = 'none';
                 currentUserDoc = null;
                 if (unsubscribeIncomingCalls) unsubscribeIncomingCalls();
+                if (unsubscribePendingReqs) unsubscribePendingReqs();
+                if (unsubscribeSentReqs) unsubscribeSentReqs();
             }
         });
+
+        function listenFriendRequests() {
+            if (!auth.currentUser) return;
+            
+            const pendingQ = query(collection(db, "friend_requests"), where("receiverId", "==", auth.currentUser.uid), where("status", "==", "pending"));
+            unsubscribePendingReqs = onSnapshot(pendingQ, (snap) => {
+                window.myPendingRequests = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                
+                const badge = document.getElementById('notif-badge');
+                if(window.myPendingRequests.length > 0) {
+                    badge.style.display = 'block';
+                    badge.innerText = window.myPendingRequests.length;
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                renderNotificationsList();
+                
+                if (document.getElementById('page-profile').classList.contains('active')) {
+                    if (window.currentViewedProfileUid) renderProfilePage(window.currentViewedProfileUid);
+                }
+            });
+
+            const sentQ = query(collection(db, "friend_requests"), where("senderId", "==", auth.currentUser.uid), where("status", "==", "pending"));
+            unsubscribeSentReqs = onSnapshot(sentQ, (snap) => {
+                window.mySentRequests = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                if (document.getElementById('page-profile').classList.contains('active')) {
+                    if (window.currentViewedProfileUid) renderProfilePage(window.currentViewedProfileUid);
+                }
+            });
+        }
+
+        window.openNotifications = () => {
+            renderNotificationsList();
+            document.getElementById('modal-notifications').style.display = 'flex';
+        };
+
+        window.closeNotifications = () => {
+            document.getElementById('modal-notifications').style.display = 'none';
+        };
+
+        function renderNotificationsList() {
+            const list = document.getElementById('notif-list');
+            if (window.myPendingRequests.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding: 10px;">Không có thông báo mới.</p>';
+                return;
+            }
+            
+            list.innerHTML = window.myPendingRequests.map(req => `
+                <div class="notif-item">
+                    <img src="${req.senderAvatar || 'https://ui-avatars.com/api/?name=User'}" onclick="viewUserProfile('${req.senderId}'); closeNotifications();" style="cursor:pointer;">
+                    <div style="flex:1; font-size:0.9rem;">
+                        <strong style="cursor:pointer;" onclick="viewUserProfile('${req.senderId}'); closeNotifications();">${escapeHtml(req.senderName)}</strong> đã gửi cho bạn một lời mời kết bạn.
+                    </div>
+                    <div class="notif-actions">
+                        <button onclick="acceptFriendRequest('${req.id}', '${req.senderId}')" style="background: var(--accent-white); color: #000;"><i class="fa-solid fa-check"></i></button>
+                        <button onclick="declineFriendRequest('${req.id}')" style="background: var(--bg-input);"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.sendFriendRequest = async (uid) => {
+            if (!currentUserDoc) return;
+            showLoading("Đang xử lý...");
+            try {
+                await addDoc(collection(db, "friend_requests"), {
+                    senderId: currentUserDoc.uid,
+                    senderName: currentUserDoc.displayName || currentUserDoc.username,
+                    senderAvatar: currentUserDoc.avatar,
+                    receiverId: uid,
+                    status: "pending",
+                    createdAt: serverTimestamp()
+                });
+                showToast("Đã gửi lời mời kết bạn!");
+            } catch(e) { showToast("Lỗi: " + e.message); }
+            hideLoading();
+        };
+
+        window.acceptFriendRequest = async (reqId, senderUid) => {
+            if (!currentUserDoc) return;
+            showLoading("Đang xử lý...");
+            try {
+                await updateDoc(doc(db, "friend_requests", reqId), { status: "accepted" });
+                await updateDoc(doc(db, "users", currentUserDoc.uid), {
+                    followers: arrayUnion(senderUid),
+                    following: arrayUnion(senderUid)
+                });
+                await updateDoc(doc(db, "users", senderUid), {
+                    followers: arrayUnion(currentUserDoc.uid),
+                    following: arrayUnion(currentUserDoc.uid)
+                });
+                showToast("Đã chấp nhận kết bạn!");
+            } catch(e) { showToast("Lỗi: " + e.message); }
+            hideLoading();
+        };
+
+        window.declineFriendRequest = async (reqId) => {
+            try { await deleteDoc(doc(db, "friend_requests", reqId)); } catch(e) { console.error(e); }
+        };
+
+        window.unfriend = async (uid) => {
+            if (!currentUserDoc) return;
+            showLoading("Đang xử lý...");
+            try {
+                await updateDoc(doc(db, "users", currentUserDoc.uid), {
+                    followers: arrayRemove(uid),
+                    following: arrayRemove(uid)
+                });
+                await updateDoc(doc(db, "users", uid), {
+                    followers: arrayRemove(currentUserDoc.uid),
+                    following: arrayRemove(currentUserDoc.uid)
+                });
+                const q1 = query(collection(db, "friend_requests"), where("senderId", "==", currentUserDoc.uid), where("receiverId", "==", uid));
+                const q2 = query(collection(db, "friend_requests"), where("senderId", "==", uid), where("receiverId", "==", currentUserDoc.uid));
+                const snaps = await Promise.all([getDocs(q1), getDocs(q2)]);
+                snaps.forEach(snap => snap.forEach(d => deleteDoc(doc(db, "friend_requests", d.id))));
+                showToast("Đã hủy kết bạn!");
+            } catch(e) { showToast("Lỗi: " + e.message); }
+            hideLoading();
+        };
 
         function listenIncomingCalls() {
             if (!auth.currentUser) return;
@@ -1186,59 +1424,7 @@
 
                 posts.forEach(p => {
                     const currentUid = currentUserDoc ? currentUserDoc.uid : null;
-                    const isLiked = currentUid && p.likes && Array.isArray(p.likes) && p.likes.includes(currentUid);
-                    const isAuthor = currentUid && p.authorUid === currentUid;
-                    const isOpen = expandedComments.has(p.id);
-                    
-                    let mediaHtml = '';
-                    if (p.mediaUrl) {
-                        mediaHtml = p.mediaType === 'video' 
-                            ? `<div class="post-media-box"><video src="${p.mediaUrl}" controls preload="metadata"></video></div>`
-                            : `<div class="post-media-box"><img src="${p.mediaUrl}" loading="lazy"></div>`;
-                    }
-
-                    let commentsHtml = (p.comments || []).map(c => `
-                        <div class="comment-item">
-                            <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}" loading="lazy" style="cursor:pointer;" onclick="viewUserProfile('${c.uid}')">
-                            <div class="comment-box">
-                                <strong style="font-size:0.85rem; cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}</strong>
-                                <p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(c.text)}</p>
-                            </div>
-                        </div>
-                    `).join('');
-
-                    list.innerHTML += `
-                        <div class="card">
-                            <div class="post-header">
-                                <div class="user-info-sm" style="cursor:pointer;" onclick="viewUserProfile('${p.authorUid}')">
-                                    <img src="${p.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
-                                    <div>
-                                        <strong>${escapeHtml(p.authorName || 'Ẩn danh')}</strong>
-                                        <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(p.authorUsername || 'user')} • ${timeAgo(p.createdAt)}</p>
-                                    </div>
-                                </div>
-                                ${isAuthor ? `<button class="delete-btn" onclick="deletePost('${p.id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                            ${p.title ? `<h4 style="margin-bottom:5px;">${escapeHtml(p.title)}</h4>` : ''}
-                            ${p.content ? `<p style="white-space: pre-wrap; font-size:0.95rem;">${escapeHtml(p.content)}</p>` : ''}
-                            ${mediaHtml}
-                            <div class="post-actions">
-                                <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}', ${Boolean(isLiked)})">
-                                    <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${p.likes ? p.likes.length : 0}
-                                </button>
-                                <button class="action-btn" onclick="toggleCommentSection('${p.id}')">
-                                    <i class="fa-regular fa-comment"></i> ${p.comments ? p.comments.length : 0}
-                                </button>
-                            </div>
-                            <div class="comment-section" id="comments-${p.id}" style="display: ${isOpen ? 'block' : 'none'};">
-                                <div id="comments-list-${p.id}">${commentsHtml}</div>
-                                <div style="display:flex; gap:10px; margin-top:10px;">
-                                    <input type="text" id="comment-input-${p.id}" placeholder="Viết bình luận..." style="margin-bottom:0; flex:1;" onkeypress="if(event.key==='Enter') addComment('${p.id}')">
-                                    <button onclick="addComment('${p.id}')" style="padding: 10px 15px;"><i class="fa-solid fa-paper-plane"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    list.innerHTML += window.createPostHTML(p, currentUid);
                 });
             }, (err) => console.error("Lỗi tải feed:", err));
         }
@@ -1307,6 +1493,7 @@
 
         window.renderProfilePage = async (uid = currentUserDoc?.uid) => {
             if (!uid) return;
+            window.currentViewedProfileUid = uid;
 
             const isMe = currentUserDoc && currentUserDoc.uid === uid;
             let targetUser = null;
@@ -1338,27 +1525,57 @@
             document.getElementById('profile-handle').innerText = `@${targetUser.username || "--"}`;
             document.getElementById('profile-bio').innerText = targetUser.bio || "";
             
+            // Render Relation Actions
             const actionsContainer = document.getElementById('profile-actions-container');
             if (isMe) {
                 document.getElementById('edit-name').value = targetUser.displayName || "";
                 document.getElementById('edit-bio').value = targetUser.bio || "";
                 actionsContainer.innerHTML = `<button onclick="document.getElementById('modal-edit-profile').style.display='flex'"><i class="fa-solid fa-pen"></i> Chỉnh sửa</button>`;
             } else {
-                actionsContainer.innerHTML = `<button onclick="openChatById('${uid}')"><i class="fa-solid fa-message"></i> Nhắn tin</button>`;
+                let relationHtml = '';
+                const isFriend = currentUserDoc?.followers?.includes(uid) && currentUserDoc?.following?.includes(uid);
+                const sentReq = window.mySentRequests?.find(r => r.receiverId === uid);
+                const rcvReq = window.myPendingRequests?.find(r => r.senderId === uid);
+
+                if (isFriend) {
+                    relationHtml = `<button onclick="unfriend('${uid}')" style="background: var(--bg-input);"><i class="fa-solid fa-user-xmark"></i> Hủy kết bạn</button>`;
+                } else if (sentReq) {
+                    relationHtml = `<button disabled style="background: var(--bg-input);"><i class="fa-solid fa-clock"></i> Đã gửi lời mời</button>`;
+                } else if (rcvReq) {
+                    relationHtml = `<button onclick="acceptFriendRequest('${rcvReq.id}', '${uid}')" style="background: var(--accent-white); color: black;"><i class="fa-solid fa-check"></i> Chấp nhận</button>`;
+                } else {
+                    relationHtml = `<button onclick="sendFriendRequest('${uid}')"><i class="fa-solid fa-user-plus"></i> Kết bạn</button>`;
+                }
+
+                actionsContainer.innerHTML = `${relationHtml} <button onclick="openChatById('${uid}')" style="margin-left:5px;"><i class="fa-solid fa-message"></i> Nhắn tin</button>`;
             }
+
+            // Stats update
+            document.getElementById('stat-followers').innerText = targetUser.followers ? targetUser.followers.length : 0;
+            document.getElementById('stat-following').innerText = targetUser.following ? targetUser.following.length : 0;
 
             if(unsubscribeProfilePosts) unsubscribeProfilePosts();
 
             const q = query(collection(db, "posts"), where("authorUid", "==", uid));
             unsubscribeProfilePosts = onSnapshot(q, (snap) => {
                 const list = document.getElementById('profile-posts-list');
-                if (snap.empty) {
+                
+                let posts = [];
+                let totalLikes = 0;
+                
+                snap.forEach(d => {
+                    const postData = { id: d.id, ...d.data() };
+                    posts.push(postData);
+                    if (postData.likes) totalLikes += postData.likes.length;
+                });
+                
+                document.getElementById('stat-posts').innerText = posts.length;
+                document.getElementById('stat-likes').innerText = totalLikes;
+
+                if (posts.length === 0) {
                     list.innerHTML = '<p style="text-align:center; color:gray; padding: 20px;">Chưa có bài viết nào.</p>';
                     return;
                 }
-                
-                let posts = [];
-                snap.forEach(d => posts.push({ id: d.id, ...d.data() }));
                 
                 posts.sort((a, b) => {
                     const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
@@ -1367,8 +1584,9 @@
                 });
 
                 list.innerHTML = '';
+                const currentUid = currentUserDoc ? currentUserDoc.uid : null;
                 posts.forEach(p => {
-                    list.innerHTML += `<div class="card"><p style="font-weight:600;">${escapeHtml(p.title || 'Bài viết')}</p><p style="margin-top:5px; font-size:0.9rem;">${escapeHtml(p.content || '')}</p></div>`;
+                    list.innerHTML += window.createPostHTML(p, currentUid);
                 });
             });
         }
@@ -1403,6 +1621,42 @@
                 showToast("Đã cập nhật hồ sơ!");
             } catch (err) {
                 showToast("Lỗi lưu hồ sơ: " + err.message);
+            }
+            hideLoading();
+        };
+
+        window.confirmDeleteMyAccount = () => {
+            document.getElementById('modal-edit-profile').style.display = 'none';
+            document.getElementById('modal-confirm-delete-account').style.display = 'flex';
+        };
+
+        window.closeDeleteAccountModal = () => {
+            document.getElementById('modal-confirm-delete-account').style.display = 'none';
+        };
+
+        window.executeDeleteMyAccount = async () => {
+            closeDeleteAccountModal();
+            const user = auth.currentUser;
+            if (!user) return;
+
+            showLoading("Đang xóa tài khoản và dữ liệu liên quan...");
+            try {
+                const uid = user.uid;
+
+                // 1. Xóa bài viết của user
+                const postsSnap = await getDocs(query(collection(db, "posts"), where("authorUid", "==", uid)));
+                const postDeletions = postsSnap.docs.map(d => deleteDoc(doc(db, "posts", d.id)));
+                await Promise.all(postDeletions);
+
+                // 2. Xóa thông tin user trong collection users
+                await deleteDoc(doc(db, "users", uid));
+
+                // 3. Xóa tài khoản Firebase Auth
+                await deleteUser(user);
+
+                showToast("Đã xóa tài khoản vĩnh viễn!");
+            } catch (err) {
+                showToast("Không thể xóa tài khoản: " + err.message + ". Vui lòng đăng nhập lại để xác thực.");
             }
             hideLoading();
         };
