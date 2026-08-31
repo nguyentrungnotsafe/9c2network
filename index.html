@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>9c2network.io.vn</title>
     <style>
-        /* CSS GIAO DIỆN ĐEN TRẮNG - OPTIMIZED FOR MOBILE */
+        /* CSS GIAO DIỆN ĐEN TRẮNG - MOBILE FIRST */
         :root {
             --bg-color: #000000;
             --card-bg: #121212;
@@ -15,14 +15,14 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 60px; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 70px; }
 
         /* HEADER & NAVIGATION */
         header { position: sticky; top: 0; z-index: 100; background: var(--bg-color); border-bottom: 1px solid var(--border-color); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
         header h1 { font-size: 1.2rem; font-weight: 900; letter-spacing: 1px; }
 
-        .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; height: 55px; background: var(--bg-color); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-        .nav-item { color: var(--text-sub); text-decoration: none; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+        .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--bg-color); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+        .nav-item { color: var(--text-sub); text-decoration: none; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
         .nav-item.active { color: var(--text-color); font-weight: bold; }
 
         /* CONTAINERS & SECTIONS */
@@ -31,8 +31,8 @@
         .page.active { display: block; }
 
         /* FORMS & BUTTONS */
-        input, textarea, button { width: 100%; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px; border-radius: 8px; font-size: 0.95rem; margin-bottom: 10px; outline: none; }
-        button { background: #ffffff; color: #000000; font-weight: bold; border: none; cursor: pointer; }
+        input, textarea, button, select { width: 100%; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px; border-radius: 8px; font-size: 0.95rem; margin-bottom: 10px; outline: none; }
+        button { background: #ffffff; color: #000000; font-weight: bold; border: none; cursor: pointer; transition: opacity 0.2s; }
         button:active { opacity: 0.8; }
         button.btn-outline { background: transparent; color: var(--text-color); border: 1px solid var(--border-color); }
         button.btn-danger { background: #ff4444; color: #fff; }
@@ -42,20 +42,20 @@
 
         /* PROFILE STYLE */
         .profile-header { position: relative; margin-bottom: 40px; }
-        .cover-img { width: 100%; height: 120px; background: #222; object-fit: cover; border-radius: 8px 8px 0 0; }
+        .cover-img { width: 100%; height: 130px; background: #222; object-fit: cover; border-radius: 8px 8px 0 0; }
         .avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--bg-color); position: absolute; bottom: -30px; left: 16px; background: #444; object-fit: cover; }
         .profile-info { margin-top: 35px; padding: 0 8px; }
 
         /* POST STYLE */
         .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .post-avatar { width: 36px; height: 36px; border-radius: 50%; background: #333; }
-        .post-media { width: 100%; max-height: 350px; object-fit: cover; border-radius: 6px; margin: 8px 0; }
+        .post-avatar { width: 36px; height: 36px; border-radius: 50%; background: #333; object-fit: cover; }
+        .post-media { width: 100%; max-height: 350px; object-fit: cover; border-radius: 6px; margin: 8px 0; border: 1px solid var(--border-color); }
         .post-actions { display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 8px; font-size: 0.85rem; color: var(--text-sub); }
 
         /* MESSAGES & CALL OVERLAY */
-        .msg-bubble { max-width: 75%; padding: 8px 12px; border-radius: 12px; margin-bottom: 8px; font-size: 0.9rem; }
+        .msg-bubble { max-width: 80%; padding: 8px 12px; border-radius: 12px; margin-bottom: 8px; font-size: 0.9rem; word-break: break-word; }
         .msg-sent { background: #fff; color: #000; margin-left: auto; }
-        .msg-received { background: var(--card-bg); border: 1px solid var(--border-color); }
+        .msg-received { background: var(--card-bg); border: 1px solid var(--border-color); color: #fff; }
         
         #call-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; flex-direction: column; justify-content: space-between; padding: 40px 20px; align-items: center; }
         .video-container { display: flex; flex-direction: column; gap: 10px; width: 100%; }
@@ -64,32 +64,31 @@
 </head>
 <body>
 
-    <!-- AUTH PAGE -->
+    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
     <div id="page-auth" class="container" style="margin-top: 40px;">
         <h1 style="text-align: center; margin-bottom: 20px; font-size: 2rem;">9c2network</h1>
         <div class="card">
-            <input type="text" id="auth-username" placeholder="Tên người dùng (VD: trung6011)">
+            <input type="text" id="auth-username" placeholder="Tên người dùng">
             <input type="password" id="auth-password" placeholder="Mật khẩu">
             <button id="btn-login">Đăng Nhập</button>
-            <button id="btn-register" class="btn-outline">Đăng Ký Tài Khoản</button>
+            <button id="btn-register" class="btn-outline">Đăng Ký Tài Khoản Mới</button>
         </div>
     </div>
 
-    <!-- MAIN APP STRUCTURE -->
+    <!-- MÀN HÌNH CHÍNH CỦA ỨNG DỤNG -->
     <div id="app-structure" style="display: none;">
         <header>
             <h1>9c2network</h1>
             <span id="hdr-username" style="font-size: 0.85rem; color: var(--text-sub);"></span>
         </header>
 
-        <!-- FEED PAGE -->
+        <!-- BẢNG TIN -->
         <div id="page-feed" class="page container active">
-            <!-- Đăng bài -->
             <div class="card">
                 <input type="text" id="post-title" placeholder="Tiêu đề bài đăng...">
-                <textarea id="post-content" rows="2" placeholder="Chia sẻ suy nghĩ của bạn..."></textarea>
-                <input type="text" id="post-media" placeholder="Dán URL Ảnh / Video / Stream...">
-                <select id="post-type" style="width: 100%; background: var(--card-bg); color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color);">
+                <textarea id="post-content" rows="2" placeholder="Bạn đang nghĩ gì?"></textarea>
+                <input type="text" id="post-media" placeholder="Link Đường dẫn Ảnh / Video / Stream...">
+                <select id="post-type">
                     <option value="text">Văn bản</option>
                     <option value="image">Hình ảnh</option>
                     <option value="video">Video</option>
@@ -97,38 +96,36 @@
                 </select>
                 <button id="btn-create-post">Đăng Bài</button>
             </div>
-
-            <!-- Bảng tin -->
             <div id="feed-list"></div>
         </div>
 
-        <!-- SEARCH / FRIENDS PAGE -->
+        <!-- TÌM KIẾM / KẾT BẠN -->
         <div id="page-friends" class="page container">
             <div class="card">
-                <input type="text" id="search-input" placeholder="Tìm kiếm theo tên người dùng...">
+                <input type="text" id="search-input" placeholder="Nhập tên người dùng tìm kiếm...">
                 <button id="btn-search" class="btn-outline">Tìm Kiếm</button>
             </div>
             <div id="search-results"></div>
         </div>
 
-        <!-- MESSAGES PAGE -->
+        <!-- TIN NHẮN & CUỘC GỌI -->
         <div id="page-messages" class="page container">
             <div class="card">
                 <input type="text" id="msg-receiver" placeholder="Gửi tới (Tên người dùng)...">
-                <div id="chat-box" style="height: 250px; overflow-y: auto; display: flex; flex-direction: column; margin-bottom: 10px;"></div>
+                <div id="chat-box" style="height: 250px; overflow-y: auto; display: flex; flex-direction: column; margin-bottom: 10px; padding: 5px;"></div>
                 <input type="text" id="msg-input" placeholder="Nhập tin nhắn...">
                 <input type="text" id="msg-media" placeholder="URL Ảnh/Video (Tùy chọn)">
                 <button id="btn-send-msg">Gửi Tin Nhắn</button>
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
                     <button id="btn-audio-call" class="btn-outline" style="font-size: 0.8rem;">📞 Gọi Âm Thanh</button>
-                    <button id="btn-video-call" class="btn-outline" style="font-size: 0.8rem;">📹 Call Video</button>
+                    <button id="btn-video-call" class="btn-outline" style="font-size: 0.8rem;">📹 Gọi Video</button>
                 </div>
             </div>
         </div>
 
-        <!-- PROFILE PAGE -->
+        <!-- TRANG CÁ NHÂN -->
         <div id="page-profile" class="page container">
-            <div class="card" style="padding: 0;">
+            <div class="card" style="padding: 0; overflow: hidden;">
                 <div class="profile-header">
                     <img id="profile-cover" class="cover-img" src="https://via.placeholder.com/600x200/222/fff?text=Cover">
                     <img id="profile-avatar" class="avatar-img" src="https://via.placeholder.com/150/444/fff?text=Avatar">
@@ -136,7 +133,7 @@
                 <div class="profile-info">
                     <h2 id="profile-name">Tên người dùng</h2>
                     <br>
-                    <input type="text" id="edit-name" placeholder="Đổi tên hiển thị">
+                    <input type="text" id="edit-name" placeholder="Tên hiển thị mới">
                     <input type="text" id="edit-avatar" placeholder="Link Avatar mới">
                     <input type="text" id="edit-cover" placeholder="Link Ảnh bìa mới">
                     <button id="btn-save-profile" class="btn-outline" style="margin-bottom: 15px;">Lưu Thay Đổi</button>
@@ -144,22 +141,22 @@
                 </div>
             </div>
 
-            <h3 style="margin: 15px 0 10px 0;">Lịch sử bài đăng</h3>
+            <h3 style="margin: 15px 0 10px 0;">Lịch sử bài đăng của bạn</h3>
             <div id="profile-posts"></div>
         </div>
 
-        <!-- BOTTOM NAV -->
+        <!-- THANH ĐIỀU HƯỚNG DƯỚI DÀNH CHO ĐIỆN THOẠI -->
         <nav class="nav-bottom">
-            <div class="nav-item active" onclick="switchPage('feed')">🏠<span>Bảng tin</span></div>
-            <div class="nav-item" onclick="switchPage('friends')">🔍<span>Kết bạn</span></div>
-            <div class="nav-item" onclick="switchPage('messages')">💬<span>Tin nhắn</span></div>
-            <div class="nav-item" onclick="switchPage('profile')">👤<span>Cá nhân</span></div>
+            <div class="nav-item active" onclick="switchTab('feed', this)">🏠<span>Bảng tin</span></div>
+            <div class="nav-item" onclick="switchTab('friends', this)">🔍<span>Kết bạn</span></div>
+            <div class="nav-item" onclick="switchTab('messages', this)">💬<span>Tin nhắn</span></div>
+            <div class="nav-item" onclick="switchTab('profile', this)">👤<span>Cá nhân</span></div>
         </nav>
     </div>
 
-    <!-- CALL OVERLAY -->
+    <!-- KHUNG HIỂN THỊ CUỘC GỌI VIDEO/VOICE -->
     <div id="call-modal">
-        <h2 id="call-title">Đang gọi...</h2>
+        <h2 id="call-title">Đang kết nối cuộc gọi...</h2>
         <div class="video-container">
             <video id="localVideo" autoplay playsinline muted></video>
             <video id="remoteVideo" autoplay playsinline></video>
@@ -167,22 +164,21 @@
         <button id="btn-end-call" class="btn-danger">Tắt Cuộc Gọi</button>
     </div>
 
-    <!-- FIREBASE SDK & APP LOGIC -->
+    <!-- KHỞI TẠO FIREBASE SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ==========================================
-        // THAY THẾ CONFIG FIREBASE CỦA BẠN VÀO ĐÂY
-        // ==========================================
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+        // CONFIG FIREBASE CỦA BẠN ĐÃ ĐƯỢC DÁN VÀO ĐÂY
+        const firebaseConfig = { 
+            apiKey : "AIzaSyDYMDR5k9x9LwSs2GCjVyLJWNEUCnXXiJU" , 
+            authDomain : "c2network.firebaseapp.com" , 
+            projectId : "c2network" , 
+            storageBucket : "c2network.firebasestorage.app" , 
+            messagingSenderId : "585950296404" , 
+            appId : "1:585950296404:web:10bfa0bc3c4204eb2c70c1" , 
+            measurementId : "G-YSW54YGNXY"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -192,47 +188,51 @@
         let currentUserData = null;
         let localStream = null;
 
-        // XỬ LÝ CHUYỂN TRANG (TAB NAVIGATION)
-        window.switchPage = function(pageName) {
+        // CHUYỂN TAB TRÊN ĐIỆN THOẠI
+        window.switchTab = function(pageName, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             
             document.getElementById(`page-${pageName}`).classList.add('active');
-            event.currentTarget.classList.add('active');
+            element.classList.add('active');
 
             if(pageName === 'profile') loadProfilePosts();
         }
 
-        // --- ĐĂNG KÝ / ĐĂNG NHẬP ---
-        const formatEmail = (username) => `${username.toLowerCase().trim()}@9c2network.io.vn`;
+        const formatEmail = (user) => `${user.toLowerCase().trim()}@9c2network.io.vn`;
 
+        // ĐĂNG KÝ
         document.getElementById('btn-register').onclick = async () => {
             const user = document.getElementById('auth-username').value;
             const pass = document.getElementById('auth-password').value;
+            if(!user || !pass) return alert("Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
+            
             try {
                 const res = await createUserWithEmailAndPassword(auth, formatEmail(user), pass);
                 await addDoc(collection(db, "users"), {
                     uid: res.user.uid,
                     username: user,
                     displayName: user,
-                    avatar: 'https://via.placeholder.com/150/444/fff?text=' + user[0],
+                    avatar: 'https://via.placeholder.com/150/444/fff?text=' + user[0].toUpperCase(),
                     cover: 'https://via.placeholder.com/600x200/222/fff?text=9c2network'
                 });
                 alert("Đăng ký thành công!");
-            } catch (err) { alert("Lỗi: " + err.message); }
+            } catch (err) { alert("Lỗi đăng ký: " + err.message); }
         };
 
+        // ĐĂNG NHẬP
         document.getElementById('btn-login').onclick = async () => {
             const user = document.getElementById('auth-username').value;
             const pass = document.getElementById('auth-password').value;
             try {
                 await signInWithEmailAndPassword(auth, formatEmail(user), pass);
-            } catch (err) { alert("Lỗi đăng nhập: Kiểm tra lại tài khoản/mật khẩu"); }
+            } catch (err) { alert("Lỗi đăng nhập: Kiểm tra lại tên tài khoản hoặc mật khẩu!"); }
         };
 
+        // ĐĂNG XUẤT
         document.getElementById('btn-logout').onclick = () => signOut(auth);
 
-        // --- THEO DÕI TRẠNG THÁI ĐĂNG NHẬP ---
+        // THEO DÕI ĐĂNG NHẬP REALTIME
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const q = query(collection(db, "users"), where("uid", "==", user.uid));
@@ -252,14 +252,14 @@
             }
         });
 
-        // --- BẢNG TIN & ĐĂNG BÀI ---
+        // ĐĂNG BÀI VIẾT
         document.getElementById('btn-create-post').onclick = async () => {
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-content').value;
             const media = document.getElementById('post-media').value;
             const type = document.getElementById('post-type').value;
 
-            if(!content) return alert("Vui lòng nhập nội dung!");
+            if(!content) return alert("Vui lòng nhập nội dung bài đăng!");
 
             await addDoc(collection(db, "posts"), {
                 author: currentUserData.username,
@@ -274,6 +274,7 @@
             document.getElementById('post-media').value = '';
         };
 
+        // BẢNG TIN REALTIME
         function listenFeed() {
             const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
             onSnapshot(q, (snapshot) => {
@@ -284,7 +285,7 @@
                     let mediaHtml = '';
                     if(p.type === 'image' && p.media) mediaHtml = `<img src="${p.media}" class="post-media">`;
                     if(p.type === 'video' && p.media) mediaHtml = `<video src="${p.media}" controls class="post-media"></video>`;
-                    if(p.type === 'live') mediaHtml = `<div style="background:red; color:white; padding:4px; font-size:10px; display:inline-block;">🔴 LIVESTREAM</div>`;
+                    if(p.type === 'live') mediaHtml = `<div style="background:#fff; color:#000; padding:4px 8px; font-weight:bold; font-size:11px; display:inline-block; border-radius:4px; margin-top:5px;">🔴 LIVESTREAM TỰ ĐỘNG</div>`;
 
                     feed.innerHTML += `
                         <div class="card">
@@ -306,7 +307,7 @@
             });
         }
 
-        // --- TRANG CÁ NHÂN ---
+        // CẬP NHẬT TRANG CÁ NHÂN
         function loadProfileUI() {
             document.getElementById('profile-name').innerText = currentUserData.displayName;
             document.getElementById('profile-avatar').src = currentUserData.avatar;
@@ -324,7 +325,7 @@
             if(cover) updates.cover = cover;
 
             await updateDoc(doc(db, "users", currentUserData.id), updates);
-            alert("Đã cập nhật!");
+            alert("Đã cập nhật thông tin trang cá nhân!");
             location.reload();
         };
 
@@ -339,7 +340,7 @@
             });
         }
 
-        // --- KẾT BẠN & TÌM KIẾM ---
+        // TÌM KIẾM BẠN BÈ
         document.getElementById('btn-search').onclick = async () => {
             const text = document.getElementById('search-input').value;
             const q = query(collection(db, "users"), where("username", "==", text));
@@ -357,13 +358,13 @@
             });
         };
 
-        // --- TIN NHẮN & CUỘC GỌI ---
+        // GỬI TIN NHẮN REALTIME
         document.getElementById('btn-send-msg').onclick = async () => {
             const to = document.getElementById('msg-receiver').value;
             const text = document.getElementById('msg-input').value;
             const media = document.getElementById('msg-media').value;
 
-            if(!to || !text) return alert("Vui lòng nhập người nhận và tin nhắn");
+            if(!to || !text) return alert("Vui lòng nhập tên người nhận và tin nhắn");
 
             await addDoc(collection(db, "messages"), {
                 from: currentUserData.username,
@@ -385,7 +386,7 @@
                         const isMe = m.from === currentUserData.username;
                         box.innerHTML += `
                             <div class="msg-bubble ${isMe ? 'msg-sent' : 'msg-received'}">
-                                <small style="display:block; font-size:10px;">${m.from}</small>
+                                <small style="display:block; font-size:10px; margin-bottom:2px;">${m.from}</small>
                                 ${m.text}
                                 ${m.media ? `<br><img src="${m.media}" style="max-width:100%; border-radius:4px; margin-top:4px;">` : ''}
                             </div>
@@ -395,14 +396,14 @@
             });
         }
 
-        // --- XỬ LÝ GỌI AM THỜI & VIDEO (WEBRTC MEDIA STREAMS) ---
+        // TÍNH NĂNG GỌI VIDEO / AUDIO
         async function startCall(videoEnabled) {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: videoEnabled, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
                 document.getElementById('call-modal').style.display = 'flex';
-                document.getElementById('call-title').innerText = videoEnabled ? "Đang gọi Video..." : "Đang gọi Âm thanh...";
-            } catch (err) { alert("Không thể truy cập Camera/Microphone!"); }
+                document.getElementById('call-title').innerText = videoEnabled ? "Đang mở Camera Gọi Video..." : "Đang kết nối Gọi Âm thanh...";
+            } catch (err) { alert("Không thể truy cập thiết bị Camera/Microphone trên máy của bạn!"); }
         }
 
         document.getElementById('btn-audio-call').onclick = () => startCall(false);
