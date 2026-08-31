@@ -3,588 +3,781 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>9c2network.io.vn - Monochromatic Social Network</title>
-    <!-- FontAwesome Icons & Google Fonts -->
+    <title>9c2network - Mạng Xã Hội Tối Giản</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Giữ nguyên cấu trúc Firebase nếu bạn tích hợp sau này -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/10.x.x/firebase-app.js"></script> -->
-
     <style>
-        /* === BẢNG MÀU VÀ NỀN CHỦ ĐỀ ĐEN TRẮNG (MONOCHROME) === */
         :root {
-            --bg-main: #0a0a0a;
-            --bg-card: #141414;
-            --bg-input: #1f1f1f;
-            --border-color: #333333;
-            --border-focus: #ffffff;
-            --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
-            --text-muted: #666666;
-            --accent-white: #ffffff;
-            --accent-black: #000000;
-            --danger: #ff4d4d;
-            --success: #2ea44f;
+            --bg-main: #000000; --bg-card: #0f0f0f; --bg-input: #1a1a1a;
+            --border-color: #333333; --text-primary: #ffffff; --text-secondary: #aaaaaa;
+            --accent-white: #ffffff; --accent-black: #000000;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Space Grotesk', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-primary); -webkit-tap-highlight-color: transparent; padding-bottom: 60px; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg-main); } ::-webkit-scrollbar-thumb { background: var(--border-color); }
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
+        button { cursor: pointer; border: 1px solid var(--border-color); background: var(--accent-black); color: var(--text-primary); padding: 10px 16px; border-radius: 6px; font-weight: 600; transition: 0.2s; }
+        button:hover { background: var(--accent-white); color: var(--accent-black); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        input, textarea, select { background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: 6px; outline: none; width: 100%; margin-bottom: 10px; }
+        input[type="file"] { padding: 8px; color: var(--text-secondary); cursor: pointer; }
+        input[type="file"]::file-selector-button { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 10px; }
 
-        /* Common Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: var(--bg-main); }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-
-        /* Buttons & Inputs */
-        button {
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            background: var(--accent-black);
-            color: var(--text-primary);
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        button:hover {
-            background: var(--accent-white);
-            color: var(--accent-black);
-            border-color: var(--accent-white);
-        }
-
-        input, textarea, select {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 10px;
-            border-radius: 4px;
-            outline: none;
-            width: 100%;
-        }
-
-        input:focus, textarea:focus { border-color: var(--border-focus); }
-
-        /* === GIAO DIỆN ĐĂNG NHẬP / ĐĂNG KÝ === */
-        #auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
-            padding: 15px;
-        }
-
-        .auth-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 30px 20px;
-            width: 100%;
-            max-width: 420px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .auth-box h1 { font-size: 1.8rem; letter-spacing: 1px; margin-bottom: 8px; }
-        .auth-box p.subtitle { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 25px; }
-
+        /* AUTH SCREEN */
+        #auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .auth-box { background: var(--bg-card); border: 1px solid var(--border-color); padding: 30px; width: 100%; max-width: 400px; border-radius: 12px; text-align: center; }
+        .auth-box h1 { font-size: 1.8rem; margin-bottom: 5px; } .auth-box p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 25px; }
         .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
         .auth-tab { flex: 1; padding: 10px; background: none; border: none; color: var(--text-secondary); }
         .auth-tab.active { color: var(--text-primary); border-bottom: 2px solid var(--text-primary); }
 
-        .auth-form { display: flex; flex-direction: column; gap: 15px; }
-        .auth-form button { padding: 12px; margin-top: 10px; }
-
-        /* === GIAO DIỆN CHÍNH (MAIN APP) === */
+        /* MAIN LAYOUT */
         #app-container { display: none; flex-direction: column; min-height: 100vh; }
-
-        header {
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 10px 15px;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .logo { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 8px; }
-
-        .nav-menu { display: flex; gap: 10px; flex: 1; justify-content: center; }
-        .nav-item {
-            background: none; border: none; color: var(--text-secondary); font-size: 0.95rem; padding: 8px 12px; display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center;
-        }
-        .nav-item:hover, .nav-item.active { color: var(--accent-white); background: var(--bg-input); border-color: var(--border-color); }
-
-        .user-nav { display: flex; align-items: center; gap: 10px; }
-        .avatar-small { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color); object-fit: cover; }
-
-        .main-layout {
-            max-width: 1200px; margin: 15px auto; width: 100%; display: grid; grid-template-columns: 260px 1fr; gap: 20px; padding: 0 15px; flex: 1;
-        }
-
-        /* Sidebar bên trái */
-        .sidebar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; height: fit-content; }
-        .mini-profile { text-align: center; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); margin-bottom: 15px; }
-        .mini-profile img { width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; object-fit: cover; }
-        .sidebar-btn { text-align: left; width: 100%; background: transparent; border: none; color: var(--text-secondary); display: flex; align-items: center; gap: 12px; padding: 10px; margin-bottom: 5px; }
-
-        /* Khu vực Nội dung chính */
-        .content-area { display: flex; flex-direction: column; gap: 15px; width: 100%; overflow: hidden; }
-
-        /* BOX ĐĂNG BÀI & POSTS */
-        .create-post-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
-        .create-post-inputs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; margin-top: 10px; }
-        .post-type-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-        .post-type-btn { font-size: 0.8rem; padding: 6px 10px; }
-        .post-type-btn.selected { background: var(--accent-white); color: var(--accent-black); }
-
-        .post-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .post-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-        .post-author { display: flex; align-items: center; gap: 10px; }
-        .post-author-img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
-        .post-title { font-size: 1.1rem; font-weight: 700; }
-        .post-text { color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem; word-wrap: break-word; }
+        header { background: var(--bg-main); border-bottom: 1px solid var(--border-color); padding: 12px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 700; font-size: 1.2rem; color: #fff; text-decoration: none; }
         
-        .post-media { width: 100%; border: 1px solid var(--border-color); border-radius: 4px; background: #000; display: flex; align-items: center; justify-content: center; }
-        .post-media img, .post-media video { width: 100%; max-height: 400px; object-fit: contain; }
+        .main-content { max-width: 600px; margin: 0 auto; width: 100%; padding: 15px; }
+        .page { display: none; animation: fadeIn 0.3s; } .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .post-actions { display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 12px; flex-wrap: wrap; gap: 5px; }
-        .action-btn { background: transparent; border: none; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; font-size: 0.85rem; padding: 5px; flex: 1; justify-content: center; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 0.75rem; border: none; background: none; padding: 5px 15px; }
+        .nav-item.active { color: var(--text-primary); }
+        .nav-item i { font-size: 1.2rem; }
+
+        /* POST CARDS & COMMENTS */
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .user-info-sm { display: flex; align-items: center; gap: 10px; }
+        .avatar-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); }
+        .post-media-box { width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: #000; margin: 10px 0; overflow: hidden; display: flex; justify-content: center; }
+        .post-media-box img, .post-media-box video { width: 100%; max-height: 400px; object-fit: contain; }
+        .post-actions { display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 10px; }
+        .action-btn { background: none; border: none; color: var(--text-secondary); font-size: 0.9rem; flex: 1; display: flex; justify-content: center; align-items: center; gap: 5px; }
         .action-btn.liked { color: var(--accent-white); font-weight: bold; }
+        .delete-btn { background: none; border: none; color: #ff4444; font-size: 0.8rem; padding: 5px; }
 
-        .comments-section { border-top: 1px dashed var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
-        .comment-item { background: var(--bg-input); padding: 8px 10px; border-radius: 4px; font-size: 0.85rem; }
-        .comment-input-box { display: flex; gap: 8px; }
+        .comment-section { margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px; }
+        .comment-item { display: flex; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; align-items: flex-start; }
+        .comment-item img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+        .comment-box { background: var(--bg-input); padding: 8px 12px; border-radius: 12px; flex: 1; }
 
-        /* TRANG CÁ NHÂN */
-        .profile-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
-        .cover-photo-container { height: 140px; background: #222; }
-        .cover-photo-container img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-details { padding: 15px; position: relative; display: flex; flex-direction: column; gap: 10px; }
-        .avatar-container { position: absolute; top: -45px; left: 15px; }
-        .avatar-container img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--bg-card); object-fit: cover; background: var(--bg-main); }
-        .profile-header-actions { display: flex; justify-content: flex-end; }
-        .profile-info { margin-top: 35px; }
-        
-        /* KHU VỰC TÌM KIẾM */
-        .search-box-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; }
-        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
-        .user-card { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .user-card img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-        .user-card button { font-size: 0.8rem; padding: 6px; width: 100%; }
+        .profile-header-card { padding: 0; overflow: hidden; }
+        .cover-photo { width: 100%; height: 150px; object-fit: cover; background: #222; }
+        .profile-details { padding: 15px; position: relative; }
+        .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; position: absolute; top: -45px; left: 15px; background: #111; }
+        .profile-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
 
-        /* KHU VỰC TIN NHẮN (TỐI ƯU MOBILE) */
-        .chat-container { display: grid; grid-template-columns: 260px 1fr; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; height: calc(100vh - 180px); min-height: 400px; overflow: hidden; }
-        .chat-list { border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto; }
-        .chat-user-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
-        .chat-user-item:hover, .chat-user-item.active { background: var(--bg-input); }
-        .chat-user-item img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-        .chat-main { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .chat-header { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); }
-        .chat-header-user { display: flex; align-items: center; gap: 8px; }
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0d0d0d; }
-        .msg-bubble { max-width: 80%; padding: 8px 12px; border-radius: 6px; font-size: 0.9rem; word-break: break-word; }
-        .msg-bubble.sent { align-self: flex-end; background: var(--accent-white); color: var(--accent-black); }
-        .msg-bubble.received { align-self: flex-start; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .chat-input-bar { padding: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; background: var(--bg-card); }
-        .chat-input-bar input { flex: 1; }
+        .chat-layout { height: calc(100vh - 140px); display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
+        .chat-list-view { flex: 1; overflow-y: auto; }
+        .chat-user-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
+        .chat-user-item:hover { background: #161616; }
+        .chat-room-view { display: none; flex-direction: column; height: 100%; }
+        .chat-room-header { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; background: var(--bg-main); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #080808; }
+        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; }
+        .msg-bubble.sent { align-self: flex-end; background: var(--accent-white); color: var(--accent-black); border-bottom-right-radius: 4px; }
+        .msg-bubble.received { align-self: flex-start; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
+        .chat-input-area { padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border-color); background: var(--bg-main); align-items: center; }
+        .chat-input-area input[type="text"] { margin-bottom: 0; border-radius: 20px; padding: 10px 15px; }
 
-        /* Mobile Back Button cho Chat */
-        #mobile-back-chat { display: none; background: transparent; border: none; color: var(--text-primary); font-size: 1.2rem; margin-right: 5px; padding: 0 10px; }
+        /* OVERLAYS & MODALS */
+        #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* MODALS */
-        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
-        .call-modal { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; width: 100%; max-width: 500px; padding: 20px; text-align: center; display: flex; flex-direction: column; gap: 15px; }
-        .video-streams { position: relative; width: 100%; height: 250px; background: #000; border-radius: 6px; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        .video-streams video { width: 100%; height: 100%; object-fit: cover; }
-        .call-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .btn-danger { background: var(--danger); border-color: var(--danger); color: white; }
-
-        /* ================= TỐI ƯU MOBILE (MEDIA QUERIES) ================= */
-        @media (max-width: 768px) {
-            /* Header & Bottom Nav Style */
-            header { padding: 10px; }
-            .header-content { flex-direction: row; justify-content: space-between; }
-            .nav-menu { 
-                position: fixed; bottom: 0; left: 0; width: 100%; 
-                background: var(--bg-card); border-top: 1px solid var(--border-color); 
-                padding: 10px; z-index: 999; margin: 0; 
-            }
-            .nav-item { flex-direction: column; font-size: 0.75rem; gap: 4px; padding: 4px; }
-            .nav-item i { font-size: 1.2rem; }
-            
-            /* Layout */
-            .main-layout { grid-template-columns: 1fr; margin-top: 10px; padding-bottom: 70px; } /* padding bottom for fixed nav */
-            .sidebar { display: none; } /* Ẩn sidebar trên mobile, tính năng đã có trong Nav/Header */
-            
-            /* Post Box */
-            .create-post-card { padding: 12px; }
-            .create-post-inputs { margin-bottom: 10px; }
-            
-            /* Chat Box Mobile Logic */
-            .chat-container { grid-template-columns: 1fr; height: calc(100vh - 160px); border: none; background: transparent; }
-            .chat-list { display: flex; border-right: none; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); }
-            .chat-main { display: none; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); }
-            
-            /* Khi chọn 1 chat, ẩn List, hiện Main */
-            .chat-container.chat-active .chat-list { display: none; }
-            .chat-container.chat-active .chat-main { display: flex; }
-            #mobile-back-chat { display: block; }
-            .chat-header-actions button { padding: 6px 10px; }
-        }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 450px; padding: 20px; }
     </style>
 </head>
 <body>
 
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loading-text">Đang xử lý...</p>
+    </div>
+
     <div id="auth-container">
         <div class="auth-box">
             <h1>9C2NETWORK</h1>
-            <p class="subtitle">Mạng xã hội tối giản Đen & Trắng</p>
+            <p>Monochromatic Social App</p>
             <div class="auth-tabs">
-                <button class="auth-tab active" onclick="switchAuthTab('login')">Đăng nhập</button>
-                <button class="auth-tab" onclick="switchAuthTab('register')">Đăng ký</button>
+                <button class="auth-tab active" onclick="toggleAuth('login')">Đăng nhập</button>
+                <button class="auth-tab" onclick="toggleAuth('register')">Đăng ký</button>
             </div>
-            <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
-                <input type="text" id="login-username" placeholder="Tên người dùng" required>
-                <input type="password" id="login-password" placeholder="Mật khẩu" required>
-                <button type="submit"><i class="fa-solid fa-right-to-bracket"></i> Đăng Nhập</button>
+            
+            <form id="login-form" onsubmit="handleAuth(event, 'login')">
+                <input type="text" id="login-user" placeholder="Tên đăng nhập (VD: Trung6011)" required>
+                <input type="password" id="login-pass" placeholder="Mật khẩu" required>
+                <button type="submit" style="width: 100%;">Đăng Nhập</button>
             </form>
-            <form id="register-form" class="auth-form" style="display: none;" onsubmit="handleRegister(event)">
-                <input type="text" id="reg-fullname" placeholder="Họ và Tên" required>
-                <input type="text" id="reg-username" placeholder="Tên người dùng" required>
-                <input type="password" id="reg-password" placeholder="Mật khẩu" required>
-                <button type="submit"><i class="fa-solid fa-user-plus"></i> Tạo Tài Khoản</button>
+
+            <form id="register-form" style="display: none;" onsubmit="handleAuth(event, 'register')">
+                <input type="text" id="reg-name" placeholder="Tên hiển thị" required>
+                <input type="text" id="reg-user" placeholder="Tên đăng nhập (viết liền, không dấu)" required>
+                <input type="password" id="reg-pass" placeholder="Mật khẩu" required>
+                <button type="submit" style="width: 100%;">Tạo Tài Khoản</button>
             </form>
         </div>
     </div>
 
     <div id="app-container">
         <header>
-            <div class="header-content">
-                <a href="#" class="logo" onclick="switchTab('feed')"><i class="fa-solid fa-globe"></i> 9c2network</a>
-                <div class="user-nav">
-                    <img id="nav-user-avatar" src="" class="avatar-small" alt="Avatar" onclick="switchTab('profile')">
-                    <button onclick="handleLogout()" title="Đăng xuất" style="padding: 6px 10px;"><i class="fa-solid fa-power-off"></i></button>
-                </div>
-                <nav class="nav-menu">
-                    <button class="nav-item active" id="nav-feed" onclick="switchTab('feed')"><i class="fa-solid fa-house"></i> Bảng tin</button>
-                    <button class="nav-item" id="nav-friends" onclick="switchTab('friends')"><i class="fa-solid fa-user-group"></i> Kết bạn</button>
-                    <button class="nav-item" id="nav-messages" onclick="switchTab('messages')"><i class="fa-solid fa-message"></i> Tin nhắn</button>
-                    <!-- Nav bổ sung cho mobile thay thế sidebar -->
-                    <button class="nav-item mobile-only-nav" id="nav-profile" onclick="switchTab('profile')" style="display: none;"><i class="fa-solid fa-user"></i> Hồ sơ</button>
-                </nav>
+            <a href="#" class="logo">9c2network</a>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <span id="header-username" style="font-size: 0.9rem; color: var(--text-secondary);"></span>
+                <i class="fa-solid fa-right-from-bracket" onclick="handleLogout()" style="cursor: pointer; font-size: 1.2rem;" title="Đăng xuất"></i>
             </div>
         </header>
 
-        <div class="main-layout">
-            <aside class="sidebar">
-                <div class="mini-profile">
-                    <img id="side-user-avatar" src="" alt="Avatar">
-                    <h3 id="side-user-name">--</h3>
-                    <p id="side-user-handle" style="font-size:0.85rem; color:var(--text-muted);">@--</p>
+        <main class="main-content">
+            <!-- PAGE: FEED -->
+            <div id="page-feed" class="page active">
+                <div class="card">
+                    <h3 style="font-size: 1rem; margin-bottom: 10px;"><i class="fa-solid fa-pen"></i> Tạo bài viết</h3>
+                    <input type="text" id="post-title" placeholder="Tiêu đề (không bắt buộc)...">
+                    <textarea id="post-content" rows="3" placeholder="Nội dung bài viết..."></textarea>
+                    
+                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Đính kèm Ảnh / Video:</label>
+                    <input type="file" id="post-file" accept="image/*,video/*">
+                    
+                    <button onclick="createPost()" style="width: 100%; margin-top: 5px;">Đăng Bài</button>
                 </div>
-                <div class="sidebar-menu">
-                    <button class="sidebar-btn" onclick="switchTab('profile')"><i class="fa-solid fa-id-card"></i> Trang cá nhân</button>
-                    <button class="sidebar-btn" onclick="switchTab('feed')"><i class="fa-solid fa-rss"></i> Bài đăng</button>
-                    <button class="sidebar-btn" onclick="switchTab('friends')"><i class="fa-solid fa-magnifying-glass"></i> Tìm bạn</button>
-                </div>
-            </aside>
+                <div id="feed-list"></div>
+            </div>
 
-            <main class="content-area">
-                <div id="tab-feed" class="tab-content">
-                    <div class="create-post-card">
-                        <h3 style="font-size: 0.95rem; margin-bottom: 8px;"><i class="fa-solid fa-pen-to-square"></i> Đăng bài viết</h3>
-                        <div class="create-post-inputs">
-                            <input type="text" id="post-title-input" placeholder="Tiêu đề...">
-                            <textarea id="post-content-input" placeholder="Bạn đang nghĩ gì?" rows="2"></textarea>
-                            <input type="text" id="post-media-input" placeholder="URL Hình/Video (Tùy chọn)...">
+            <!-- PAGE: SEARCH FRIENDS -->
+            <div id="page-friends" class="page">
+                <div class="card">
+                    <input type="text" id="search-input" placeholder="Nhập tên người dùng cần tìm..." oninput="searchUsers()">
+                </div>
+                <div id="search-results" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+            </div>
+
+            <!-- PAGE: MESSAGES -->
+            <div id="page-messages" class="page">
+                <div class="chat-layout">
+                    <div class="chat-list-view" id="chat-list"></div>
+                    
+                    <div class="chat-room-view" id="chat-room">
+                        <div class="chat-room-header">
+                            <i class="fa-solid fa-chevron-left" onclick="closeChatRoom()" style="cursor: pointer; padding: 5px; font-size: 1.1rem;"></i>
+                            <img id="chat-active-avatar" src="" class="avatar-sm">
+                            <strong id="chat-active-name">--</strong>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                            <div class="post-type-options">
-                                <button class="post-type-btn selected" id="btn-type-standard" onclick="setPostType('standard')">Bài viết</button>
-                                <button class="post-type-btn" id="btn-type-live" onclick="setPostType('livestream')">🔴 Live</button>
-                            </div>
-                            <button onclick="submitNewPost()"><i class="fa-solid fa-paper-plane"></i> Đăng</button>
-                        </div>
-                    </div>
-                    <div id="posts-container" style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px;"></div>
-                </div>
-
-                <div id="tab-profile" class="tab-content" style="display: none;">
-                    <div class="profile-card">
-                        <div class="cover-photo-container"><img id="profile-cover-img" src=""></div>
-                        <div class="profile-details">
-                            <div class="avatar-container"><img id="profile-avatar-img" src=""></div>
-                            <div class="profile-header-actions">
-                                <button onclick="openEditProfileModal()" style="font-size: 0.85rem;"><i class="fa-solid fa-pen"></i> Sửa</button>
-                            </div>
-                            <div class="profile-info">
-                                <h2 id="profile-display-name" style="font-size: 1.3rem;">--</h2>
-                                <p id="profile-display-handle" style="color:var(--text-muted); font-size:0.85rem;">@--</p>
-                                <p id="profile-display-bio" style="margin-top:8px; font-size:0.9rem; color:var(--text-secondary);">--</p>
-                            </div>
-                        </div>
-                    </div>
-                    <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 1rem;"><i class="fa-solid fa-clock-rotate-left"></i> Bài đăng của bạn</h3>
-                    <div id="user-posts-container" style="display: flex; flex-direction: column; gap: 15px;"></div>
-                </div>
-
-                <div id="tab-friends" class="tab-content" style="display: none;">
-                    <div class="search-box-card">
-                        <h3 style="font-size:1rem;"><i class="fa-solid fa-user-plus"></i> Tìm kiếm</h3>
-                        <input type="text" id="search-username-input" placeholder="Nhập tên..." style="margin-top: 10px;" oninput="renderUserSearch()">
-                    </div>
-                    <div class="user-grid" id="user-search-results"></div>
-                </div>
-
-                <div id="tab-messages" class="tab-content" style="display: none;">
-                    <div class="chat-container" id="chat-wrapper">
-                        <div class="chat-list" id="chat-users-list"></div>
-                        
-                        <div class="chat-main">
-                            <div class="chat-header">
-                                <div class="chat-header-user">
-                                    <button id="mobile-back-chat" onclick="hideActiveChat()"><i class="fa-solid fa-chevron-left"></i></button>
-                                    <img id="chat-active-avatar" src="https://via.placeholder.com/40" class="avatar-small">
-                                    <div>
-                                        <strong id="chat-active-name" style="font-size:0.95rem;">Chọn người chat</strong>
-                                        <p id="chat-active-status" style="font-size: 0.75rem; color: var(--text-muted);"></p>
-                                    </div>
-                                </div>
-                                <div class="chat-header-actions" id="chat-call-actions" style="display: none;">
-                                    <button onclick="startCall('voice')"><i class="fa-solid fa-phone"></i></button>
-                                    <button onclick="startCall('video')"><i class="fa-solid fa-video"></i></button>
-                                </div>
-                            </div>
-                            <div class="chat-messages" id="chat-messages-body">
-                                <div style="text-align: center; color: var(--text-muted); margin-top: 50px; font-size:0.9rem;">Chọn bạn bè để nhắn tin.</div>
-                            </div>
-                            <div class="chat-input-bar">
-                                <button onclick="sendAttachment('image')" style="padding: 8px;"><i class="fa-solid fa-image"></i></button>
-                                <input type="text" id="chat-text-input" placeholder="Nhập tin nhắn..." onkeypress="handleChatKeyPress(event)">
-                                <button onclick="sendChatMessage()" style="padding: 8px 12px;"><i class="fa-solid fa-paper-plane"></i></button>
-                            </div>
+                        <div class="chat-messages" id="chat-messages-box"></div>
+                        <div class="chat-input-area">
+                            <label for="chat-file" style="cursor: pointer; font-size: 1.2rem; padding: 5px;"><i class="fa-solid fa-image"></i></label>
+                            <input type="file" id="chat-file" accept="image/*,video/*" style="display: none;" onchange="sendChatFile(this)">
+                            <input type="text" id="chat-text" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendChatText()">
+                            <button onclick="sendChatText()" style="padding: 10px 15px; border-radius: 20px;"><i class="fa-solid fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
+            </div>
+
+            <!-- PAGE: PROFILE -->
+            <div id="page-profile" class="page">
+                <div class="card profile-header-card">
+                    <img id="profile-cover" src="" class="cover-photo">
+                    <div class="profile-details">
+                        <img id="profile-avatar" src="" class="avatar-large">
+                        <div class="profile-actions">
+                            <button onclick="document.getElementById('modal-edit-profile').style.display='flex'"><i class="fa-solid fa-pen"></i> Chỉnh sửa</button>
+                        </div>
+                        <h2 id="profile-name" style="margin-top: 10px;">--</h2>
+                        <p id="profile-handle" style="color: var(--text-secondary); font-size: 0.9rem;">@--</p>
+                        <p id="profile-bio" style="margin-top: 10px; font-size: 0.95rem;">--</p>
+                    </div>
+                </div>
+                <h3 style="margin: 20px 0 10px;"><i class="fa-solid fa-images"></i> Bài viết của bạn</h3>
+                <div id="profile-posts-list"></div>
+            </div>
+        </main>
+
+        <!-- BOTTOM NAV BAR -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchPage('feed', this)"><i class="fa-solid fa-house"></i> Bảng tin</button>
+            <button class="nav-item" onclick="switchPage('friends', this)"><i class="fa-solid fa-magnifying-glass"></i> Tìm bạn</button>
+            <button class="nav-item" onclick="switchPage('messages', this)"><i class="fa-solid fa-message"></i> Tin nhắn</button>
+            <button class="nav-item" onclick="switchPage('profile', this)"><i class="fa-solid fa-user"></i> Hồ sơ</button>
+        </nav>
     </div>
 
-    <!-- Modals -->
-    <div id="modal-edit-profile" class="modal-overlay">
-        <div class="call-modal">
-            <h3 style="font-size:1.2rem;">Sửa Trang Cá Nhân</h3>
-            <div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
-                <label style="font-size:0.85rem;">Tên hiển thị:</label><input type="text" id="edit-name-input">
-                <label style="font-size:0.85rem;">URL Avatar:</label><input type="text" id="edit-avatar-input">
-                <label style="font-size:0.85rem;">URL Cover:</label><input type="text" id="edit-cover-input">
-                <label style="font-size:0.85rem;">Tiểu sử:</label><textarea id="edit-bio-input" rows="3"></textarea>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
-                <button onclick="closeEditProfileModal()">Hủy</button>
-                <button onclick="saveProfileChanges()">Lưu</button>
+    <div id="modal-edit-profile" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;">Chỉnh sửa Hồ Sơ</h2>
+            <label>Tên hiển thị:</label>
+            <input type="text" id="edit-name">
+            <label>Tiểu sử:</label>
+            <textarea id="edit-bio" rows="2"></textarea>
+            
+            <label>Đổi Ảnh đại diện:</label>
+            <input type="file" id="edit-avatar-file" accept="image/*">
+            
+            <label>Đổi Ảnh bìa:</label>
+            <input type="file" id="edit-cover-file" accept="image/*">
+            
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                <button onclick="document.getElementById('modal-edit-profile').style.display='none'">Hủy</button>
+                <button onclick="saveProfile()">Lưu Thay Đổi</button>
             </div>
         </div>
     </div>
 
-    <div id="modal-call" class="modal-overlay">
-        <div class="call-modal">
-            <h3 id="call-title" style="font-size:1.1rem;">Đang gọi...</h3>
-            <div class="video-streams">
-                <video id="local-video" autoplay playsinline muted></video>
-                <div id="voice-avatar-placeholder" style="display:none; position:absolute; flex-direction:column; align-items:center;">
-                    <img id="call-user-avatar" src="" style="width: 80px; height:80px; border-radius:50%; border:2px solid #fff;">
-                    <p id="call-user-name" style="margin-top:10px; font-size:1rem;"></p>
-                </div>
-            </div>
-            <div class="call-controls">
-                <button id="btn-toggle-mic" onclick="toggleMic()"><i class="fa-solid fa-microphone"></i></button>
-                <button id="btn-toggle-cam" onclick="toggleCam()"><i class="fa-solid fa-video"></i></button>
-                <button class="btn-danger" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i> Tắt</button>
-            </div>
-        </div>
-    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, where, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-    <script>
-        // Data Khởi tạo
-        const DEFAULT_USERS = [{ username: "Trung6011", password: "Trung143@", fullname: "Nguyễn Trung", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150", cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000", bio: "Founder tại 9c2network.io.vn", friends: ["admin_system"] }, { username: "admin_system", password: "123", fullname: "Hệ Thống 9c2", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150", cover: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1000", bio: "Hỗ trợ tự động.", friends: ["Trung6011"] }];
-        const DEFAULT_POSTS = [{ id: "p1", username: "Trung6011", title: "Chào mừng bạn đến với 9c2network", content: "Mạng xã hội Monochromatic. Hỗ trợ responsive mobile hoàn chỉnh!", media: "", type: "standard", timestamp: "Vừa xong", likes: ["admin_system"], comments: [], shares: 0 }];
-
-        let users = JSON.parse(localStorage.getItem("9c2_users")) || DEFAULT_USERS;
-        let posts = JSON.parse(localStorage.getItem("9c2_posts")) || DEFAULT_POSTS;
-        let messages = JSON.parse(localStorage.getItem("9c2_messages")) || [];
-        let currentUser = JSON.parse(localStorage.getItem("9c2_current_user")) || null;
-        let activeChatUser = null; let currentPostType = 'standard'; let localStream = null;
-
-        function saveData() {
-            localStorage.setItem("9c2_users", JSON.stringify(users));
-            localStorage.setItem("9c2_posts", JSON.stringify(posts));
-            localStorage.setItem("9c2_messages", JSON.stringify(messages));
-            if(currentUser) localStorage.setItem("9c2_current_user", JSON.stringify(currentUser)); else localStorage.removeItem("9c2_current_user");
-        }
-
-        window.onload = function() {
-            if (window.innerWidth <= 768) document.getElementById('nav-profile').style.display = 'flex';
-            if (currentUser) { const found = users.find(u => u.username === currentUser.username); if(found) currentUser = found; showMainApp(); }
-            else { document.getElementById("auth-container").style.display = "flex"; }
+        const firebaseConfig = { 
+            apiKey : "AIzaSyDYMDR5k9x9LwSs2GCjVyLJWNEUCnXXiJU", 
+            authDomain : "c2network.firebaseapp.com", 
+            projectId : "c2network", 
+            storageBucket : "c2network.firebasestorage.app", 
+            messagingSenderId : "585950296404", 
+            appId : "1:585950296404:web:10bfa0bc3c4204eb2c70c1", 
+            measurementId : "G-YSW54YGNXY"
         };
 
-        function switchAuthTab(tab) {
-            document.querySelectorAll(".auth-tab").forEach(b => b.classList.remove("active"));
-            if(tab === 'login') { document.querySelectorAll(".auth-tab")[0].classList.add("active"); document.getElementById("login-form").style.display = "flex"; document.getElementById("register-form").style.display = "none"; }
-            else { document.querySelectorAll(".auth-tab")[1].classList.add("active"); document.getElementById("login-form").style.display = "none"; document.getElementById("register-form").style.display = "flex"; }
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
 
-        function handleLogin(e) {
-            e.preventDefault(); const uInput = document.getElementById("login-username").value.trim(); const pInput = document.getElementById("login-password").value.trim();
-            const found = users.find(u => u.username === uInput && u.password === pInput);
-            if(found) { currentUser = found; saveData(); showMainApp(); } else alert("Sai tài khoản/mật khẩu!");
-        }
+        let currentUserDoc = null;
+        let activeChatUserId = null;
+        const usersCache = {};
+        const expandedComments = new Set(); // Preserves comment box visibility state across updates
 
-        function handleRegister(e) {
-            e.preventDefault(); const name = document.getElementById("reg-fullname").value.trim(); const uname = document.getElementById("reg-username").value.trim(); const pass = document.getElementById("reg-password").value.trim();
-            if(users.some(u => u.username === uname)) return alert("Tên đăng nhập đã tồn tại!");
-            const newUser = { username: uname, password: pass, fullname: name, avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150", cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000", bio: "Thành viên mới", friends: [] };
-            users.push(newUser); currentUser = newUser; saveData(); showMainApp();
-        }
-
-        function handleLogout() { if(confirm("Đăng xuất?")) { currentUser = null; saveData(); location.reload(); } }
-
-        function showMainApp() {
-            document.getElementById("auth-container").style.display = "none"; document.getElementById("app-container").style.display = "flex";
-            document.getElementById("nav-user-avatar").src = currentUser.avatar; document.getElementById("side-user-avatar").src = currentUser.avatar;
-            document.getElementById("side-user-name").innerText = currentUser.fullname; document.getElementById("side-user-handle").innerText = "@" + currentUser.username;
-            renderProfileTab(); renderPosts(); renderUserSearch(); renderChatUserList();
-        }
-
-        function switchTab(tabName) {
-            document.querySelectorAll(".tab-content").forEach(el => el.style.display = "none");
-            document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
-            document.getElementById(`tab-${tabName}`).style.display = "block";
-            const navBtn = document.getElementById(`nav-${tabName}`); if(navBtn) navBtn.classList.add("active");
-            if(tabName === 'profile') renderProfileTab(); if(tabName === 'friends') renderUserSearch(); if(tabName === 'messages') { renderChatUserList(); hideActiveChat(); }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Post Logic
-        function setPostType(type) { currentPostType = type; document.getElementById("btn-type-standard").classList.toggle("selected", type === 'standard'); document.getElementById("btn-type-live").classList.toggle("selected", type === 'livestream'); }
-        function submitNewPost() {
-            const title = document.getElementById("post-title-input").value.trim(); const content = document.getElementById("post-content-input").value.trim(); const media = document.getElementById("post-media-input").value.trim();
-            if(!title && !content) return alert("Nhập nội dung!");
-            posts.unshift({ id: "p_" + Date.now(), username: currentUser.username, title, content, media, type: currentPostType, timestamp: "Vừa xong", likes: [], comments: [], shares: 0 });
-            saveData(); document.getElementById("post-title-input").value = ""; document.getElementById("post-content-input").value = ""; document.getElementById("post-media-input").value = ""; renderPosts(); renderProfileTab();
-        }
-        function renderPosts() {
-            const container = document.getElementById("posts-container"); container.innerHTML = "";
-            posts.forEach(post => {
-                const author = users.find(u => u.username === post.username) || { fullname: post.username, avatar: "https://via.placeholder.com/40" };
-                const isLiked = post.likes.includes(currentUser.username);
-                container.innerHTML += `
-                    <div class="post-card">
-                        <div class="post-header"><div class="post-author"><img src="${author.avatar}" class="post-author-img"><div><strong style="font-size:0.95rem;">${author.fullname}</strong><p style="font-size:0.75rem;color:var(--text-muted);">@${post.username} • ${post.timestamp}</p></div></div></div>
-                        ${post.title ? `<div class="post-title">${escapeHtml(post.title)}</div>` : ''}
-                        ${post.content ? `<div class="post-text">${escapeHtml(post.content)}</div>` : ''}
-                        ${post.media ? `<div class="post-media"><img src="${post.media}"></div>` : ''}
-                        <div class="post-actions">
-                            <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')"><i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${post.likes.length}</button>
-                            <button class="action-btn"><i class="fa-regular fa-comment"></i> ${post.comments.length}</button>
-                        </div>
-                    </div>`;
-            });
-        }
-        function toggleLike(id) { const post = posts.find(p => p.id === id); if(!post) return; const idx = post.likes.indexOf(currentUser.username); if(idx > -1) post.likes.splice(idx, 1); else post.likes.push(currentUser.username); saveData(); renderPosts(); }
-
-        // Profile Logic
-        function renderProfileTab() {
-            document.getElementById("profile-cover-img").src = currentUser.cover; document.getElementById("profile-avatar-img").src = currentUser.avatar;
-            document.getElementById("profile-display-name").innerText = currentUser.fullname; document.getElementById("profile-display-handle").innerText = "@" + currentUser.username; document.getElementById("profile-display-bio").innerText = currentUser.bio || "Chưa có tiểu sử.";
-            const userPostsContainer = document.getElementById("user-posts-container"); userPostsContainer.innerHTML = "";
-            posts.filter(p => p.username === currentUser.username).forEach(post => {
-                userPostsContainer.innerHTML += `<div class="post-card"><strong style="font-size:0.95rem">${post.title || 'Bài viết'}</strong><p style="font-size:0.85rem">${escapeHtml(post.content)}</p></div>`;
-            });
-        }
-        function openEditProfileModal() { document.getElementById("edit-name-input").value = currentUser.fullname; document.getElementById("edit-avatar-input").value = currentUser.avatar; document.getElementById("edit-cover-input").value = currentUser.cover; document.getElementById("edit-bio-input").value = currentUser.bio || ""; document.getElementById("modal-edit-profile").style.display = "flex"; }
-        function closeEditProfileModal() { document.getElementById("modal-edit-profile").style.display = "none"; }
-        function saveProfileChanges() {
-            currentUser.fullname = document.getElementById("edit-name-input").value.trim() || currentUser.fullname; currentUser.avatar = document.getElementById("edit-avatar-input").value.trim() || currentUser.avatar; currentUser.cover = document.getElementById("edit-cover-input").value.trim() || currentUser.cover; currentUser.bio = document.getElementById("edit-bio-input").value.trim();
-            const idx = users.findIndex(u => u.username === currentUser.username); if(idx > -1) users[idx] = currentUser; saveData(); closeEditProfileModal(); showMainApp();
-        }
-
-        // Friends Logic
-        function renderUserSearch() {
-            const query = document.getElementById("search-username-input").value.toLowerCase(); const container = document.getElementById("user-search-results"); container.innerHTML = "";
-            users.filter(u => u.username !== currentUser.username && (u.username.toLowerCase().includes(query) || u.fullname.toLowerCase().includes(query))).forEach(user => {
-                const isFriend = currentUser.friends.includes(user.username);
-                container.innerHTML += `<div class="user-card"><img src="${user.avatar}"><strong style="font-size:0.9rem">${user.fullname}</strong><button onclick="toggleFriend('${user.username}')">${isFriend ? 'Hủy bạn' : 'Kết bạn'}</button></div>`;
-            });
-        }
-        function toggleFriend(u) { const idx = currentUser.friends.indexOf(u); if(idx > -1) currentUser.friends.splice(idx, 1); else currentUser.friends.push(u); const userIdx = users.findIndex(user => user.username === currentUser.username); if(userIdx > -1) users[userIdx] = currentUser; saveData(); renderUserSearch(); renderChatUserList(); }
-
-        // Chat Logic
-        function renderChatUserList() {
-            const container = document.getElementById("chat-users-list"); container.innerHTML = "";
-            users.filter(u => u.username !== currentUser.username).forEach(u => {
-                const div = document.createElement("div"); div.className = `chat-user-item ${activeChatUser?.username === u.username ? 'active' : ''}`; div.onclick = () => selectChatUser(u);
-                div.innerHTML = `<img src="${u.avatar}"><div><strong style="font-size:0.9rem">${u.fullname}</strong><p style="font-size:0.75rem; color:var(--text-muted);">@${u.username}</p></div>`; container.appendChild(div);
-            });
-        }
-        function selectChatUser(user) {
-            activeChatUser = user; document.getElementById("chat-active-avatar").src = user.avatar; document.getElementById("chat-active-name").innerText = user.fullname; document.getElementById("chat-active-status").innerText = "@" + user.username; document.getElementById("chat-call-actions").style.display = "flex";
-            document.getElementById("chat-wrapper").classList.add("chat-active"); // Kích hoạt giao diện Mobile Chat Main
-            renderChatUserList(); renderMessages();
-        }
-        function hideActiveChat() { document.getElementById("chat-wrapper").classList.remove("chat-active"); activeChatUser = null; renderChatUserList(); }
-        function renderMessages() {
-            if(!activeChatUser) return; const body = document.getElementById("chat-messages-body"); body.innerHTML = "";
-            messages.filter(m => (m.from === currentUser.username && m.to === activeChatUser.username) || (m.from === activeChatUser.username && m.to === currentUser.username)).forEach(m => {
-                body.innerHTML += `<div class="msg-bubble ${m.from === currentUser.username ? 'sent' : 'received'}">${escapeHtml(m.text || '')} ${m.mediaUrl ? `<br><img src="${m.mediaUrl}" style="max-width:100%; border-radius:4px; margin-top:5px;">` : ''}</div>`;
-            });
-            body.scrollTop = body.scrollHeight;
-        }
-        function sendChatMessage(type = 'text', mediaUrl = '') {
-            if(!activeChatUser) return; const input = document.getElementById("chat-text-input"); const text = input.value.trim(); if(!text && !mediaUrl) return;
-            messages.push({ from: currentUser.username, to: activeChatUser.username, text, mediaType: type, mediaUrl, timestamp: Date.now() }); saveData(); input.value = ""; renderMessages();
-        }
-        function handleChatKeyPress(e) { if(e.key === 'Enter') sendChatMessage(); }
-        function sendAttachment(type) { const url = prompt(`Nhập URL Hình ảnh:`); if(url) sendChatMessage(type, url); }
-
-        // Calling Logic
-        async function startCall(type) {
-            if(!activeChatUser) return; document.getElementById("call-title").innerText = `${type === 'video' ? 'Video Call' : 'Voice Call'} với ${activeChatUser.fullname}`; document.getElementById("modal-call").style.display = "flex";
-            if(type === 'voice') { document.getElementById("voice-avatar-placeholder").style.display = "flex"; document.getElementById("call-user-avatar").src = activeChatUser.avatar; } else document.getElementById("voice-avatar-placeholder").style.display = "none";
-            try { localStream = await navigator.mediaDevices.getUserMedia({ video: type === 'video', audio: true }); document.getElementById("local-video").srcObject = localStream; } catch (e) { console.log(e); }
-        }
-        function endCall() { if(localStream) localStream.getTracks().forEach(t => t.stop()); document.getElementById("modal-call").style.display = "none"; }
-        function toggleMic() { if(localStream) { const track = localStream.getAudioTracks()[0]; if(track) track.enabled = !track.enabled; } }
-        function toggleCam() { if(localStream) { const track = localStream.getVideoTracks()[0]; if(track) track.enabled = !track.enabled; } }
+        const showLoading = (text) => { 
+            document.getElementById('loading-text').innerText = text; 
+            document.getElementById('loading-overlay').style.display = 'flex'; 
+        };
+        const hideLoading = () => document.getElementById('loading-overlay').style.display = 'none';
+        const formatEmail = (user) => `${user.toLowerCase().trim()}@9c2network.io.vn`;
         
-        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+        const timeAgo = (timestamp) => {
+            if (!timestamp) return 'Vừa xong';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'Vừa xong';
+            if (seconds < 3600) return Math.floor(seconds/60) + ' phút trước';
+            if (seconds < 86400) return Math.floor(seconds/3600) + ' giờ trước';
+            return Math.floor(seconds/86400) + ' ngày trước';
+        };
+
+        window.toggleAuth = (type) => {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            if(type === 'login') { 
+                document.querySelectorAll('.auth-tab')[0].classList.add('active'); 
+                document.getElementById('login-form').style.display = 'block'; 
+                document.getElementById('register-form').style.display = 'none'; 
+            } else { 
+                document.querySelectorAll('.auth-tab')[1].classList.add('active'); 
+                document.getElementById('login-form').style.display = 'none'; 
+                document.getElementById('register-form').style.display = 'block'; 
+            }
+        };
+
+        window.switchPage = (pageId, btn) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                const navIndex = pageId === 'feed' ? 0 : pageId === 'friends' ? 1 : pageId === 'messages' ? 2 : 3;
+                const navBtns = document.querySelectorAll('.nav-item');
+                if (navBtns[navIndex]) navBtns[navIndex].classList.add('active');
+            }
+
+            window.scrollTo({top: 0});
+            if(pageId === 'profile') renderProfilePage();
+            if(pageId === 'friends') searchUsers();
+            if(pageId === 'messages' && !activeChatUserId) {
+                document.getElementById('chat-list').style.display = 'block';
+                document.getElementById('chat-room').style.display = 'none';
+            }
+        };
+
+        async function uploadFileToStorage(file, folder) {
+            if(!file) return null;
+            const fileRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
+            await uploadBytes(fileRef, file);
+            return await getDownloadURL(fileRef);
+        }
+
+        window.handleAuth = async (e, type) => {
+            e.preventDefault();
+            showLoading("Đang xử lý...");
+            try {
+                if(type === 'login') {
+                    const user = document.getElementById('login-user').value;
+                    const pass = document.getElementById('login-pass').value;
+                    await signInWithEmailAndPassword(auth, formatEmail(user), pass);
+                } else {
+                    const name = document.getElementById('reg-name').value;
+                    const user = document.getElementById('reg-user').value.toLowerCase().replace(/\s/g, '');
+                    const pass = document.getElementById('reg-pass').value;
+                    
+                    const res = await createUserWithEmailAndPassword(auth, formatEmail(user), pass);
+                    await setDoc(doc(db, "users", res.user.uid), {
+                        uid: res.user.uid,
+                        username: user,
+                        displayName: name,
+                        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
+                        cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
+                        bio: "Người dùng mới tại 9c2network",
+                        friends: []
+                    });
+                }
+            } catch (error) {
+                alert("Lỗi xác thực: " + error.message);
+            }
+            hideLoading();
+        };
+
+        window.handleLogout = () => signOut(auth);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('app-container').style.display = 'flex';
+                
+                onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+                    if (docSnap.exists()) {
+                        currentUserDoc = docSnap.data();
+                    } else {
+                        const fallbackUser = user.email ? user.email.split('@')[0] : 'user';
+                        currentUserDoc = {
+                            uid: user.uid,
+                            username: fallbackUser,
+                            displayName: user.displayName || fallbackUser,
+                            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackUser)}&background=random`,
+                            cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
+                            bio: "Người dùng mới tại 9c2network",
+                            friends: []
+                        };
+                    }
+                    document.getElementById('header-username').innerText = `@${currentUserDoc.username || 'user'}`;
+                    if(document.getElementById('page-profile').classList.contains('active')) renderProfilePage();
+                });
+
+                listenFeed();
+                listenChatUsers();
+            } else {
+                document.getElementById('auth-container').style.display = 'flex';
+                document.getElementById('app-container').style.display = 'none';
+                currentUserDoc = null;
+            }
+        });
+
+        window.createPost = async () => {
+            if (!currentUserDoc) return alert("Đang tải dữ liệu người dùng, vui lòng thử lại sau giây lát!");
+            const title = document.getElementById('post-title').value.trim();
+            const content = document.getElementById('post-content').value.trim();
+            const file = document.getElementById('post-file').files[0];
+
+            if(!content && !file && !title) return alert("Vui lòng nhập nội dung hoặc chọn đính kèm ảnh/video!");
+
+            showLoading("Đang đăng bài...");
+            try {
+                let mediaUrl = "";
+                let mediaType = "text";
+
+                if (file) {
+                    mediaUrl = await uploadFileToStorage(file, "posts");
+                    mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+                }
+
+                await addDoc(collection(db, "posts"), {
+                    authorUid: currentUserDoc.uid,
+                    authorName: currentUserDoc.displayName || currentUserDoc.username,
+                    authorUsername: currentUserDoc.username,
+                    authorAvatar: currentUserDoc.avatar,
+                    title: title,
+                    content: content,
+                    mediaUrl: mediaUrl,
+                    mediaType: mediaType,
+                    likes: [],
+                    comments: [],
+                    createdAt: serverTimestamp()
+                });
+
+                document.getElementById('post-title').value = '';
+                document.getElementById('post-content').value = '';
+                document.getElementById('post-file').value = '';
+            } catch (error) {
+                alert("Lỗi đăng bài: " + error.message);
+            }
+            hideLoading();
+        };
+
+        window.deletePost = async (postId) => {
+            if(confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+                await deleteDoc(doc(db, "posts", postId));
+            }
+        };
+
+        function listenFeed() {
+            const q = collection(db, "posts");
+            onSnapshot(q, (snapshot) => {
+                const list = document.getElementById('feed-list');
+                list.innerHTML = '';
+                
+                let posts = [];
+                snapshot.forEach(docSnap => {
+                    posts.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // Safe descending sort in memory by timestamp
+                posts.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
+                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0);
+                    return timeB - timeA;
+                });
+
+                posts.forEach(p => {
+                    const currentUid = currentUserDoc ? currentUserDoc.uid : null;
+                    const isLiked = currentUid && p.likes && Array.isArray(p.likes) && p.likes.includes(currentUid);
+                    const isAuthor = currentUid && p.authorUid === currentUid;
+                    const isOpen = expandedComments.has(p.id);
+                    
+                    let mediaHtml = '';
+                    if (p.mediaUrl) {
+                        mediaHtml = p.mediaType === 'video' 
+                            ? `<div class="post-media-box"><video src="${p.mediaUrl}" controls></video></div>`
+                            : `<div class="post-media-box"><img src="${p.mediaUrl}" loading="lazy"></div>`;
+                    }
+
+                    let commentsHtml = (p.comments || []).map(c => `
+                        <div class="comment-item">
+                            <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}">
+                            <div class="comment-box">
+                                <strong style="font-size:0.85rem;">${c.name}</strong>
+                                <p style="margin-top:2px; font-size:0.9rem;">${c.text}</p>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    list.innerHTML += `
+                        <div class="card">
+                            <div class="post-header">
+                                <div class="user-info-sm">
+                                    <img src="${p.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm">
+                                    <div>
+                                        <strong>${p.authorName || 'Ẩn danh'}</strong>
+                                        <p style="font-size:0.75rem; color:var(--text-secondary);">@${p.authorUsername || 'user'} • ${timeAgo(p.createdAt)}</p>
+                                    </div>
+                                </div>
+                                ${isAuthor ? `<button class="delete-btn" onclick="deletePost('${p.id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            </div>
+                            ${p.title ? `<h4 style="margin-bottom:5px;">${p.title}</h4>` : ''}
+                            ${p.content ? `<p style="white-space: pre-wrap; font-size:0.95rem;">${p.content}</p>` : ''}
+                            ${mediaHtml}
+                            <div class="post-actions">
+                                <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}', ${Boolean(isLiked)})">
+                                    <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${p.likes ? p.likes.length : 0}
+                                </button>
+                                <button class="action-btn" onclick="toggleCommentSection('${p.id}')">
+                                    <i class="fa-regular fa-comment"></i> ${p.comments ? p.comments.length : 0}
+                                </button>
+                            </div>
+                            <div class="comment-section" id="comments-${p.id}" style="display: ${isOpen ? 'block' : 'none'};">
+                                ${commentsHtml}
+                                <div style="display:flex; gap:10px; margin-top:10px;">
+                                    <input type="text" id="comment-input-${p.id}" placeholder="Viết bình luận..." style="margin-bottom:0; flex:1;" onkeypress="if(event.key==='Enter') addComment('${p.id}')">
+                                    <button onclick="addComment('${p.id}')" style="padding: 10px 15px;"><i class="fa-solid fa-paper-plane"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }, (err) => {
+                console.error("Lỗi tải feed:", err);
+            });
+        }
+
+        window.toggleCommentSection = (postId) => {
+            const sec = document.getElementById(`comments-${postId}`);
+            if (!sec) return;
+            if (expandedComments.has(postId)) {
+                expandedComments.delete(postId);
+                sec.style.display = 'none';
+            } else {
+                expandedComments.add(postId);
+                sec.style.display = 'block';
+            }
+        };
+
+        window.addComment = async (postId) => {
+            if (!currentUserDoc) return;
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                expandedComments.add(postId);
+                await updateDoc(doc(db, "posts", postId), {
+                    comments: arrayUnion({
+                        uid: currentUserDoc.uid,
+                        name: currentUserDoc.displayName || currentUserDoc.username || 'Người dùng',
+                        avatar: currentUserDoc.avatar || `https://ui-avatars.com/api/?name=User`,
+                        text: text,
+                        createdAt: Date.now()
+                    })
+                });
+                input.value = '';
+            } catch (e) {
+                alert("Lỗi thêm bình luận: " + e.message);
+            }
+        };
+
+        window.toggleLike = async (postId, isLiked) => {
+            if (!currentUserDoc) return;
+            const postRef = doc(db, "posts", postId);
+            if (isLiked) {
+                await updateDoc(postRef, { likes: arrayRemove(currentUserDoc.uid) });
+            } else {
+                await updateDoc(postRef, { likes: arrayUnion(currentUserDoc.uid) });
+            }
+        };
+
+        function renderProfilePage() {
+            if (!currentUserDoc) return;
+            document.getElementById('profile-cover').src = currentUserDoc.cover || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
+            document.getElementById('profile-avatar').src = currentUserDoc.avatar || "https://ui-avatars.com/api/?name=User";
+            document.getElementById('profile-name').innerText = currentUserDoc.displayName || "--";
+            document.getElementById('profile-handle').innerText = `@${currentUserDoc.username || "--"}`;
+            document.getElementById('profile-bio').innerText = currentUserDoc.bio || "";
+            
+            document.getElementById('edit-name').value = currentUserDoc.displayName || "";
+            document.getElementById('edit-bio').value = currentUserDoc.bio || "";
+
+            if (!currentUserDoc.uid) return;
+            const q = query(collection(db, "posts"), where("authorUid", "==", currentUserDoc.uid));
+            onSnapshot(q, (snap) => {
+                const list = document.getElementById('profile-posts-list');
+                if (snap.empty) {
+                    list.innerHTML = '<p style="text-align:center; color:gray; padding: 20px;">Chưa có bài viết nào.</p>';
+                    return;
+                }
+                
+                let posts = [];
+                snap.forEach(d => posts.push({ id: d.id, ...d.data() }));
+                
+                posts.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
+                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0);
+                    return timeB - timeA;
+                });
+
+                list.innerHTML = '';
+                posts.forEach(p => {
+                    list.innerHTML += `<div class="card"><p style="font-weight:600;">${p.title || 'Bài viết'}</p><p style="margin-top:5px; font-size:0.9rem;">${p.content || ''}</p></div>`;
+                });
+            }, (err) => {
+                console.error("Profile posts error:", err);
+            });
+        }
+
+        window.saveProfile = async () => {
+            if (!currentUserDoc) return;
+            const name = document.getElementById('edit-name').value.trim();
+            const bio = document.getElementById('edit-bio').value.trim();
+            const avatarFile = document.getElementById('edit-avatar-file').files[0];
+            const coverFile = document.getElementById('edit-cover-file').files[0];
+
+            showLoading("Đang lưu thông tin...");
+            try {
+                let updates = { displayName: name, bio: bio };
+
+                if(avatarFile) updates.avatar = await uploadFileToStorage(avatarFile, "avatars");
+                if(coverFile) updates.cover = await uploadFileToStorage(coverFile, "covers");
+
+                await updateDoc(doc(db, "users", currentUserDoc.uid), updates);
+                
+                const q = query(collection(db, "posts"), where("authorUid", "==", currentUserDoc.uid));
+                const snap = await getDocs(q);
+                snap.forEach(d => updateDoc(doc(db, "posts", d.id), { authorName: name, authorAvatar: updates.avatar || currentUserDoc.avatar }));
+
+                document.getElementById('modal-edit-profile').style.display = 'none';
+            } catch (err) {
+                alert("Lỗi lưu hồ sơ: " + err.message);
+            }
+            hideLoading();
+        };
+
+        window.searchUsers = async () => {
+            const text = document.getElementById('search-input').value.toLowerCase().trim();
+            try {
+                const q = query(collection(db, "users"));
+                const snap = await getDocs(q);
+                
+                const list = document.getElementById('search-results');
+                list.innerHTML = '';
+                
+                snap.forEach(d => {
+                    const u = d.data();
+                    if(currentUserDoc && u.uid !== currentUserDoc.uid && (!text || u.username?.toLowerCase().includes(text) || u.displayName?.toLowerCase().includes(text))) {
+                        usersCache[u.uid] = u;
+                        list.innerHTML += `
+                            <div class="card" style="text-align:center; padding: 15px 10px;">
+                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:60px; height:60px; margin:0 auto 10px;">
+                                <strong style="display:block; font-size:0.9rem;">${u.displayName || 'User'}</strong>
+                                <p style="font-size:0.75rem; color:gray; margin-bottom:10px;">@${u.username || 'user'}</p>
+                                <button onclick="openChatById('${u.uid}')" style="width:100%; font-size:0.8rem;"><i class="fa-solid fa-message"></i> Nhắn tin</button>
+                            </div>
+                        `;
+                    }
+                });
+            } catch(err) {
+                console.error("Search error:", err);
+            }
+        };
+
+        function listenChatUsers() {
+            const q = query(collection(db, "users"));
+            onSnapshot(q, (snap) => {
+                const list = document.getElementById('chat-list');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const u = d.data();
+                    if(currentUserDoc && u.uid !== currentUserDoc.uid) {
+                        usersCache[u.uid] = u;
+                        list.innerHTML += `
+                            <div class="chat-user-item" onclick="openChatById('${u.uid}')">
+                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm">
+                                <div>
+                                    <strong style="font-size:0.95rem;">${u.displayName || 'User'}</strong>
+                                    <p style="font-size:0.75rem; color:var(--text-secondary);">@${u.username || 'user'}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            }, (err) => console.error("Chat list error:", err));
+        }
+
+        let unsubscribeChat = null;
+
+        window.openChatById = (uid) => {
+            const u = usersCache[uid];
+            if (u) {
+                openChat(u.uid, u.displayName || u.username, u.avatar);
+            }
+        };
+
+        window.openChat = (uid, name, avatar) => {
+            if (!currentUserDoc) return;
+            activeChatUserId = uid;
+
+            // Automatically switch tab view to Messages
+            switchPage('messages', null);
+
+            document.getElementById('chat-list').style.display = 'none';
+            document.getElementById('chat-room').style.display = 'flex';
+            document.getElementById('chat-active-avatar').src = avatar || 'https://ui-avatars.com/api/?name=User';
+            document.getElementById('chat-active-name').innerText = name || 'User';
+            
+            const chatId = currentUserDoc.uid < uid ? `${currentUserDoc.uid}_${uid}` : `${uid}_${currentUserDoc.uid}`;
+            
+            if(unsubscribeChat) unsubscribeChat();
+            const q = query(collection(db, "messages"), where("chatId", "==", chatId));
+            
+            unsubscribeChat = onSnapshot(q, (snap) => {
+                const box = document.getElementById('chat-messages-box');
+                
+                let msgs = [];
+                snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+                
+                msgs.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
+                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0);
+                    return timeA - timeB;
+                });
+
+                box.innerHTML = '';
+                msgs.forEach(m => {
+                    const isMe = m.senderId === currentUserDoc.uid;
+                    let mediaHtml = '';
+                    if(m.mediaUrl) {
+                        mediaHtml = m.mediaType === 'video' ? `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>` 
+                                                            : `<img src="${m.mediaUrl}" style="width:100%; border-radius:8px; margin-top:5px;">`;
+                    }
+                    box.innerHTML += `
+                        <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
+                            ${m.text ? `<div>${m.text}</div>` : ''}
+                            ${mediaHtml}
+                        </div>
+                    `;
+                });
+                setTimeout(() => { box.scrollTop = box.scrollHeight; }, 50);
+            }, (err) => console.error("Message room error:", err));
+        };
+
+        window.closeChatRoom = () => {
+            document.getElementById('chat-room').style.display = 'none';
+            document.getElementById('chat-list').style.display = 'block';
+            activeChatUserId = null;
+            if(unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
+        };
+
+        window.sendChatText = async () => {
+            if (!currentUserDoc || !activeChatUserId) return;
+            const input = document.getElementById('chat-text');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const chatId = currentUserDoc.uid < activeChatUserId ? `${currentUserDoc.uid}_${activeChatUserId}` : `${activeChatUserId}_${currentUserDoc.uid}`;
+            input.value = '';
+            
+            try {
+                await addDoc(collection(db, "messages"), {
+                    chatId: chatId, 
+                    senderId: currentUserDoc.uid, 
+                    receiverId: activeChatUserId,
+                    text: text, 
+                    mediaUrl: "", 
+                    mediaType: "text", 
+                    createdAt: serverTimestamp()
+                });
+            } catch(e) {
+                alert("Không thể gửi tin nhắn: " + e.message);
+            }
+        };
+
+        window.sendChatFile = async (inputEl) => {
+            if (!currentUserDoc || !activeChatUserId) return;
+            const file = inputEl.files[0];
+            if(!file) return;
+            
+            showLoading("Đang gửi tập tin...");
+            try {
+                const mediaUrl = await uploadFileToStorage(file, "chatMedia");
+                const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+                const chatId = currentUserDoc.uid < activeChatUserId ? `${currentUserDoc.uid}_${activeChatUserId}` : `${activeChatUserId}_${currentUserDoc.uid}`;
+                
+                await addDoc(collection(db, "messages"), {
+                    chatId: chatId, 
+                    senderId: currentUserDoc.uid, 
+                    receiverId: activeChatUserId,
+                    text: "", 
+                    mediaUrl: mediaUrl, 
+                    mediaType: mediaType, 
+                    createdAt: serverTimestamp()
+                });
+            } catch(e) { 
+                alert("Lỗi gửi tập tin: " + e.message); 
+            }
+            inputEl.value = '';
+            hideLoading();
+        };
     </script>
 </body>
 </html>
