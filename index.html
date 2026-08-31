@@ -40,7 +40,7 @@
         .page { display: none; animation: fadeIn 0.2s ease-in-out; } .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-around; padding: 10px 0; z-index: 100; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 20px; padding: 10px 0; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 0.75rem; border: none; background: none; padding: 5px 15px; }
         .nav-item.active { color: var(--text-primary); }
         .nav-item i { font-size: 1.2rem; }
@@ -265,7 +265,7 @@
                     <img id="profile-cover" src="" class="cover-photo">
                     <div class="profile-details">
                         <img id="profile-avatar" src="" class="avatar-large">
-                        <div class="profile-actions">
+                        <div class="profile-actions" id="profile-actions-container">
                             <button onclick="document.getElementById('modal-edit-profile').style.display='flex'"><i class="fa-solid fa-pen"></i> Chỉnh sửa</button>
                         </div>
                         <h2 id="profile-name" style="margin-top: 10px;">--</h2>
@@ -377,7 +377,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, where, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, setDoc, query, where, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = { 
@@ -727,6 +727,11 @@
             }
         };
 
+        window.viewUserProfile = (uid) => {
+            switchPage('profile');
+            renderProfilePage(uid);
+        };
+
         window.switchPage = (pageId, btn) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -741,7 +746,7 @@
             }
 
             window.scrollTo({top: 0});
-            if(pageId === 'profile') renderProfilePage();
+            if(pageId === 'profile' && btn) renderProfilePage(currentUserDoc?.uid);
             if(pageId === 'friends') searchUsers();
             if(pageId === 'messages' && !activeChatTargetId) {
                 document.getElementById('chat-list').style.display = 'block';
@@ -1194,9 +1199,9 @@
 
                     let commentsHtml = (p.comments || []).map(c => `
                         <div class="comment-item">
-                            <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}" loading="lazy">
+                            <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}" loading="lazy" style="cursor:pointer;" onclick="viewUserProfile('${c.uid}')">
                             <div class="comment-box">
-                                <strong style="font-size:0.85rem;">${escapeHtml(c.name)}</strong>
+                                <strong style="font-size:0.85rem; cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}</strong>
                                 <p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(c.text)}</p>
                             </div>
                         </div>
@@ -1205,7 +1210,7 @@
                     list.innerHTML += `
                         <div class="card">
                             <div class="post-header">
-                                <div class="user-info-sm">
+                                <div class="user-info-sm" style="cursor:pointer;" onclick="viewUserProfile('${p.authorUid}')">
                                     <img src="${p.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
                                     <div>
                                         <strong>${escapeHtml(p.authorName || 'Ẩn danh')}</strong>
@@ -1298,20 +1303,54 @@
             }
         };
 
-        function renderProfilePage() {
-            if (!currentUserDoc) return;
-            document.getElementById('profile-cover').src = currentUserDoc.cover || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
-            document.getElementById('profile-avatar').src = currentUserDoc.avatar || "https://ui-avatars.com/api/?name=User";
-            document.getElementById('profile-name').innerText = currentUserDoc.displayName || "--";
-            document.getElementById('profile-handle').innerText = `@${currentUserDoc.username || "--"}`;
-            document.getElementById('profile-bio').innerText = currentUserDoc.bio || "";
-            
-            document.getElementById('edit-name').value = currentUserDoc.displayName || "";
-            document.getElementById('edit-bio').value = currentUserDoc.bio || "";
+        let unsubscribeProfilePosts = null;
 
-            if (!currentUserDoc.uid) return;
-            const q = query(collection(db, "posts"), where("authorUid", "==", currentUserDoc.uid));
-            onSnapshot(q, (snap) => {
+        window.renderProfilePage = async (uid = currentUserDoc?.uid) => {
+            if (!uid) return;
+
+            const isMe = currentUserDoc && currentUserDoc.uid === uid;
+            let targetUser = null;
+
+            if (isMe) {
+                targetUser = currentUserDoc;
+            } else {
+                if (usersCache[uid]) {
+                    targetUser = usersCache[uid];
+                } else {
+                    try {
+                        const snap = await getDoc(doc(db, "users", uid));
+                        if(snap.exists()) {
+                            targetUser = snap.data();
+                            usersCache[uid] = targetUser;
+                        } else {
+                            showToast("Người dùng không tồn tại!");
+                            return;
+                        }
+                    } catch(e) { console.error(e); return; }
+                }
+            }
+
+            if (!targetUser) return;
+
+            document.getElementById('profile-cover').src = targetUser.cover || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
+            document.getElementById('profile-avatar').src = targetUser.avatar || "https://ui-avatars.com/api/?name=User";
+            document.getElementById('profile-name').innerText = targetUser.displayName || "--";
+            document.getElementById('profile-handle').innerText = `@${targetUser.username || "--"}`;
+            document.getElementById('profile-bio').innerText = targetUser.bio || "";
+            
+            const actionsContainer = document.getElementById('profile-actions-container');
+            if (isMe) {
+                document.getElementById('edit-name').value = targetUser.displayName || "";
+                document.getElementById('edit-bio').value = targetUser.bio || "";
+                actionsContainer.innerHTML = `<button onclick="document.getElementById('modal-edit-profile').style.display='flex'"><i class="fa-solid fa-pen"></i> Chỉnh sửa</button>`;
+            } else {
+                actionsContainer.innerHTML = `<button onclick="openChatById('${uid}')"><i class="fa-solid fa-message"></i> Nhắn tin</button>`;
+            }
+
+            if(unsubscribeProfilePosts) unsubscribeProfilePosts();
+
+            const q = query(collection(db, "posts"), where("authorUid", "==", uid));
+            unsubscribeProfilePosts = onSnapshot(q, (snap) => {
                 const list = document.getElementById('profile-posts-list');
                 if (snap.empty) {
                     list.innerHTML = '<p style="text-align:center; color:gray; padding: 20px;">Chưa có bài viết nào.</p>';
