@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9c2network.io.vn - Monochromatic Social Network</title>
+    <!-- FontAwesome Icons & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* === BẢNG MÀU VÀ NỀN CHỦ ĐỀ ĐEN TRẮNG (MONOCHROME) === */
+        :root {
+            --bg-main: #0a0a0a;
+            --bg-card: #141414;
+            --bg-input: #1f1f1f;
+            --border-color: #333333;
+            --border-focus: #ffffff;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --text-muted: #666666;
+            --accent-white: #ffffff;
+            --accent-black: #000000;
+            --danger: #ff4d4d;
+            --success: #2ea44f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Common Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Buttons & Inputs */
+        button {
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: var(--accent-black);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--accent-white);
+            color: var(--accent-black);
+            border-color: var(--accent-white);
+        }
+
+        input, textarea, select {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--border-focus);
+        }
+
+        /* === GIAO DIỆN ĐĂNG NHẬP / ĐĂNG KÝ === */
+        #auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+        }
+
+        .auth-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.05);
+            text-align: center;
+        }
+
+        .auth-box h1 {
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .auth-box p.subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .auth-tab.active {
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--text-primary);
+            background: none;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-form input {
+            width: 100%;
+        }
+
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .hint-box {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px dashed var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: left;
+        }
+
+        /* === GIAO DIỆN CHÍNH (MAIN APP) === */
+        #app-container {
+            display: none; /* Hiển thị sau khi đăng nhập */
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 20px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--accent-white);
+            background: var(--bg-input);
+            border-color: var(--border-color);
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+        }
+
+        /* Bố cục Trang chính */
+        .main-layout {
+            max-width: 1200px;
+            margin: 20px auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            padding: 0 15px;
+            flex: 1;
+        }
+
+        /* Sidebar bên trái */
+        .sidebar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .mini-profile {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .mini-profile img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid var(--text-primary);
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+
+        .mini-profile h3 {
+            font-size: 1.1rem;
+        }
+
+        .mini-profile p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-btn {
+            text-align: left;
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+        }
+
+        .sidebar-btn:hover {
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        /* Khu vực Nội dung chính (Feed / Profile / Friends / Messages) */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* BOX ĐĂNG BÀI */
+        .create-post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .create-post-card h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .create-post-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .post-type-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .post-type-btn {
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            background: var(--bg-input);
+        }
+
+        .post-type-btn.selected {
+            background: var(--accent-white);
+            color: var(--accent-black);
+        }
+
+        /* DẠNG BÀI ĐĂNG (FEED POST) */
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-author-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+        }
+
+        .post-author-info h4 {
+            font-size: 0.95rem;
+        }
+
+        .post-author-info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .post-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .post-text {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+
+        .post-media {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            background: #000;
+            max-height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .post-media img, .post-media video {
+            width: 100%;
+            max-height: 450px;
+            object-fit: contain;
+        }
+
+        .livestream-badge {
+            background: var(--danger);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            color: var(--accent-white);
+            background: transparent;
+        }
+
+        .action-btn.liked {
+            color: var(--accent-white);
+            font-weight: bold;
+        }
+
+        /* KHU VỰC BÌNH LUẬN */
+        .comments-section {
+            border-top: 1px dashed var(--border-color);
+            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .comment-item {
+            background: var(--bg-input);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .comment-item strong {
+            color: var(--text-primary);
+            margin-right: 5px;
+        }
+
+        .comment-input-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .comment-input-box input {
+            flex: 1;
+        }
+
+        /* === TRANG CÁ NHÂN (PROFILE) === */
+        .profile-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .cover-photo-container {
+            height: 180px;
+            background: #222;
+            position: relative;
+        }
+
+        .cover-photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-details {
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .avatar-container {
+            position: absolute;
+            top: -60px;
+            left: 20px;
+        }
+
+        .avatar-container img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid var(--bg-card);
+            object-fit: cover;
+            background: var(--bg-main);
+        }
+
+        .profile-header-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .profile-info {
+            margin-top: 30px;
+        }
+
+        .profile-info h2 {
+            font-size: 1.5rem;
+        }
+
+        .profile-info p.username {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .profile-info p.bio {
+            margin-top: 8px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        /* === KHU VỰC TÌM KIẾM & KẾT BẠN === */
+        .search-box-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .user-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-card img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* === KHU VỰC TIN NHẮN (MESSAGES) === */
+        .chat-container {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            height: 550px;
+            overflow: hidden;
+        }
+
+        .chat-list {
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .chat-user-item {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        .chat-user-item:hover, .chat-user-item.active {
+            background: var(--bg-input);
+        }
+
+        .chat-user-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+        }
+
+        .chat-header-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #0d0d0d;
+        }
+
+        .msg-bubble {
+            max-width: 70%;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .msg-bubble.sent {
+            align-self: flex-end;
+            background: var(--accent-white);
+            color: var(--accent-black);
+            border: 1px solid var(--accent-white);
+        }
+
+        .msg-bubble.received {
+            align-self: flex-start;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .msg-media {
+            max-width: 100%;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        .chat-input-bar {
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--bg-card);
+        }
+
+        /* MODAL CUỘC GỌI VOICE / VIDEO CALL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .call-modal {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 650px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .video-streams {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: #000;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-streams video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .call-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #cc0000;
+            color: white;
+        }
+
+        /* Responsive UI */
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .chat-container {
+                grid-template-columns: 1fr;
+            }
+            .chat-list {
+                display: none; /* Mobile view logic toggle */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= 1. TRANG ĐĂNG NHẬP / ĐĂNG KÝ ================= -->
+    <div id="auth-container">
+        <div class="auth-box">
+            <h1>9C2NETWORK</h1>
+            <p class="subtitle">Mạng xã hội tối giản Đen & Trắng</p>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Đăng nhập</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Đăng ký</button>
+            </div>
+
+            <!-- Form Đăng Nhập -->
+            <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+                <input type="text" id="login-username" placeholder="Tên người dùng" required>
+                <input type="password" id="login-password" placeholder="Mật khẩu" required>
+                <button type="submit"><i class="fa-solid fa-right-to-bracket"></i> Đăng Nhập</button>
+            </form>
+
+            <!-- Form Đăng Ký -->
+            <form id="register-form" class="auth-form" style="display: none;" onsubmit="handleRegister(event)">
+                <input type="text" id="reg-fullname" placeholder="Họ và Tên" required>
+                <input type="text" id="reg-username" placeholder="Tên người dùng" required>
+                <input type="password" id="reg-password" placeholder="Mật khẩu" required>
+                <button type="submit"><i class="fa-solid fa-user-plus"></i> Tạo Tài Khoản</button>
+            </form>
+
+            <div class="hint-box">
+                <i class="fa-solid fa-key"></i> <strong>Tài khoản thử nghiệm sẵn có:</strong><br>
+                Tên đăng nhập: <code>Trung6011</code><br>
+                Mật khẩu: <code>Trung143@</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 2. BỐ CỤC ỨNG DỤNG CHÍNH (MAIN APP) ================= -->
+    <div id="app-container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <a href="#" class="logo" onclick="switchTab('feed')">
+                    <i class="fa-solid fa-globe"></i> 9c2network.io.vn
+                </a>
+
+                <nav class="nav-menu">
+                    <button class="nav-item active" id="nav-feed" onclick="switchTab('feed')">
+                        <i class="fa-solid fa-house"></i> Bảng tin
+                    </button>
+                    <button class="nav-item" id="nav-friends" onclick="switchTab('friends')">
+                        <i class="fa-solid fa-user-group"></i> Kết bạn
+                    </button>
+                    <button class="nav-item" id="nav-messages" onclick="switchTab('messages')">
+                        <i class="fa-solid fa-message"></i> Tin nhắn
+                    </button>
+                </nav>
+
+                <div class="user-nav">
+                    <img id="nav-user-avatar" src="" class="avatar-small" alt="Avatar" onclick="switchTab('profile')" style="cursor: pointer;">
+                    <button onclick="handleLogout()" title="Đăng xuất"><i class="fa-solid fa-power-off"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <div class="main-layout">
+            <!-- Sidebar Trái -->
+            <aside class="sidebar">
+                <div class="mini-profile">
+                    <img id="side-user-avatar" src="" alt="Avatar">
+                    <h3 id="side-user-name">--</h3>
+                    <p id="side-user-handle">@--</p>
+                </div>
+                <div class="sidebar-menu">
+                    <button class="sidebar-btn" onclick="switchTab('profile')"><i class="fa-solid fa-id-card"></i> Trang cá nhân</button>
+                    <button class="sidebar-btn" onclick="switchTab('feed')"><i class="fa-solid fa-rss"></i> Bài đăng đề xuất</button>
+                    <button class="sidebar-btn" onclick="switchTab('friends')"><i class="fa-solid fa-magnifying-glass"></i> Tìm người dùng</button>
+                    <button class="sidebar-btn" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</button>
+                </div>
+            </aside>
+
+            <!-- Khu vực Nội dung chính -->
+            <main class="content-area">
+                
+                <!-- SECTION 1: BẢNG TIN (FEED & POSTING) -->
+                <div id="tab-feed" class="tab-content">
+                    <!-- Box Tạo bài đăng -->
+                    <div class="create-post-card">
+                        <h3><i class="fa-solid fa-pen-to-square"></i> Đăng bài viết mới</h3>
+                        <div class="create-post-inputs">
+                            <input type="text" id="post-title-input" placeholder="Tiêu đề bài viết...">
+                            <textarea id="post-content-input" placeholder="Bạn đang nghĩ gì hôm nay?"></textarea>
+                            <input type="text" id="post-media-input" placeholder="Dán URL Hình ảnh / Video (Tùy chọn)...">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="post-type-options">
+                                <button class="post-type-btn selected" id="btn-type-standard" onclick="setPostType('standard')">Bài viết</button>
+                                <button class="post-type-btn" id="btn-type-live" onclick="setPostType('livestream')">🔴 Livestream</button>
+                            </div>
+                            <button onclick="submitNewPost()"><i class="fa-solid fa-paper-plane"></i> Đăng Bài</button>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách bài đăng đề xuất -->
+                    <div id="posts-container" style="margin-top: 20px; display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Các bài post sẽ được Javascript chèn vào đây -->
+                    </div>
+                </div>
+
+                <!-- SECTION 2: TRANG CÁ NHÂN (PROFILE) -->
+                <div id="tab-profile" class="tab-content" style="display: none;">
+                    <div class="profile-card">
+                        <div class="cover-photo-container">
+                            <img id="profile-cover-img" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000" alt="Cover">
+                        </div>
+                        <div class="profile-details">
+                            <div class="avatar-container">
+                                <img id="profile-avatar-img" src="" alt="Avatar">
+                            </div>
+                            <div class="profile-header-actions">
+                                <button onclick="openEditProfileModal()"><i class="fa-solid fa-user-pen"></i> Chỉnh sửa Trang cá nhân</button>
+                            </div>
+                            <div class="profile-info">
+                                <h2 id="profile-display-name">--</h2>
+                                <p class="username" id="profile-display-handle">@--</p>
+                                <p class="bio" id="profile-display-bio">Chưa có tiểu sử.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 25px; margin-bottom: 15px;"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử bài đăng của bạn</h3>
+                    <div id="user-posts-container" style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Bài viết cá nhân sẽ xuất hiện ở đây -->
+                    </div>
+                </div>
+
+                <!-- SECTION 3: TÌM KIẾM & KẾT BẠN -->
+                <div id="tab-friends" class="tab-content" style="display: none;">
+                    <div class="search-box-card">
+                        <h3><i class="fa-solid fa-user-plus"></i> Tìm kiếm người dùng</h3>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <input type="text" id="search-username-input" placeholder="Nhập tên người dùng..." style="flex:1;" oninput="renderUserSearch()">
+                        </div>
+                    </div>
+
+                    <div class="user-grid" id="user-search-results">
+                        <!-- Danh sách tìm kiếm bạn bè -->
+                    </div>
+                </div>
+
+                <!-- SECTION 4: TIN NHẮN (MESSAGES & CALLS) -->
+                <div id="tab-messages" class="tab-content" style="display: none;">
+                    <div class="chat-container">
+                        <!-- Cột trái: Danh sách Chat -->
+                        <div class="chat-list" id="chat-users-list">
+                            <!-- JS Render bạn bè để trò chuyện -->
+                        </div>
+
+                        <!-- Cột phải: Khung hội thoại chính -->
+                        <div class="chat-main">
+                            <div class="chat-header">
+                                <div class="chat-header-user">
+                                    <img id="chat-active-avatar" src="https://via.placeholder.com/40" class="avatar-small">
+                                    <div>
+                                        <strong id="chat-active-name">Chọn một người để chat</strong>
+                                        <p id="chat-active-status" style="font-size: 0.75rem; color: var(--text-muted);"></p>
+                                    </div>
+                                </div>
+                                <div class="chat-header-actions" id="chat-call-actions" style="display: none;">
+                                    <button onclick="startCall('voice')" title="Gọi thoại Audio"><i class="fa-solid fa-phone"></i></button>
+                                    <button onclick="startCall('video')" title="Gọi Video Call"><i class="fa-solid fa-video"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="chat-messages" id="chat-messages-body">
+                                <div style="text-align: center; color: var(--text-muted); margin-top: 50px;">Hãy chọn một người dùng từ danh sách bên trái để bắt đầu nhắn tin.</div>
+                            </div>
+
+                            <div class="chat-input-bar">
+                                <input type="text" id="chat-text-input" placeholder="Nhập tin nhắn..." onkeypress="handleChatKeyPress(event)">
+                                <button onclick="sendAttachment('image')" title="Gửi Ảnh"><i class="fa-solid fa-image"></i></button>
+                                <button onclick="sendAttachment('video')" title="Gửi Video"><i class="fa-solid fa-film"></i></button>
+                                <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ================= 3. MODALS CHỈNH SỬA & CUỘC GỌI ================= -->
+
+    <!-- Modal Chỉnh Sửa Profile -->
+    <div id="modal-edit-profile" class="modal-overlay">
+        <div class="call-modal" style="max-width: 450px;">
+            <h3>Chỉnh Sửa Trang Cá Nhân</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
+                <label>Tên hiển thị:</label>
+                <input type="text" id="edit-name-input">
+                <label>URL Ảnh đại diện (Avatar):</label>
+                <input type="text" id="edit-avatar-input">
+                <label>URL Ảnh bìa (Cover):</label>
+                <input type="text" id="edit-cover-input">
+                <label>Tiểu sử (Bio):</label>
+                <textarea id="edit-bio-input"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                <button onclick="closeEditProfileModal()">Hủy</button>
+                <button onclick="saveProfileChanges()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cuộc gọi Audio / Video -->
+    <div id="modal-call" class="modal-overlay">
+        <div class="call-modal">
+            <h3 id="call-title">Đang gọi...</h3>
+            <div class="video-streams">
+                <video id="local-video" autoplay playsinline muted></video>
+                <div id="voice-avatar-placeholder" style="display:none; position:absolute; flex-direction:column; align-items:center;">
+                    <img id="call-user-avatar" src="" style="width: 100px; height:100px; border-radius:50%; border:2px solid #fff;">
+                    <p id="call-user-name" style="margin-top:10px; font-size:1.2rem;"></p>
+                </div>
+            </div>
+            <div class="call-controls">
+                <button id="btn-toggle-mic" onclick="toggleMic()"><i class="fa-solid fa-microphone"></i></button>
+                <button id="btn-toggle-cam" onclick="toggleCam()"><i class="fa-solid fa-video"></i></button>
+                <button class="btn-danger" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i> Tắt cuộc gọi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 4. JAVASCRIPT LOGIC DỰ ÁN ================= -->
+    <script>
+        /* === CƠ SỞ DỮ LIỆU BAN ĐẦU (INITIAL STATE) === */
+        const DEFAULT_USERS = [
+            {
+                username: "Trung6011",
+                password: "Trung143@",
+                fullname: "Nguyễn Trung",
+                avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+                cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000",
+                bio: "Founder & Developer tại 9c2network.io.vn 🚀",
+                friends: ["admin_system", "dev_team"]
+            },
+            {
+                username: "admin_system",
+                password: "123",
+                fullname: "Hệ Thống 9c2",
+                avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150",
+                cover: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1000",
+                bio: "Tài khoản hỗ trợ tự động.",
+                friends: ["Trung6011"]
+            },
+            {
+                username: "dev_team",
+                password: "123",
+                fullname: "Developer Community",
+                avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150",
+                cover: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000",
+                bio: "Cộng đồng lập trình viên.",
+                friends: ["Trung6011"]
+            }
+        ];
+
+        const DEFAULT_POSTS = [
+            {
+                id: "p1",
+                username: "Trung6011",
+                title: "Chào mừng các bạn đến với 9c2network.io.vn!",
+                content: "Đây là mạng xã hội tối giản với phong cách Đen Trắng hiện đại. Hãy cùng trải nghiệm các tính năng đăng bài, gọi video và nhắn tin nhé!",
+                media: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
+                type: "standard",
+                timestamp: "10 phút trước",
+                likes: ["admin_system"],
+                comments: [
+                    { username: "admin_system", text: "Dự án tuyệt vời lắm Trung!" }
+                ],
+                shares: 3
+            },
+            {
+                id: "p2",
+                username: "dev_team",
+                title: "🔴 Lập trình ứng dụng Web SPA tốc độ cao",
+                content: "Đang phát sóng trực tiếp chia sẻ về kiến thức xây dựng giao diện mạng xã hội tối giản.",
+                media: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800",
+                type: "livestream",
+                timestamp: " Vừa xong",
+                likes: ["Trung6011"],
+                comments: [],
+                shares: 12
+            }
+        ];
+
+        /* === BIẾN TOÀN CỤC & LOCALSTORAGE === */
+        let users = JSON.parse(localStorage.getItem("9c2_users")) || DEFAULT_USERS;
+        let posts = JSON.parse(localStorage.getItem("9c2_posts")) || DEFAULT_POSTS;
+        let messages = JSON.parse(localStorage.getItem("9c2_messages")) || [];
+        let currentUser = JSON.parse(localStorage.getItem("9c2_current_user")) || null;
+
+        let activeChatUser = null;
+        let currentPostType = 'standard';
+        let localStream = null;
+
+        // Lưu vào localStorage
+        function saveData() {
+            localStorage.setItem("9c2_users", JSON.stringify(users));
+            localStorage.setItem("9c2_posts", JSON.stringify(posts));
+            localStorage.setItem("9c2_messages", JSON.stringify(messages));
+            if(currentUser) {
+                localStorage.setItem("9c2_current_user", JSON.stringify(currentUser));
+            } else {
+                localStorage.removeItem("9c2_current_user");
+            }
+        }
+
+        /* === KHI TRANG TẢI XONG === */
+        window.onload = function() {
+            if (currentUser) {
+                // Đảm bảo thông tin currentUser luôn mới nhất
+                const found = users.find(u => u.username === currentUser.username);
+                if(found) currentUser = found;
+                showMainApp();
+            } else {
+                document.getElementById("auth-container").style.display = "flex";
+                document.getElementById("app-container").style.display = "none";
+            }
+        };
+
+        /* === 1. ĐĂNG NHẬP / ĐĂNG KÝ LOGIC === */
+        function switchAuthTab(tab) {
+            document.querySelectorAll(".auth-tab").forEach(b => b.classList.remove("active"));
+            if(tab === 'login') {
+                document.querySelectorAll(".auth-tab")[0].classList.add("active");
+                document.getElementById("login-form").style.display = "flex";
+                document.getElementById("register-form").style.display = "none";
+            } else {
+                document.querySelectorAll(".auth-tab")[1].classList.add("active");
+                document.getElementById("login-form").style.display = "none";
+                document.getElementById("register-form").style.display = "flex";
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const uInput = document.getElementById("login-username").value.trim();
+            const pInput = document.getElementById("login-password").value.trim();
+
+            const foundUser = users.find(u => u.username === uInput && u.password === pInput);
+
+            if(foundUser) {
+                currentUser = foundUser;
+                saveData();
+                showMainApp();
+            } else {
+                alert("Sai tên người dùng hoặc mật khẩu!");
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById("reg-fullname").value.trim();
+            const uname = document.getElementById("reg-username").value.trim();
+            const pass = document.getElementById("reg-password").value.trim();
+
+            if(users.some(u => u.username === uname)) {
+                alert("Tên người dùng này đã tồn tại!");
+                return;
+            }
+
+            const newUser = {
+                username: uname,
+                password: pass,
+                fullname: name,
+                avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+                cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000",
+                bio: "Thành viên mới của 9c2network.",
+                friends: []
+            };
+
+            users.push(newUser);
+            currentUser = newUser;
+            saveData();
+            alert("Đăng ký thành công!");
+            showMainApp();
+        }
+
+        function handleLogout() {
+            if(confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+                currentUser = null;
+                saveData();
+                location.reload();
+            }
+        }
+
+        /* === 2. HIỂN THỊ GIAO DIỆN CHÍNH === */
+        function showMainApp() {
+            document.getElementById("auth-container").style.display = "none";
+            document.getElementById("app-container").style.display = "flex";
+
+            // Update UI Elements
+            document.getElementById("nav-user-avatar").src = currentUser.avatar;
+            document.getElementById("side-user-avatar").src = currentUser.avatar;
+            document.getElementById("side-user-name").innerText = currentUser.fullname;
+            document.getElementById("side-user-handle").innerText = "@" + currentUser.username;
+
+            renderProfileTab();
+            renderPosts();
+            renderUserSearch();
+            renderChatUserList();
+        }
+
+        /* === 3. TẠO & HIỂN THỊ BÀI ĐĂNG (FEED) === */
+        function setPostType(type) {
+            currentPostType = type;
+            document.getElementById("btn-type-standard").classList.toggle("selected", type === 'standard');
+            document.getElementById("btn-type-live").classList.toggle("selected", type === 'livestream');
+        }
+
+        function submitNewPost() {
+            const title = document.getElementById("post-title-input").value.trim();
+            const content = document.getElementById("post-content-input").value.trim();
+            const media = document.getElementById("post-media-input").value.trim();
+
+            if(!title && !content) {
+                alert("Vui lòng nhập nội dung hoặc tiêu đề bài đăng!");
+                return;
+            }
+
+            const newPost = {
+                id: "p_" + Date.now(),
+                username: currentUser.username,
+                title: title,
+                content: content,
+                media: media,
+                type: currentPostType,
+                timestamp: "Vừa xong",
+                likes: [],
+                comments: [],
+                shares: 0
+            };
+
+            posts.unshift(newPost);
+            saveData();
+
+            // Clear Form
+            document.getElementById("post-title-input").value = "";
+            document.getElementById("post-content-input").value = "";
+            document.getElementById("post-media-input").value = "";
+
+            renderPosts();
+            renderProfileTab();
+        }
+
+        function renderPosts() {
+            const container = document.getElementById("posts-container");
+            container.innerHTML = "";
+
+            posts.forEach(post => {
+                const author = users.find(u => u.username === post.username) || {
+                    fullname: post.username,
+                    avatar: "https://via.placeholder.com/40"
+                };
+
+                const isLiked = post.likes.includes(currentUser.username);
+
+                const postEl = document.createElement("div");
+                postEl.className = "post-card";
+                postEl.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="${author.avatar}" class="post-author-img">
+                            <div class="post-author-info">
+                                <h4>${author.fullname}</h4>
+                                <p>@${post.username} • ${post.timestamp}</p>
+                            </div>
+                        </div>
+                        ${post.type === 'livestream' ? '<span class="livestream-badge"><i class="fa-solid fa-headset"></i> LIVESTREAM</span>' : ''}
+                    </div>
+
+                    ${post.title ? `<div class="post-title">${escapeHtml(post.title)}</div>` : ''}
+                    ${post.content ? `<div class="post-text">${escapeHtml(post.content)}</div>` : ''}
+
+                    ${post.media ? `
+                        <div class="post-media">
+                            ${post.media.match(/\.(mp4|webm)$/i) ? 
+                                `<video src="${post.media}" controls></video>` : 
+                                `<img src="${post.media}" alt="Post Media">`
+                            }
+                        </div>
+                    ` : ''}
+
+                    <div class="post-actions">
+                        <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
+                            <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${post.likes.length} Thích
+                        </button>
+                        <button class="action-btn" onclick="focusCommentInput('${post.id}')">
+                            <i class="fa-regular fa-comment"></i> ${post.comments.length} Bình luận
+                        </button>
+                        <button class="action-btn" onclick="sharePost('${post.id}')">
+                            <i class="fa-solid fa-share"></i> ${post.shares} Chia sẻ
+                        </button>
+                    </div>
+
+                    <div class="comments-section">
+                        <div id="comments-list-${post.id}">
+                            ${post.comments.map(c => `
+                                <div class="comment-item">
+                                    <strong>@${c.username}:</strong> ${escapeHtml(c.text)}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="comment-input-box">
+                            <input type="text" id="comment-input-${post.id}" placeholder="Viết bình luận...">
+                            <button onclick="addComment('${post.id}')">Gửi</button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(postEl);
+            });
+        }
+
+        function toggleLike(postId) {
+            const post = posts.find(p => p.id === postId);
+            if(!post) return;
+
+            const idx = post.likes.indexOf(currentUser.username);
+            if(idx > -1) {
+                post.likes.splice(idx, 1);
+            } else {
+                post.likes.push(currentUser.username);
+            }
+            saveData();
+            renderPosts();
+        }
+
+        function addComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+            if(!text) return;
+
+            const post = posts.find(p => p.id === postId);
+            if(post) {
+                post.comments.push({
+                    username: currentUser.username,
+                    text: text
+                });
+                saveData();
+                renderPosts();
+            }
+        }
+
+        function sharePost(postId) {
+            const post = posts.find(p => p.id === postId);
+            if(post) {
+                post.shares += 1;
+                saveData();
+                renderPosts();
+                alert("Đã chia sẻ bài viết lên trang cá nhân!");
+            }
+        }
+
+        /* === 4. TRANG CÁ NHÂN (PROFILE) LOGIC === */
+        function renderProfileTab() {
+            document.getElementById("profile-cover-img").src = currentUser.cover;
+            document.getElementById("profile-avatar-img").src = currentUser.avatar;
+            document.getElementById("profile-display-name").innerText = currentUser.fullname;
+            document.getElementById("profile-display-handle").innerText = "@" + currentUser.username;
+            document.getElementById("profile-display-bio").innerText = currentUser.bio || "Chưa có tiểu sử.";
+
+            // Render Lịch sử bài đăng cá nhân
+            const userPostsContainer = document.getElementById("user-posts-container");
+            userPostsContainer.innerHTML = "";
+
+            const myPosts = posts.filter(p => p.username === currentUser.username);
+            if(myPosts.length === 0) {
+                userPostsContainer.innerHTML = `<p style="color:var(--text-muted);">Bạn chưa có bài đăng nào.</p>`;
+                return;
+            }
+
+            myPosts.forEach(post => {
+                const postEl = document.createElement("div");
+                postEl.className = "post-card";
+                postEl.innerHTML = `
+                    <div class="post-header">
+                        <strong>${post.title || 'Bài viết'}</strong>
+                        <span style="font-size:0.8rem; color:var(--text-muted);">${post.timestamp}</span>
+                    </div>
+                    <p>${escapeHtml(post.content)}</p>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">
+                        ❤️ ${post.likes.length} Thích | 💬 ${post.comments.length} Bình luận
+                    </div>
+                `;
+                userPostsContainer.appendChild(postEl);
+            });
+        }
+
+        function openEditProfileModal() {
+            document.getElementById("edit-name-input").value = currentUser.fullname;
+            document.getElementById("edit-avatar-input").value = currentUser.avatar;
+            document.getElementById("edit-cover-input").value = currentUser.cover;
+            document.getElementById("edit-bio-input").value = currentUser.bio || "";
+            document.getElementById("modal-edit-profile").style.display = "flex";
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById("modal-edit-profile").style.display = "none";
+        }
+
+        function saveProfileChanges() {
+            currentUser.fullname = document.getElementById("edit-name-input").value.trim() || currentUser.fullname;
+            currentUser.avatar = document.getElementById("edit-avatar-input").value.trim() || currentUser.avatar;
+            currentUser.cover = document.getElementById("edit-cover-input").value.trim() || currentUser.cover;
+            currentUser.bio = document.getElementById("edit-bio-input").value.trim();
+
+            // Cập nhật lại trong mảng users
+            const idx = users.findIndex(u => u.username === currentUser.username);
+            if(idx > -1) users[idx] = currentUser;
+
+            saveData();
+            closeEditProfileModal();
+            showMainApp();
+            alert("Cập nhật trang cá nhân thành công!");
+        }
+
+        /* === 5. TÌM KIẾM & KẾT BẠN === */
+        function renderUserSearch() {
+            const query = document.getElementById("search-username-input").value.toLowerCase();
+            const container = document.getElementById("user-search-results");
+            container.innerHTML = "";
+
+            const filtered = users.filter(u => u.username !== currentUser.username && 
+                (u.username.toLowerCase().includes(query) || u.fullname.toLowerCase().includes(query))
+            );
+
+            filtered.forEach(user => {
+                const isFriend = currentUser.friends.includes(user.username);
+
+                const card = document.createElement("div");
+                card.className = "user-card";
+                card.innerHTML = `
+                    <img src="${user.avatar}">
+                    <strong>${user.fullname}</strong>
+                    <p style="font-size:0.8rem; color:var(--text-muted);">@${user.username}</p>
+                    <button onclick="toggleFriend('${user.username}')">
+                        ${isFriend ? '<i class="fa-solid fa-user-check"></i> Bạn bè' : '<i class="fa-solid fa-user-plus"></i> Kết bạn'}
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleFriend(targetUsername) {
+            const idx = currentUser.friends.indexOf(targetUsername);
+            if(idx > -1) {
+                currentUser.friends.splice(idx, 1);
+            } else {
+                currentUser.friends.push(targetUsername);
+            }
+
+            // Sync
+            const userIdx = users.findIndex(u => u.username === currentUser.username);
+            if(userIdx > -1) users[userIdx] = currentUser;
+
+            saveData();
+            renderUserSearch();
+            renderChatUserList();
+        }
+
+        /* === 6. TIN NHẮN (MESSAGING & ATTACHMENTS) === */
+        function renderChatUserList() {
+            const container = document.getElementById("chat-users-list");
+            container.innerHTML = "";
+
+            const otherUsers = users.filter(u => u.username !== currentUser.username);
+
+            otherUsers.forEach(u => {
+                const item = document.createElement("div");
+                item.className = `chat-user-item ${activeChatUser && activeChatUser.username === u.username ? 'active' : ''}`;
+                item.onclick = () => selectChatUser(u);
+                item.innerHTML = `
+                    <img src="${u.avatar}">
+                    <div>
+                        <strong>${u.fullname}</strong>
+                        <p style="font-size:0.75rem; color:var(--text-muted);">@${u.username}</p>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function selectChatUser(user) {
+            activeChatUser = user;
+            document.getElementById("chat-active-avatar").src = user.avatar;
+            document.getElementById("chat-active-name").innerText = user.fullname;
+            document.getElementById("chat-active-status").innerText = "@" + user.username;
+            document.getElementById("chat-call-actions").style.display = "flex";
+
+            renderChatUserList();
+            renderMessages();
+        }
+
+        function renderMessages() {
+            if(!activeChatUser) return;
+            const body = document.getElementById("chat-messages-body");
+            body.innerHTML = "";
+
+            const relevantMsgs = messages.filter(m => 
+                (m.from === currentUser.username && m.to === activeChatUser.username) ||
+                (m.from === activeChatUser.username && m.to === currentUser.username)
+            );
+
+            if(relevantMsgs.length === 0) {
+                body.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:30px;">Chưa có tin nhắn nào. Hãy mở lời chào!</div>`;
+                return;
+            }
+
+            relevantMsgs.forEach(m => {
+                const isSent = m.from === currentUser.username;
+                const bubble = document.createElement("div");
+                bubble.className = `msg-bubble ${isSent ? 'sent' : 'received'}`;
+                
+                let contentHTML = escapeHtml(m.text || '');
+                if(m.mediaType === 'image') {
+                    contentHTML += `<br><img src="${m.mediaUrl}" class="msg-media">`;
+                } else if(m.mediaType === 'video') {
+                    contentHTML += `<br><video src="${m.mediaUrl}" controls class="msg-media"></video>`;
+                }
+
+                bubble.innerHTML = contentHTML;
+                body.appendChild(bubble);
+            });
+
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function sendChatMessage(type = 'text', mediaUrl = '') {
+            if(!activeChatUser) {
+                alert("Vui lòng chọn người nhận tin nhắn!");
+                return;
+            }
+
+            const input = document.getElementById("chat-text-input");
+            const text = input.value.trim();
+
+            if(!text && !mediaUrl) return;
+
+            messages.push({
+                from: currentUser.username,
+                to: activeChatUser.username,
+                text: text,
+                mediaType: type,
+                mediaUrl: mediaUrl,
+                timestamp: Date.now()
+            });
+
+            saveData();
+            input.value = "";
+            renderMessages();
+        }
+
+        function handleChatKeyPress(e) {
+            if(e.key === 'Enter') sendChatMessage();
+        }
+
+        function sendAttachment(type) {
+            const url = prompt(`Nhập URL ${type === 'image' ? 'Hình ảnh' : 'Video'} muốn gửi:`);
+            if(url) sendChatMessage(type, url);
+        }
+
+        /* === 7. CUỘC GỌI AUDIO & VIDEO CALL (WEBRTC/MEDIA PREVIEW) === */
+        async function startCall(type) {
+            if(!activeChatUser) return;
+
+            document.getElementById("call-title").innerText = `${type === 'video' ? 'Video Call' : 'Gọi thoại'} với ${activeChatUser.fullname}`;
+            document.getElementById("modal-call").style.display = "flex";
+
+            if(type === 'voice') {
+                document.getElementById("voice-avatar-placeholder").style.display = "flex";
+                document.getElementById("call-user-avatar").src = activeChatUser.avatar;
+                document.getElementById("call-user-name").innerText = activeChatUser.fullname;
+            } else {
+                document.getElementById("voice-avatar-placeholder").style.display = "none";
+            }
+
+            // Mở webcam/mic thiết bị thật (nếu trình duyệt cấp quyền)
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: type === 'video',
+                    audio: true
+                });
+                document.getElementById("local-video").srcObject = localStream;
+            } catch (err) {
+                console.log("Không thể truy cập camera/mic:", err);
+            }
+        }
+
+        function endCall() {
+            if(localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById("modal-call").style.display = "none";
+        }
+
+        function toggleMic() {
+            if(localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if(audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    alert(`Đã ${audioTrack.enabled ? 'Mở' : 'Tắt'} Micro`);
+                }
+            }
+        }
+
+        function toggleCam() {
+            if(localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if(videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    alert(`Đã ${videoTrack.enabled ? 'Mở' : 'Tắt'} Camera`);
+                }
+            }
+        }
+
+        /* === TAB NAVIGATION SYSTEM === */
+        function switchTab(tabName) {
+            document.querySelectorAll(".tab-content").forEach(el => el.style.display = "none");
+            document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+
+            document.getElementById(`tab-${tabName}`).style.display = "block";
+            const navBtn = document.getElementById(`nav-${tabName}`);
+            if(navBtn) navBtn.classList.add("active");
+
+            if(tabName === 'profile') renderProfileTab();
+            if(tabName === 'friends') renderUserSearch();
+            if(tabName === 'messages') renderChatUserList();
+        }
+
+        /* UTILS */
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+    </script>
+</body>
+</html>
