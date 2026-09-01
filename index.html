@@ -69,17 +69,17 @@
         .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; position: absolute; top: -45px; left: 15px; background: #111; }
         .profile-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
 
-        /* Chat Layout Styles */
+        /* Chat Layout Styles (Fixing Flex & Overflow Issue) */
         .chat-layout { height: calc(100vh - 140px); display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
-        .chat-top-actions { padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); }
-        .chat-list-view { flex: 1; overflow-y: auto; }
+        .chat-top-actions { padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); flex-shrink: 0; }
+        .chat-list-view { flex: 1; overflow-y: auto; min-height: 0; }
         .chat-user-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; position: relative; }
         .chat-user-item:hover { background: #161616; }
         .group-badge { background: #333; color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
 
-        .chat-room-view { display: none; flex-direction: column; height: 100%; }
-        .chat-room-header { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; background: var(--bg-main); }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #080808; }
+        .chat-room-view { display: none; flex-direction: column; flex: 1; min-height: 0; }
+        .chat-room-header { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; background: var(--bg-main); flex-shrink: 0; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #080808; min-height: 0; }
 
         /* Voice Recorder & Audio Player Styles */
         .voice-recording-bar { display: none; flex: 1; align-items: center; gap: 10px; background: var(--bg-input); padding: 6px 15px; border-radius: 20px; border: 1px solid var(--danger-red); }
@@ -130,7 +130,9 @@
         .msg-bubble.sent { align-self: flex-end; background: var(--accent-white); color: var(--accent-black); border-bottom-right-radius: 4px; }
         .msg-bubble.received { align-self: flex-start; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
         .msg-bubble.sending { opacity: 0.7; }
-        .chat-input-area { padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border-color); background: var(--bg-main); align-items: center; }
+        
+        /* Đảm bảo thanh chat không bị co rúm hoặc bị đẩy đi */
+        .chat-input-area { padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border-color); background: var(--bg-main); align-items: center; flex-shrink: 0; }
         .chat-input-area input[type="text"] { margin-bottom: 0; border-radius: 20px; padding: 10px 15px; }
 
         /* Group Member Selection List */
@@ -223,13 +225,12 @@
                 <div class="card">
                     <input type="text" id="search-input" placeholder="Nhập tên người dùng cần tìm..." oninput="searchUsers()">
                 </div>
-                <!-- Cập nhật CSS hiển thị kết quả tìm kiếm -->
                 <div id="search-results" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
             </div>
 
             <div id="page-messages" class="page">
                 <div class="chat-layout">
-                    <div class="chat-top-actions">
+                    <div class="chat-top-actions" id="chat-top-actions">
                         <span style="font-size: 0.9rem; font-weight: bold;"><i class="fa-solid fa-comments"></i> Trò chuyện</span>
                         <button onclick="openCreateGroupModal()" style="font-size: 0.8rem; padding: 6px 12px;"><i class="fa-solid fa-users-plus"></i> Tạo Nhóm Chat</button>
                     </div>
@@ -238,7 +239,6 @@
                     <div class="chat-room-view" id="chat-room">
                         <div class="chat-room-header">
                             <i class="fa-solid fa-chevron-left" onclick="closeChatRoom()" style="cursor: pointer; padding: 5px; font-size: 1.1rem;"></i>
-                            <!-- Cập nhật: Cho phép ấn vào avatar và tên trong chat để vào trang cá nhân -->
                             <img id="chat-active-avatar" src="" class="avatar-sm" style="cursor: pointer;" onclick="if(activeChatType === 'private') viewUserProfile(activeChatTargetId)">
                             <div style="cursor: pointer;" onclick="if(activeChatType === 'private') viewUserProfile(activeChatTargetId)">
                                 <strong id="chat-active-name">--</strong>
@@ -888,6 +888,7 @@
             if(pageId === 'messages' && !activeChatTargetId) {
                 document.getElementById('chat-list').style.display = 'block';
                 document.getElementById('chat-room').style.display = 'none';
+                document.getElementById('chat-top-actions').style.display = 'flex';
             }
         };
 
@@ -1885,6 +1886,7 @@
 
             switchPage('messages', null);
 
+            document.getElementById('chat-top-actions').style.display = 'none';
             document.getElementById('chat-list').style.display = 'none';
             document.getElementById('chat-room').style.display = 'flex';
             document.getElementById('chat-active-avatar').src = avatar || 'https://ui-avatars.com/api/?name=User';
@@ -1958,6 +1960,7 @@
             if (mediaRecorder && mediaRecorder.state !== 'inactive') cancelVoiceRecording();
             document.getElementById('chat-room').style.display = 'none';
             document.getElementById('chat-list').style.display = 'block';
+            document.getElementById('chat-top-actions').style.display = 'flex';
             activeChatTargetId = null;
             if(unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
         };
