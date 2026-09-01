@@ -46,6 +46,12 @@
         .nav-item i { font-size: 1.2rem; }
         .nav-badge { background: var(--danger-red); color: white; border-radius: 50%; font-size: 0.6rem; font-weight: bold; padding: 2px 5px; position: absolute; top: -2px; right: 5px; display: none; }
 
+        /* Styles cho Avatar và Online Indicator */
+        .avatar-wrapper { position: relative; display: inline-block; flex-shrink: 0; }
+        .online-dot { position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px; background-color: #25d366; border: 2px solid var(--bg-card); border-radius: 50%; z-index: 2; display: none; }
+        .online-dot.active { display: block; }
+        .online-dot-large { bottom: 5px; right: 10px; width: 14px; height: 14px; border-width: 3px; }
+
         .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .user-info-sm { display: flex; align-items: center; gap: 10px; }
@@ -61,13 +67,12 @@
 
         .comment-section { margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px; }
         .comment-item { display: flex; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; align-items: flex-start; }
-        .comment-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #222; flex-shrink: 0; }
         .comment-box { background: var(--bg-input); padding: 8px 12px; border-radius: 12px; flex: 1; }
 
         .profile-header-card { padding: 0; overflow: hidden; }
         .cover-photo { width: 100%; height: 160px; object-fit: cover; background: #222; }
         .profile-details { padding: 15px; position: relative; }
-        .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; position: absolute; top: -45px; left: 15px; background: #111; }
+        .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; background: #111; }
         .profile-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
 
         .chat-layout { height: calc(100vh - 140px); display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
@@ -183,7 +188,8 @@
         .story-text-only { font-size: 1.5rem; text-align: center; padding: 20px; word-break: break-word; font-weight: 500; color: white; }
         .story-nav-left { position: absolute; top: 0; left: 0; width: 30%; height: 100%; z-index: 5; }
         .story-nav-right { position: absolute; top: 0; right: 0; width: 70%; height: 100%; z-index: 5; }
-
+        
+        .group-member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
     </style>
 </head>
 <body>
@@ -289,11 +295,14 @@
                     
                     <div class="chat-room-view" id="chat-room">
                         <div class="chat-room-header">
-                            <i class="fa-solid fa-chevron-left" onclick="closeChatRoom()" style="cursor: pointer; padding: 5px; font-size: 1.1rem;"></i>
-                            <img id="chat-active-avatar" src="" class="avatar-sm" style="cursor: pointer;" onclick="if(activeChatType === 'private') viewUserProfile(activeChatTargetId)">
-                            <div style="cursor: pointer;" onclick="if(activeChatType === 'private') viewUserProfile(activeChatTargetId)">
+                            <i class="fa-solid fa-chevron-left" onclick="closeChatRoom()" style="cursor: pointer; padding: 5px 15px 5px 5px; font-size: 1.1rem;"></i>
+                            <div class="avatar-wrapper" style="cursor: pointer;" onclick="handleChatHeaderClick()">
+                                <img id="chat-active-avatar" src="" class="avatar-sm">
+                                <div id="chat-active-online-dot" class="online-dot"></div>
+                            </div>
+                            <div style="cursor: pointer; flex: 1; margin-left: 10px;" onclick="handleChatHeaderClick()">
                                 <strong id="chat-active-name">--</strong>
-                                <span id="chat-type-badge" class="group-badge" style="display:none;">Nhóm</span>
+                                <span id="chat-type-badge" class="group-badge" style="display:none; margin-left:5px;">Nhóm <i class="fa-solid fa-gear"></i></span>
                             </div>
                             <div style="margin-left: auto; display: flex; gap: 8px;">
                                 <button id="hdr-btn-audio-call" class="call-hdr-btn" onclick="initiateCall('audio')" title="Gọi thoại"><i class="fa-solid fa-phone"></i></button>
@@ -333,7 +342,10 @@
                 <div class="card profile-header-card">
                     <img id="profile-cover" src="" class="cover-photo">
                     <div class="profile-details">
-                        <img id="profile-avatar" src="" class="avatar-large">
+                        <div style="position: absolute; top: -45px; left: 15px;" class="avatar-wrapper">
+                            <img id="profile-avatar" src="" class="avatar-large">
+                            <div id="profile-online-dot" class="online-dot online-dot-large"></div>
+                        </div>
                         <div class="profile-actions" id="profile-actions-container">
                             <button onclick="document.getElementById('modal-edit-profile').style.display='flex'"><i class="fa-solid fa-pen"></i> Chỉnh sửa</button>
                         </div>
@@ -363,6 +375,44 @@
             </button>
             <button class="nav-item" onclick="switchPage('profile', this)"><i class="fa-solid fa-user"></i> Hồ sơ</button>
         </nav>
+    </div>
+
+    <!-- Modal Quản Lý Nhóm Chat -->
+    <div id="modal-group-settings" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;"><i class="fa-solid fa-gear"></i> Cài đặt nhóm</h2>
+            
+            <label>Tên Nhóm:</label>
+            <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                <input type="text" id="edit-group-name" placeholder="Tên nhóm..." style="margin-bottom:0;">
+                <button onclick="saveGroupName()" style="flex-shrink:0;"><i class="fa-solid fa-save"></i> Lưu</button>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                <label style="margin:0;">Thành viên nhóm:</label>
+                <button onclick="openAddGroupMemberModal()" style="font-size:0.75rem; padding: 6px 10px;"><i class="fa-solid fa-plus"></i> Thêm người</button>
+            </div>
+            <div id="group-settings-members" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 5px; margin-bottom: 20px;">
+                <!-- Members injected here -->
+            </div>
+            
+            <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; justify-content: space-between;">
+                <button onclick="closeGroupSettings()" style="background: var(--bg-input); border-color: var(--border-color);">Đóng</button>
+                <button id="btn-delete-group" onclick="deleteGroupChat()" style="background: var(--danger-red); border: none; color: white;"><i class="fa-solid fa-trash"></i> Giải tán nhóm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm thành viên vào nhóm -->
+    <div id="modal-add-group-members" class="modal" style="z-index: 1005;">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Thêm thành viên</h3>
+            <div id="add-group-members-list" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 5px; margin-bottom: 15px;"></div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="document.getElementById('modal-add-group-members').style.display='none'" style="background: var(--bg-input);">Hủy</button>
+                <button onclick="submitAddGroupMembers()">Thêm</button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Tạo Nhật Ký (Story) -->
@@ -552,8 +602,8 @@
         </div>
     </div>
     
-    <!-- Modal Xác nhận chung (Thay thế cho confirm của trình duyệt bị chặn) -->
-    <div id="modal-generic-confirm" class="modal">
+    <!-- Modal Xác nhận chung -->
+    <div id="modal-generic-confirm" class="modal" style="z-index: 1005;">
         <div class="modal-content" style="text-align: center; max-width: 350px;">
             <h3 style="margin-bottom: 15px; color: #ff4444;" id="generic-confirm-title"><i class="fa-solid fa-triangle-exclamation"></i> Xác nhận</h3>
             <p style="font-size: 0.9rem; margin-bottom: 20px; color: var(--text-secondary);" id="generic-confirm-msg">Bạn có chắc chắn không?</p>
@@ -564,8 +614,8 @@
         </div>
     </div>
 
-    <!-- Modal Nhập liệu chung (Thay thế cho prompt của trình duyệt bị chặn) -->
-    <div id="modal-generic-prompt" class="modal">
+    <!-- Modal Nhập liệu chung -->
+    <div id="modal-generic-prompt" class="modal" style="z-index: 1005;">
         <div class="modal-content" style="max-width: 350px;">
             <h3 style="margin-bottom: 15px;" id="generic-prompt-title">Nhập nội dung</h3>
             <input type="text" id="generic-prompt-input" style="width: 100%; margin-bottom: 20px;">
@@ -636,7 +686,32 @@
             return Math.floor(seconds/86400) + ' ngày trước';
         };
 
-        // --- CÁC HÀM XỬ LÝ MODAL GENERIC (THAY THẾ CHO CONFIRM VÀ PROMPT) ---
+        // --- HÀM TẠO AVATAR VỚI TRẠNG THÁI ONLINE ---
+        window.getAvatarHtml = (uid, avatarUrl, sizeClass = 'avatar-sm', customStyle = '', onClick = '') => {
+            const isOnline = usersCache[uid]?.isOnline === true;
+            return `
+                <div class="avatar-wrapper" ${onClick ? `onclick="${onClick}" style="cursor:pointer;"` : ''}>
+                    <img src="${avatarUrl || 'https://ui-avatars.com/api/?name=User'}" class="${sizeClass}" style="${customStyle}" loading="lazy">
+                    <div class="online-dot ${isOnline ? 'active' : ''}"></div>
+                </div>
+            `;
+        };
+
+        // --- CẬP NHẬT TRẠNG THÁI HOẠT ĐỘNG (ONLINE STATUS) ---
+        async function setOnlineStatus(isOnline) {
+            if (auth.currentUser) {
+                try {
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), { isOnline: isOnline, lastActive: serverTimestamp() });
+                } catch(e) { console.warn("Lỗi cập nhật trạng thái hoạt động:", e); }
+            }
+        }
+        window.addEventListener('beforeunload', () => setOnlineStatus(false));
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') setOnlineStatus(true);
+            else setOnlineStatus(false);
+        });
+
+        // --- CÁC HÀM XỬ LÝ MODAL GENERIC ---
         window.genericConfirmCallback = null;
         window.showConfirmModal = (title, message, callback) => {
             document.getElementById('generic-confirm-title').innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${title}`;
@@ -687,7 +762,7 @@
                         container.innerHTML += `
                             <label style="display:flex; align-items:center; gap:10px; margin-bottom:8px; cursor:pointer; padding: 5px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-card);">
                                 <input type="checkbox" class="${containerId}-checkbox" value="${u.uid}" ${isChecked} style="width: auto; margin:0;">
-                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" style="width:28px; height:28px; border-radius:50%;">
+                                ${window.getAvatarHtml(u.uid, u.avatar, 'avatar-sm', 'width:28px; height:28px;')}
                                 <span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span>
                             </label>
                         `;
@@ -831,11 +906,13 @@
                 const userStories = allStories[uid];
                 const allViewed = userStories.every(s => viewedStories[s.id]);
                 const author = userStories[0]; 
+                const isOnline = usersCache[uid]?.isOnline === true;
                 
                 list.innerHTML += `
                     <div class="story-item ${allViewed ? 'viewed' : ''}" onclick="openStoryViewer('${uid}')">
                         <div class="story-avatar-container">
                             <img src="${author.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="story-avatar">
+                            ${isOnline ? '<div class="online-dot active" style="right: 5px; bottom: 5px;"></div>' : ''}
                         </div>
                         <span class="story-name">${escapeHtml(author.authorName)}</span>
                     </div>
@@ -1006,7 +1083,7 @@
             });
         };
 
-        // --- CÁC HÀM CÒN LẠI ĐƯỢC GIỮ NGUYÊN (Post, Auth, Chat, Call, Profile, ...) ---
+        // --- BÀI VIẾT VÀ FEED ---
         window.createPostHTML = (p, currentUid) => {
             const isLiked = currentUid && p.likes && Array.isArray(p.likes) && p.likes.includes(currentUid);
             const isAuthor = currentUid && p.authorUid === currentUid;
@@ -1041,7 +1118,7 @@
                 }
                 return `
                     <div class="comment-item" id="comment-${safeId}">
-                        <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}" loading="lazy" style="cursor:pointer;" onclick="viewUserProfile('${c.uid}')">
+                        ${window.getAvatarHtml(c.uid, c.avatar, 'avatar-sm', 'cursor:pointer;', `viewUserProfile('${c.uid}')`)}
                         <div class="comment-box" style="position: relative;">
                             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                                 <strong style="font-size:0.85rem; cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}</strong>
@@ -1057,10 +1134,10 @@
             return `
                 <div class="card">
                     <div class="post-header">
-                        <div class="user-info-sm" style="cursor:pointer;" onclick="viewUserProfile('${p.authorUid}')">
-                            <img src="${p.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
+                        <div class="user-info-sm">
+                            ${window.getAvatarHtml(p.authorUid, p.authorAvatar, 'avatar-sm', 'cursor:pointer;', `viewUserProfile('${p.authorUid}')`)}
                             <div>
-                                <strong style="display:block;">${escapeHtml(p.authorName || 'Ẩn danh')}</strong>
+                                <strong style="display:block; cursor:pointer;" onclick="viewUserProfile('${p.authorUid}')">${escapeHtml(p.authorName || 'Ẩn danh')}</strong>
                                 <span style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(p.authorUsername || 'user')} • ${timeAgo(p.createdAt)}</span>
                                 ${privacyBtnHtml}
                             </div>
@@ -1102,7 +1179,7 @@
         window.cancelVoiceRecording = () => { if (mediaRecorder && mediaRecorder.state !== 'inactive') { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t => t.stop()); } clearInterval(recordTimerInterval); audioChunks = []; document.getElementById('voice-recording-ui').style.display = 'none'; document.getElementById('normal-chat-controls').style.display = 'flex'; };
         window.stopAndSendVoiceRecording = () => { if (!mediaRecorder || mediaRecorder.state === 'inactive') return; mediaRecorder.onstop = async () => { const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); mediaRecorder.stream.getTracks().forEach(t => t.stop()); clearInterval(recordTimerInterval); document.getElementById('voice-recording-ui').style.display = 'none'; document.getElementById('normal-chat-controls').style.display = 'flex'; if (audioBlob.size < 500) return showToast("Bản ghi quá ngắn!"); showLoading("Đang xử lý & gửi..."); try { const audioFile = new File([audioBlob], `voice_${Date.now()}.webm`, { type: 'audio/webm' }); const voiceUrl = await uploadFileToStorage(audioFile, "voiceMessages"); await sendMessageData("", voiceUrl, "audio"); } catch (err) { showToast("Lỗi: " + err.message); } hideLoading(); }; mediaRecorder.stop(); };
 
-        window.openCreateGroupModal = () => { const listContainer = document.getElementById('group-members-checklist'); listContainer.innerHTML = ''; let hasUsers = false; Object.values(usersCache).forEach(u => { if (currentUserDoc && u.uid !== currentUserDoc.uid) { const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid); if (isFriend) { hasUsers = true; listContainer.innerHTML += `<label class="member-checkbox-item"><input type="checkbox" class="group-member-checkbox" value="${u.uid}"><img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:30px; height:30px;"><span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span></label>`; } } }); if (!hasUsers) listContainer.innerHTML = '<p style="text-align:center; color:gray; padding:10px;">Bạn chưa có bạn bè để tạo nhóm.</p>'; document.getElementById('group-name-input').value = ''; document.getElementById('modal-create-group').style.display = 'flex'; };
+        window.openCreateGroupModal = () => { const listContainer = document.getElementById('group-members-checklist'); listContainer.innerHTML = ''; let hasUsers = false; Object.values(usersCache).forEach(u => { if (currentUserDoc && u.uid !== currentUserDoc.uid) { const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid); if (isFriend) { hasUsers = true; listContainer.innerHTML += `<label class="member-checkbox-item"><input type="checkbox" class="group-member-checkbox" value="${u.uid}">${window.getAvatarHtml(u.uid, u.avatar, 'avatar-sm', 'width:30px; height:30px;')}<span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span></label>`; } } }); if (!hasUsers) listContainer.innerHTML = '<p style="text-align:center; color:gray; padding:10px;">Bạn chưa có bạn bè để tạo nhóm.</p>'; document.getElementById('group-name-input').value = ''; document.getElementById('modal-create-group').style.display = 'flex'; };
         window.closeCreateGroupModal = () => { document.getElementById('modal-create-group').style.display = 'none'; };
         window.submitCreateGroup = async () => { if (!currentUserDoc) return; const groupName = document.getElementById('group-name-input').value.trim(); if (!groupName) return showToast("Vui lòng nhập tên nhóm!"); const selectedCheckboxes = document.querySelectorAll('.group-member-checkbox:checked'); const selectedMemberUids = Array.from(selectedCheckboxes).map(cb => cb.value); if (selectedMemberUids.length === 0) return showToast("Chọn ít nhất 1 thành viên!"); selectedMemberUids.push(currentUserDoc.uid); showLoading("Đang tạo nhóm..."); try { const groupRef = await addDoc(collection(db, "groups"), { name: groupName, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(groupName)}&background=000&color=fff`, createdBy: currentUserDoc.uid, members: selectedMemberUids, createdAt: serverTimestamp() }); closeCreateGroupModal(); showToast("Đã tạo nhóm!"); openGroupChat(groupRef.id, groupName, `https://ui-avatars.com/api/?name=${encodeURIComponent(groupName)}&background=000&color=fff`); } catch (err) { showToast("Lỗi: " + err.message); } hideLoading(); };
 
@@ -1112,13 +1189,14 @@
         
         window.switchPage = (pageId, btn) => { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); document.getElementById(`page-${pageId}`).classList.add('active'); if (btn) { btn.classList.add('active'); } else { const navIndex = pageId === 'feed' ? 0 : pageId === 'friends' ? 1 : pageId === 'messages' ? 2 : 3; const navBtns = document.querySelectorAll('.nav-item'); if (navBtns[navIndex]) navBtns[navIndex].classList.add('active'); } window.scrollTo({top: 0}); if(pageId === 'profile' && btn) renderProfilePage(currentUserDoc?.uid); if(pageId === 'friends') searchUsers(); if(pageId === 'messages') { unreadMsgCount = 0; updateNavMsgBadge(); if(!activeChatTargetId) { document.getElementById('chat-list').style.display = 'block'; document.getElementById('chat-room').style.display = 'none'; document.getElementById('chat-top-actions').style.display = 'flex'; } } };
         
-        window.handleAuth = async (e, type) => { e.preventDefault(); showLoading("Đang xử lý..."); try { if(type === 'login') { const user = document.getElementById('login-user').value; const pass = document.getElementById('login-pass').value; await signInWithEmailAndPassword(auth, formatEmail(user), pass); } else { const name = document.getElementById('reg-name').value; const user = document.getElementById('reg-user').value.toLowerCase().replace(/\s/g, ''); const pass = document.getElementById('reg-pass').value; const res = await createUserWithEmailAndPassword(auth, formatEmail(user), pass); await setDoc(doc(db, "users", res.user.uid), { uid: res.user.uid, username: user, displayName: name, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`, cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800", bio: "Người dùng mới tại 9c2network", followers: [], following: [] }); } } catch (error) { showToast("Lỗi xác thực: " + error.message); } hideLoading(); };
-        window.handleLogout = () => signOut(auth);
+        window.handleAuth = async (e, type) => { e.preventDefault(); showLoading("Đang xử lý..."); try { if(type === 'login') { const user = document.getElementById('login-user').value; const pass = document.getElementById('login-pass').value; await signInWithEmailAndPassword(auth, formatEmail(user), pass); } else { const name = document.getElementById('reg-name').value; const user = document.getElementById('reg-user').value.toLowerCase().replace(/\s/g, ''); const pass = document.getElementById('reg-pass').value; const res = await createUserWithEmailAndPassword(auth, formatEmail(user), pass); await setDoc(doc(db, "users", res.user.uid), { uid: res.user.uid, username: user, displayName: name, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`, cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800", bio: "Người dùng mới tại 9c2network", followers: [], following: [], isOnline: true, lastActive: serverTimestamp() }); } } catch (error) { showToast("Lỗi xác thực: " + error.message); } hideLoading(); };
+        window.handleLogout = () => { setOnlineStatus(false); signOut(auth); };
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('app-container').style.display = 'flex';
+                setOnlineStatus(true);
                 onSnapshot(doc(db, "users", user.uid), (docSnap) => {
                     if (docSnap.exists()) currentUserDoc = docSnap.data();
                     else { const fallbackUser = user.email ? user.email.split('@')[0] : 'user'; currentUserDoc = { uid: user.uid, username: fallbackUser, displayName: user.displayName || fallbackUser, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackUser)}&background=random`, cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800", bio: "Người dùng mới tại 9c2network", followers: [], following: [] }; }
@@ -1260,6 +1338,11 @@
 
             document.getElementById('profile-cover').src = targetUser.cover || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
             document.getElementById('profile-avatar').src = targetUser.avatar || "https://ui-avatars.com/api/?name=User";
+            
+            const onlineDot = document.getElementById('profile-online-dot');
+            if (targetUser.isOnline) { onlineDot.classList.add('active'); }
+            else { onlineDot.classList.remove('active'); }
+
             document.getElementById('profile-name').innerText = targetUser.displayName || "--";
             document.getElementById('profile-handle').innerText = `@${targetUser.username || "--"}`;
             document.getElementById('profile-bio').innerText = targetUser.bio || "";
@@ -1404,13 +1487,340 @@
         window.confirmDeleteMyAccount = () => { document.getElementById('modal-edit-profile').style.display = 'none'; document.getElementById('modal-confirm-delete-account').style.display = 'flex'; };
         window.closeDeleteAccountModal = () => { document.getElementById('modal-confirm-delete-account').style.display = 'none'; };
         window.executeDeleteMyAccount = async () => { closeDeleteAccountModal(); const user = auth.currentUser; if (!user) return; showLoading("Đang xóa tài khoản..."); try { const uid = user.uid; const postsSnap = await getDocs(query(collection(db, "posts"), where("authorUid", "==", uid))); const postDeletions = postsSnap.docs.map(d => deleteDoc(doc(db, "posts", d.id))); await Promise.all(postDeletions); await deleteDoc(doc(db, "users", uid)); await deleteUser(user); showToast("Đã xóa tài khoản vĩnh viễn!"); } catch (err) { showToast("Không thể xóa: " + err.message); } hideLoading(); };
-        window.searchUsers = async () => { const text = document.getElementById('search-input').value.toLowerCase().trim(); try { const snap = await getDocs(query(collection(db, "users"))); const list = document.getElementById('search-results'); list.innerHTML = ''; let foundAny = false; snap.forEach(d => { const u = d.data(); if(currentUserDoc && u.uid !== currentUserDoc.uid && (!text || u.username?.toLowerCase().includes(text) || u.displayName?.toLowerCase().includes(text))) { usersCache[u.uid] = u; foundAny = true; const uid = u.uid; const isFriend = currentUserDoc?.followers?.includes(uid) && currentUserDoc?.following?.includes(uid); const sentReq = window.mySentRequests?.find(r => r.receiverId === uid); const rcvReq = window.myPendingRequests?.find(r => r.senderId === uid); let actionBtn = ''; if (isFriend) { actionBtn = `<button onclick="openChatById('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--accent-white); color: var(--accent-black);"><i class="fa-solid fa-message"></i> Nhắn tin</button>`; } else if (sentReq) { actionBtn = `<button disabled style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--bg-input);"><i class="fa-solid fa-clock"></i> Đã gửi</button>`; } else if (rcvReq) { actionBtn = `<button onclick="acceptFriendRequest('${rcvReq.id}', '${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: #2e7d32; color: white; border: none;"><i class="fa-solid fa-check"></i> Chấp nhận</button>`; } else { actionBtn = `<button onclick="sendFriendRequest('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px;"><i class="fa-solid fa-user-plus"></i> Kết bạn</button>`; } const profileBtn = `<button onclick="viewUserProfile('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--bg-input); border-color: var(--border-color);"><i class="fa-solid fa-user"></i> Hồ sơ</button>`; list.innerHTML += ` <div class="card" style="text-align:center; padding: 15px 10px; display: flex; flex-direction: column; justify-content: space-between;"> <div> <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:60px; height:60px; margin:0 auto 10px; cursor:pointer;" loading="lazy" onclick="viewUserProfile('${u.uid}')"> <strong style="display:block; font-size:0.95rem; cursor:pointer;" onclick="viewUserProfile('${u.uid}')">${escapeHtml(u.displayName || 'User')}</strong> <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:15px;">@${escapeHtml(u.username || 'user')}</p> </div> <div style="display: flex; gap: 6px; width: 100%; flex-wrap: wrap; justify-content: center;"> ${actionBtn} ${profileBtn} </div> </div> `; } }); if (!foundAny) { list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column: span 2;">Không tìm thấy người dùng nào.</p>'; } } catch(err) { console.error("Search error:", err); } };
-        function listenChatList() { onSnapshot(collection(db, "users"), (userSnap) => { userSnap.forEach(d => { usersCache[d.id] = d.data(); }); renderCombinedChatList(); }); onSnapshot(collection(db, "groups"), (groupSnap) => { groupSnap.forEach(d => { groupsCache[d.id] = { id: d.id, ...d.data() }; }); renderCombinedChatList(); }); }
-        function renderCombinedChatList() { const list = document.getElementById('chat-list'); list.innerHTML = ''; let hasChats = false; Object.values(groupsCache).forEach(g => { if (currentUserDoc && g.members && g.members.includes(currentUserDoc.uid)) { hasChats = true; list.innerHTML += ` <div class="chat-user-item" onclick="openGroupChat('${g.id}', '${escapeHtml(g.name)}', '${g.avatar}')"> <img src="${g.avatar || 'https://ui-avatars.com/api/?name=Group'}" class="avatar-sm" loading="lazy"> <div style="flex:1;"> <strong style="font-size:0.95rem;">${escapeHtml(g.name)}</strong> <span class="group-badge">Nhóm (${g.members.length})</span> <p style="font-size:0.75rem; color:var(--text-secondary);">Nhóm trò chuyện chung</p> </div> </div> `; } }); Object.values(usersCache).forEach(u => { if (currentUserDoc && u.uid !== currentUserDoc.uid) { const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid); if (isFriend) { hasChats = true; list.innerHTML += ` <div class="chat-user-item" onclick="openChatById('${u.uid}')"> <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy"> <div> <strong style="font-size:0.95rem;">${escapeHtml(u.displayName || 'User')}</strong> <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(u.username || 'user')}</p> </div> </div> `; } } }); if (!hasChats) { list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding: 20px;">Bạn chưa có bạn bè hoặc nhóm chat nào để trò chuyện.</p>'; } }
+        
+        window.searchUsers = async () => { 
+            const text = document.getElementById('search-input').value.toLowerCase().trim(); 
+            try { 
+                const snap = await getDocs(query(collection(db, "users"))); 
+                const list = document.getElementById('search-results'); 
+                list.innerHTML = ''; 
+                let foundAny = false; 
+                snap.forEach(d => { 
+                    const u = d.data(); 
+                    if(currentUserDoc && u.uid !== currentUserDoc.uid && (!text || u.username?.toLowerCase().includes(text) || u.displayName?.toLowerCase().includes(text))) { 
+                        usersCache[u.uid] = u; 
+                        foundAny = true; 
+                        const uid = u.uid; 
+                        const isFriend = currentUserDoc?.followers?.includes(uid) && currentUserDoc?.following?.includes(uid); 
+                        const sentReq = window.mySentRequests?.find(r => r.receiverId === uid); 
+                        const rcvReq = window.myPendingRequests?.find(r => r.senderId === uid); 
+                        
+                        let actionBtn = ''; 
+                        if (isFriend) { actionBtn = `<button onclick="openChatById('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--accent-white); color: var(--accent-black);"><i class="fa-solid fa-message"></i> Nhắn tin</button>`; } 
+                        else if (sentReq) { actionBtn = `<button disabled style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--bg-input);"><i class="fa-solid fa-clock"></i> Đã gửi</button>`; } 
+                        else if (rcvReq) { actionBtn = `<button onclick="acceptFriendRequest('${rcvReq.id}', '${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: #2e7d32; color: white; border: none;"><i class="fa-solid fa-check"></i> Chấp nhận</button>`; } 
+                        else { actionBtn = `<button onclick="sendFriendRequest('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px;"><i class="fa-solid fa-user-plus"></i> Kết bạn</button>`; } 
+                        
+                        const profileBtn = `<button onclick="viewUserProfile('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--bg-input); border-color: var(--border-color);"><i class="fa-solid fa-user"></i> Hồ sơ</button>`; 
+                        
+                        list.innerHTML += ` 
+                            <div class="card" style="text-align:center; padding: 15px 10px; display: flex; flex-direction: column; justify-content: space-between;"> 
+                                <div> 
+                                    <div style="margin: 0 auto 10px; display: block;">
+                                        ${window.getAvatarHtml(u.uid, u.avatar, 'avatar-sm', 'width:60px; height:60px; margin:0 auto; cursor:pointer;', `viewUserProfile('${u.uid}')`)}
+                                    </div>
+                                    <strong style="display:block; font-size:0.95rem; cursor:pointer;" onclick="viewUserProfile('${u.uid}')">${escapeHtml(u.displayName || 'User')}</strong> 
+                                    <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:15px;">@${escapeHtml(u.username || 'user')}</p> 
+                                </div> 
+                                <div style="display: flex; gap: 6px; width: 100%; flex-wrap: wrap; justify-content: center;"> 
+                                    ${actionBtn} ${profileBtn} 
+                                </div> 
+                            </div> 
+                        `; 
+                    } 
+                }); 
+                if (!foundAny) { list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column: span 2;">Không tìm thấy người dùng nào.</p>'; } 
+            } catch(err) { console.error("Search error:", err); } 
+        };
+
+        function listenChatList() { 
+            onSnapshot(collection(db, "users"), (userSnap) => { 
+                userSnap.forEach(d => { usersCache[d.id] = d.data(); }); 
+                renderCombinedChatList(); 
+                renderStoriesBar();
+            }); 
+            onSnapshot(collection(db, "groups"), (groupSnap) => { 
+                groupSnap.forEach(d => { groupsCache[d.id] = { id: d.id, ...d.data() }; }); 
+                renderCombinedChatList(); 
+                if (document.getElementById('modal-group-settings').style.display === 'flex') {
+                    renderGroupSettingsMembers();
+                }
+            }); 
+        }
+        
+        function renderCombinedChatList() { 
+            const list = document.getElementById('chat-list'); 
+            list.innerHTML = ''; 
+            let hasChats = false; 
+            Object.values(groupsCache).forEach(g => { 
+                if (currentUserDoc && g.members && g.members.includes(currentUserDoc.uid)) { 
+                    hasChats = true; 
+                    list.innerHTML += ` 
+                        <div class="chat-user-item" onclick="openGroupChat('${g.id}', '${escapeHtml(g.name)}', '${g.avatar}')"> 
+                            <img src="${g.avatar || 'https://ui-avatars.com/api/?name=Group'}" class="avatar-sm" loading="lazy"> 
+                            <div style="flex:1;"> 
+                                <strong style="font-size:0.95rem;">${escapeHtml(g.name)}</strong> 
+                                <span class="group-badge">Nhóm (${g.members.length})</span> 
+                                <p style="font-size:0.75rem; color:var(--text-secondary);">Nhóm trò chuyện chung</p> 
+                            </div> 
+                        </div> 
+                    `; 
+                } 
+            }); 
+            Object.values(usersCache).forEach(u => { 
+                if (currentUserDoc && u.uid !== currentUserDoc.uid) { 
+                    const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid); 
+                    if (isFriend) { 
+                        hasChats = true; 
+                        list.innerHTML += ` 
+                            <div class="chat-user-item" onclick="openChatById('${u.uid}')"> 
+                                ${window.getAvatarHtml(u.uid, u.avatar, 'avatar-sm', 'cursor:pointer;', `event.stopPropagation(); viewUserProfile('${u.uid}')`)}
+                                <div> 
+                                    <strong style="font-size:0.95rem;">${escapeHtml(u.displayName || 'User')}</strong> 
+                                    <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(u.username || 'user')}</p> 
+                                </div> 
+                            </div> 
+                        `; 
+                    } 
+                } 
+            }); 
+            if (!hasChats) { list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding: 20px;">Bạn chưa có bạn bè hoặc nhóm chat nào để trò chuyện.</p>'; } 
+        }
+
         let unsubscribeChat = null;
         window.openChatById = (uid) => { const u = usersCache[uid]; if (u) { activeChatType = 'private'; openChat(u.uid, u.displayName || u.username, u.avatar); } };
         window.openGroupChat = (groupId, name, avatar) => { activeChatType = 'group'; openChat(groupId, name, avatar); };
-        window.openChat = (targetId, name, avatar) => { if (!currentUserDoc) return; activeChatTargetId = targetId; switchPage('messages', null); document.getElementById('chat-top-actions').style.display = 'none'; document.getElementById('chat-list').style.display = 'none'; document.getElementById('chat-room').style.display = 'flex'; document.getElementById('chat-active-avatar').src = avatar || 'https://ui-avatars.com/api/?name=User'; document.getElementById('chat-active-name').innerText = name || 'User'; const callAudioBtn = document.getElementById('hdr-btn-audio-call'); const callVideoBtn = document.getElementById('hdr-btn-video-call'); const typeBadge = document.getElementById('chat-type-badge'); if (activeChatType === 'group') { callAudioBtn.style.display = 'none'; callVideoBtn.style.display = 'none'; typeBadge.style.display = 'inline-block'; } else { callAudioBtn.style.display = 'inline-block'; callVideoBtn.style.display = 'inline-block'; typeBadge.style.display = 'none'; } const chatId = activeChatType === 'group' ? targetId : (currentUserDoc.uid < targetId ? `${currentUserDoc.uid}_${targetId}` : `${targetId}_${currentUserDoc.uid}`); if (unsubscribeTyping) unsubscribeTyping(); unsubscribeTyping = onSnapshot(doc(db, "typing_status", chatId), (docSnap) => { const typingIndicator = document.getElementById('typing-indicator'); if (docSnap.exists()) { const data = docSnap.data(); let someoneTyping = false; for (const [uid, isTyping] of Object.entries(data)) { if (uid !== currentUserDoc.uid && isTyping) { someoneTyping = true; break; } } typingIndicator.style.display = someoneTyping ? 'block' : 'none'; if (someoneTyping) { const box = document.getElementById('chat-messages-box'); box.scrollTop = box.scrollHeight; } } else { typingIndicator.style.display = 'none'; } }); if(unsubscribeChat) unsubscribeChat(); const q = query(collection(db, "messages"), where("chatId", "==", chatId)); unsubscribeChat = onSnapshot(q, (snap) => { const box = document.getElementById('chat-messages-box'); let msgs = []; snap.forEach(d => msgs.push({ id: d.id, ...d.data() })); msgs.sort((a, b) => { const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0); const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0); return timeA - timeB; }); box.innerHTML = ''; msgs.forEach(m => { const isMe = m.senderId === currentUserDoc.uid; const timeDiff = Date.now() - (m.createdAt?.toMillis ? m.createdAt.toMillis() : Date.now()); const canEditDelete = isMe && (timeDiff < 5 * 60 * 1000); let mediaHtml = ''; if (m.mediaUrl) { if (m.mediaType === 'audio') { mediaHtml = `<audio src="${m.mediaUrl}" controls style="margin-top:5px;"></audio>`; } else if (m.mediaType === 'video') { mediaHtml = `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>`; } else { mediaHtml = `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`; } } const senderNameHtml = (activeChatType === 'group' && !isMe) ? `<div class="msg-sender-name">${escapeHtml(m.senderName || 'Thành viên')}</div>` : ''; let optionsHtml = ''; if (canEditDelete) { optionsHtml = ` <div class="msg-options"> ${!m.mediaUrl ? `<button class="msg-btn" onclick="editMessage('${m.id}', '${escapeHtml(m.text || '')}')" title="Sửa"><i class="fa-solid fa-pen"></i></button>` : ''} <button class="msg-btn" style="color: #ff4444;" onclick="deleteMessage('${m.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button> </div> `; } const editedMark = m.isEdited ? `<span style="font-size:0.7rem; opacity:0.6; margin-left:5px;">(đã sửa)</span>` : ''; box.innerHTML += ` <div class="msg-bubble ${isMe ? 'sent' : 'received'}"> ${optionsHtml} ${senderNameHtml} ${m.text ? `<div>${escapeHtml(m.text)} ${editedMark}</div>` : ''} ${mediaHtml} </div> `; }); setTimeout(() => { box.scrollTop = box.scrollHeight; }, 30); }, (err) => console.error("Message room error:", err)); };
+        
+        window.openChat = (targetId, name, avatar) => { 
+            if (!currentUserDoc) return; 
+            activeChatTargetId = targetId; 
+            switchPage('messages', null); 
+            document.getElementById('chat-top-actions').style.display = 'none'; 
+            document.getElementById('chat-list').style.display = 'none'; 
+            document.getElementById('chat-room').style.display = 'flex'; 
+            
+            document.getElementById('chat-active-avatar').src = avatar || 'https://ui-avatars.com/api/?name=User'; 
+            document.getElementById('chat-active-name').innerText = name || 'User'; 
+            
+            const callAudioBtn = document.getElementById('hdr-btn-audio-call'); 
+            const callVideoBtn = document.getElementById('hdr-btn-video-call'); 
+            const typeBadge = document.getElementById('chat-type-badge'); 
+            const onlineDot = document.getElementById('chat-active-online-dot');
+
+            if (activeChatType === 'group') { 
+                callAudioBtn.style.display = 'none'; 
+                callVideoBtn.style.display = 'none'; 
+                typeBadge.style.display = 'inline-block'; 
+                onlineDot.classList.remove('active');
+            } else { 
+                callAudioBtn.style.display = 'inline-block'; 
+                callVideoBtn.style.display = 'inline-block'; 
+                typeBadge.style.display = 'none'; 
+                if (usersCache[targetId]?.isOnline) onlineDot.classList.add('active');
+                else onlineDot.classList.remove('active');
+            } 
+            
+            const chatId = activeChatType === 'group' ? targetId : (currentUserDoc.uid < targetId ? `${currentUserDoc.uid}_${targetId}` : `${targetId}_${currentUserDoc.uid}`); 
+            
+            if (unsubscribeTyping) unsubscribeTyping(); 
+            unsubscribeTyping = onSnapshot(doc(db, "typing_status", chatId), (docSnap) => { 
+                const typingIndicator = document.getElementById('typing-indicator'); 
+                if (docSnap.exists()) { 
+                    const data = docSnap.data(); 
+                    let someoneTyping = false; 
+                    for (const [uid, isTyping] of Object.entries(data)) { 
+                        if (uid !== currentUserDoc.uid && isTyping) { someoneTyping = true; break; } 
+                    } 
+                    typingIndicator.style.display = someoneTyping ? 'block' : 'none'; 
+                    if (someoneTyping) { const box = document.getElementById('chat-messages-box'); box.scrollTop = box.scrollHeight; } 
+                } else { typingIndicator.style.display = 'none'; } 
+            }); 
+            
+            if(unsubscribeChat) unsubscribeChat(); 
+            const q = query(collection(db, "messages"), where("chatId", "==", chatId)); 
+            unsubscribeChat = onSnapshot(q, (snap) => { 
+                const box = document.getElementById('chat-messages-box'); 
+                let msgs = []; 
+                snap.forEach(d => msgs.push({ id: d.id, ...d.data() })); 
+                msgs.sort((a, b) => { const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0); const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0); return timeA - timeB; }); 
+                box.innerHTML = ''; 
+                msgs.forEach(m => { 
+                    const isMe = m.senderId === currentUserDoc.uid; 
+                    const timeDiff = Date.now() - (m.createdAt?.toMillis ? m.createdAt.toMillis() : Date.now()); 
+                    const canEditDelete = isMe && (timeDiff < 5 * 60 * 1000); 
+                    
+                    let mediaHtml = ''; 
+                    if (m.mediaUrl) { 
+                        if (m.mediaType === 'audio') { mediaHtml = `<audio src="${m.mediaUrl}" controls style="margin-top:5px;"></audio>`; } 
+                        else if (m.mediaType === 'video') { mediaHtml = `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>`; } 
+                        else { mediaHtml = `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`; } 
+                    } 
+                    
+                    const senderNameHtml = (activeChatType === 'group' && !isMe) ? `<div class="msg-sender-name" style="cursor:pointer;" onclick="viewUserProfile('${m.senderId}')">${escapeHtml(m.senderName || 'Thành viên')}</div>` : ''; 
+                    
+                    let optionsHtml = ''; 
+                    if (canEditDelete) { 
+                        optionsHtml = ` <div class="msg-options"> ${!m.mediaUrl ? `<button class="msg-btn" onclick="editMessage('${m.id}', '${escapeHtml(m.text || '')}')" title="Sửa"><i class="fa-solid fa-pen"></i></button>` : ''} <button class="msg-btn" style="color: #ff4444;" onclick="deleteMessage('${m.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button> </div> `; 
+                    } 
+                    
+                    const editedMark = m.isEdited ? `<span style="font-size:0.7rem; opacity:0.6; margin-left:5px;">(đã sửa)</span>` : ''; 
+                    box.innerHTML += ` <div class="msg-bubble ${isMe ? 'sent' : 'received'}"> ${optionsHtml} ${senderNameHtml} ${m.text ? `<div>${escapeHtml(m.text)} ${editedMark}</div>` : ''} ${mediaHtml} </div> `; 
+                }); 
+                setTimeout(() => { box.scrollTop = box.scrollHeight; }, 30); 
+            }, (err) => console.error("Message room error:", err)); 
+        };
+
+        window.handleChatHeaderClick = () => {
+            if (activeChatType === 'private') {
+                viewUserProfile(activeChatTargetId);
+            } else if (activeChatType === 'group') {
+                openGroupSettings();
+            }
+        };
+
+        // --- CÁC HÀM QUẢN LÝ NHÓM CHAT ---
+        window.openGroupSettings = () => {
+            const group = groupsCache[activeChatTargetId];
+            if (!group) return;
+            document.getElementById('edit-group-name').value = group.name;
+            
+            const isAdmin = currentUserDoc.uid === group.createdBy;
+            const delBtn = document.getElementById('btn-delete-group');
+            delBtn.style.display = isAdmin ? 'inline-block' : 'none';
+
+            renderGroupSettingsMembers();
+            document.getElementById('modal-group-settings').style.display = 'flex';
+        };
+
+        window.closeGroupSettings = () => {
+            document.getElementById('modal-group-settings').style.display = 'none';
+        };
+
+        window.renderGroupSettingsMembers = () => {
+            const group = groupsCache[activeChatTargetId];
+            if (!group) return;
+            const list = document.getElementById('group-settings-members');
+            list.innerHTML = '';
+            const isAdmin = currentUserDoc.uid === group.createdBy;
+
+            group.members.forEach(uid => {
+                const u = usersCache[uid] || { uid: uid, displayName: 'Thành viên', username: 'user', avatar: '' };
+                const isMe = uid === currentUserDoc.uid;
+                const isTargetAdmin = uid === group.createdBy;
+                let removeBtn = '';
+                
+                if (isAdmin && !isTargetAdmin) {
+                    removeBtn = `<button onclick="removeGroupMember('${uid}')" style="background:none; border:none; color:var(--danger-red); font-size:1rem; padding: 5px;"><i class="fa-solid fa-user-minus"></i></button>`;
+                } else if (isMe && !isTargetAdmin) {
+                     removeBtn = `<button onclick="leaveGroup()" style="background:none; border:none; color:var(--danger-red); font-size:0.85rem; padding: 5px;"><i class="fa-solid fa-right-from-bracket"></i> Rời nhóm</button>`;
+                }
+
+                list.innerHTML += `
+                    <div class="group-member-item">
+                        <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="closeGroupSettings(); viewUserProfile('${uid}')">
+                            ${window.getAvatarHtml(uid, u.avatar, 'avatar-sm', 'width:32px; height:32px;')}
+                            <div>
+                                <span style="font-size:0.9rem; font-weight:600;">${escapeHtml(u.displayName || u.username)} ${isTargetAdmin ? '<i class="fa-solid fa-crown" style="color:gold; font-size:0.75rem;"></i>' : ''}</span>
+                            </div>
+                        </div>
+                        ${removeBtn}
+                    </div>
+                `;
+            });
+        };
+
+        window.saveGroupName = async () => {
+            const newName = document.getElementById('edit-group-name').value.trim();
+            if (!newName) return showToast('Vui lòng nhập tên nhóm!');
+            showLoading("Đang lưu...");
+            try {
+                await updateDoc(doc(db, "groups", activeChatTargetId), { name: newName });
+                document.getElementById('chat-active-name').innerText = newName;
+                showToast("Đã đổi tên nhóm!");
+            } catch(e) { showToast("Lỗi: " + e.message); }
+            hideLoading();
+        };
+
+        window.removeGroupMember = async (uid) => {
+            window.showConfirmModal("Xóa thành viên", "Chắc chắn muốn xóa người này khỏi nhóm?", async () => {
+                showLoading("Đang xóa...");
+                try {
+                    await updateDoc(doc(db, "groups", activeChatTargetId), { members: arrayRemove(uid) });
+                    showToast("Đã xóa thành viên!");
+                } catch(e) { showToast("Lỗi: " + e.message); }
+                hideLoading();
+            });
+        };
+
+        window.leaveGroup = async () => {
+             window.showConfirmModal("Rời nhóm", "Bạn có chắc chắn muốn rời khỏi nhóm này không?", async () => {
+                showLoading("Đang rời nhóm...");
+                try {
+                    await updateDoc(doc(db, "groups", activeChatTargetId), { members: arrayRemove(currentUserDoc.uid) });
+                    showToast("Đã rời nhóm!");
+                    closeGroupSettings();
+                    closeChatRoom();
+                } catch(e) { showToast("Lỗi: " + e.message); }
+                hideLoading();
+            });
+        }
+
+        window.openAddGroupMemberModal = () => {
+            const group = groupsCache[activeChatTargetId];
+            if (!group) return;
+            const list = document.getElementById('add-group-members-list');
+            list.innerHTML = '';
+            let hasFriends = false;
+
+            Object.values(usersCache).forEach(u => {
+                if (currentUserDoc && u.uid !== currentUserDoc.uid) {
+                    const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid);
+                    if (isFriend && !group.members.includes(u.uid)) {
+                        hasFriends = true;
+                        list.innerHTML += `
+                            <label class="member-checkbox-item">
+                                <input type="checkbox" class="add-member-checkbox" value="${u.uid}">
+                                ${window.getAvatarHtml(u.uid, u.avatar, 'avatar-sm', 'width:30px; height:30px;')}
+                                <span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span>
+                            </label>
+                        `;
+                    }
+                }
+            });
+            if (!hasFriends) { list.innerHTML = '<p style="text-align:center; color:gray; padding:10px;">Không có bạn bè nào để thêm.</p>'; }
+            document.getElementById('modal-add-group-members').style.display = 'flex';
+        };
+
+        window.submitAddGroupMembers = async () => {
+            const checkboxes = document.querySelectorAll('.add-member-checkbox:checked');
+            const uidsToAdd = Array.from(checkboxes).map(cb => cb.value);
+            if (uidsToAdd.length === 0) return showToast("Vui lòng chọn ít nhất 1 người!");
+            showLoading("Đang thêm...");
+            try {
+                // Firebase arrayUnion doesn't take an array, we must spread or iterate
+                const groupRef = doc(db, "groups", activeChatTargetId);
+                for(let uid of uidsToAdd) {
+                    await updateDoc(groupRef, { members: arrayUnion(uid) });
+                }
+                document.getElementById('modal-add-group-members').style.display = 'none';
+                showToast("Đã thêm thành viên!");
+            } catch(e) { showToast("Lỗi: " + e.message); }
+            hideLoading();
+        };
+
+        window.deleteGroupChat = async () => {
+            window.showConfirmModal("Giải tán nhóm", "Bạn có chắc chắn muốn xóa nhóm này vĩnh viễn? Mọi tin nhắn sẽ không thể khôi phục.", async () => {
+                showLoading("Đang giải tán nhóm...");
+                try {
+                    await deleteDoc(doc(db, "groups", activeChatTargetId));
+                    showToast("Đã xóa nhóm!");
+                    closeGroupSettings();
+                    closeChatRoom();
+                } catch(e) { showToast("Lỗi: " + e.message); }
+                hideLoading();
+            });
+        };
+
         window.closeChatRoom = () => { if (mediaRecorder && mediaRecorder.state !== 'inactive') cancelVoiceRecording(); document.getElementById('chat-room').style.display = 'none'; document.getElementById('chat-list').style.display = 'block'; document.getElementById('chat-top-actions').style.display = 'flex'; activeChatTargetId = null; if(unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; } if(unsubscribeTyping) { unsubscribeTyping(); unsubscribeTyping = null; } };
         window.handleTyping = () => { if (!currentUserDoc || !activeChatTargetId) return; const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); const typingRef = doc(db, "typing_status", chatId); setDoc(typingRef, { [currentUserDoc.uid]: true }, { merge: true }); clearTimeout(typingTimeout); typingTimeout = setTimeout(() => { setDoc(typingRef, { [currentUserDoc.uid]: false }, { merge: true }); }, 1500); };
         
