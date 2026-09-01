@@ -44,6 +44,7 @@
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 0.75rem; border: none; background: none; padding: 5px 15px; }
         .nav-item.active { color: var(--text-primary); }
         .nav-item i { font-size: 1.2rem; }
+        .nav-badge { background: var(--danger-red); color: white; border-radius: 50%; font-size: 0.6rem; font-weight: bold; padding: 2px 5px; position: absolute; top: -2px; right: 5px; display: none; }
 
         .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -125,13 +126,20 @@
         .btn-end-call { background: #c62828; color: #fff; border: none; }
         .btn-end-call:hover { background: #b71c1c; color: #fff; }
 
-        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; }
+        .msg-bubble { position: relative; max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .msg-bubble.sent { align-self: flex-end; background: var(--accent-white); color: var(--accent-black); border-bottom-right-radius: 4px; }
         .msg-bubble.received { align-self: flex-start; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
         .msg-bubble.sending { opacity: 0.7; }
         
-        /* Đảm bảo thanh chat không bị co rúm hoặc bị đẩy đi */
+        /* CSS CHO TÍNH NĂNG XÓA/SỬA TIN NHẮN */
+        .msg-options { display: none; position: absolute; right: 100%; top: 50%; transform: translateY(-50%); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 4px; gap: 2px; margin-right: 5px; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .msg-bubble.sent:hover .msg-options { display: flex; }
+        .msg-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 6px 10px; font-size: 0.85rem; border-radius: 4px; }
+        .msg-btn:hover { color: var(--text-primary); background: var(--bg-input); }
+        
+        .typing-indicator { font-size: 0.8rem; color: var(--text-secondary); padding: 5px 15px; font-style: italic; display: none; animation: pulseRecord 1s infinite alternate; }
+
         .chat-input-area { padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border-color); background: var(--bg-main); align-items: center; flex-shrink: 0; }
         .chat-input-area input[type="text"] { margin-bottom: 0; border-radius: 20px; padding: 10px 15px; }
 
@@ -251,6 +259,9 @@
                         </div>
                         <div class="chat-messages" id="chat-messages-box"></div>
                         
+                        <!-- CHỈ BÁO ĐANG SOẠN TIN -->
+                        <div id="typing-indicator" class="typing-indicator">Ai đó đang soạn...</div>
+
                         <div class="chat-input-area">
                             <div id="voice-recording-ui" class="voice-recording-bar">
                                 <div class="recording-pulse"></div>
@@ -268,7 +279,8 @@
                                     <i class="fa-solid fa-microphone"></i>
                                 </button>
                                 
-                                <input type="text" id="chat-text" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendChatText()">
+                                <!-- BẮT SỰ KIỆN GÕ ĐỂ HIỂN THỊ ĐANG SOẠN -->
+                                <input type="text" id="chat-text" placeholder="Nhập tin nhắn..." oninput="handleTyping()" onkeypress="if(event.key==='Enter') sendChatText()">
                                 <button onclick="sendChatText()" style="padding: 10px 15px; border-radius: 20px;"><i class="fa-solid fa-paper-plane"></i></button>
                             </div>
                         </div>
@@ -304,7 +316,11 @@
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchPage('feed', this)"><i class="fa-solid fa-house"></i> Bảng tin</button>
             <button class="nav-item" onclick="switchPage('friends', this)"><i class="fa-solid fa-magnifying-glass"></i> Tìm bạn</button>
-            <button class="nav-item" onclick="switchPage('messages', this)"><i class="fa-solid fa-message"></i> Tin nhắn</button>
+            <button class="nav-item" onclick="switchPage('messages', this)" style="position: relative;">
+                <i class="fa-solid fa-message"></i> Tin nhắn
+                <!-- HUY HIỆU TIN NHẮN MỚI -->
+                <span id="nav-msg-badge" class="nav-badge">0</span>
+            </button>
             <button class="nav-item" onclick="switchPage('profile', this)"><i class="fa-solid fa-user"></i> Hồ sơ</button>
         </nav>
     </div>
@@ -485,6 +501,13 @@
         let recordTimerInterval = null;
         let recordStartTime = 0;
 
+        // BIẾN CHO THÔNG BÁO TIN NHẮN & ĐANG SOẠN
+        const appStartTime = Date.now();
+        let unreadMsgCount = 0;
+        let globalMsgUnsubscribe = null;
+        let typingTimeout = null;
+        let unsubscribeTyping = null;
+
         const showLoading = (text) => { 
             document.getElementById('loading-text').innerText = text; 
             document.getElementById('loading-overlay').style.display = 'flex'; 
@@ -503,6 +526,11 @@
             return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         };
 
+        const unescapeHtml = (str) => {
+            const doc = new DOMParser().parseFromString(str, "text/html");
+            return doc.documentElement.textContent;
+        };
+
         const formatEmail = (user) => `${user.toLowerCase().trim()}@9c2network.io.vn`;
         
         const timeAgo = (timestamp) => {
@@ -515,7 +543,6 @@
             return Math.floor(seconds/86400) + ' ngày trước';
         };
 
-        // ====== PHẦN SỬA ĐỔI: TẠO GIAO DIỆN BÀI VIẾT (Xóa bình luận & Gửi ảnh bình luận) ======
         window.createPostHTML = (p, currentUid) => {
             const isLiked = currentUid && p.likes && Array.isArray(p.likes) && p.likes.includes(currentUid);
             const isAuthor = currentUid && p.authorUid === currentUid;
@@ -530,8 +557,8 @@
 
             let commentsHtml = (p.comments || []).map(c => {
                 const isCommentAuthor = currentUid && c.uid === currentUid;
-                const canDelete = isCommentAuthor || isAuthor; // Cả người bình luận hoặc chủ bài viết đều được xóa
-                const safeId = c.commentId || ''; // ID an toàn cho các bình luận cũ
+                const canDelete = isCommentAuthor || isAuthor; 
+                const safeId = c.commentId || ''; 
 
                 let commentMedia = '';
                 if (c.imageUrl) {
@@ -579,7 +606,6 @@
                     <div class="comment-section" id="comments-${p.id}" style="display: ${isOpen ? 'block' : 'none'};">
                         <div class="comments-list">${commentsHtml}</div>
                         
-                        <!-- Đã thay đổi ID cố định thành this để tránh lỗi trùng lặp khi ở trang cá nhân -->
                         <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
                             <label style="cursor:pointer; color: var(--text-primary); font-size:1.2rem; padding:5px; margin-bottom: 0;">
                                 <i class="fa-solid fa-image"></i>
@@ -869,6 +895,16 @@
             renderProfilePage(uid);
         };
 
+        window.updateNavMsgBadge = () => {
+            const badge = document.getElementById('nav-msg-badge');
+            if (unreadMsgCount > 0) {
+                badge.style.display = 'block';
+                badge.innerText = unreadMsgCount;
+            } else {
+                badge.style.display = 'none';
+            }
+        };
+
         window.switchPage = (pageId, btn) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -885,10 +921,14 @@
             window.scrollTo({top: 0});
             if(pageId === 'profile' && btn) renderProfilePage(currentUserDoc?.uid);
             if(pageId === 'friends') searchUsers();
-            if(pageId === 'messages' && !activeChatTargetId) {
-                document.getElementById('chat-list').style.display = 'block';
-                document.getElementById('chat-room').style.display = 'none';
-                document.getElementById('chat-top-actions').style.display = 'flex';
+            if(pageId === 'messages') {
+                unreadMsgCount = 0;
+                updateNavMsgBadge();
+                if(!activeChatTargetId) {
+                    document.getElementById('chat-list').style.display = 'block';
+                    document.getElementById('chat-room').style.display = 'none';
+                    document.getElementById('chat-top-actions').style.display = 'flex';
+                }
             }
         };
 
@@ -954,6 +994,7 @@
                 listenChatList();
                 listenIncomingCalls();
                 listenFriendRequests();
+                listenGlobalMessages(); // Bắt đầu lắng nghe tin nhắn đến toàn cầu
             } else {
                 document.getElementById('auth-container').style.display = 'flex';
                 document.getElementById('app-container').style.display = 'none';
@@ -961,8 +1002,42 @@
                 if (unsubscribeIncomingCalls) unsubscribeIncomingCalls();
                 if (unsubscribePendingReqs) unsubscribePendingReqs();
                 if (unsubscribeSentReqs) unsubscribeSentReqs();
+                if (globalMsgUnsubscribe) globalMsgUnsubscribe();
             }
         });
+
+        // LẮNG NGHE TIN NHẮN ĐỂ HIỂN THỊ THÔNG BÁO BADGE & TOAST
+        function listenGlobalMessages() {
+            if (!auth.currentUser) return;
+            const globalMsgQ = query(collection(db, "messages"));
+            globalMsgUnsubscribe = onSnapshot(globalMsgQ, (snap) => {
+                 snap.docChanges().forEach(change => {
+                     if (change.type === 'added') {
+                         const msg = change.doc.data();
+                         const msgTime = msg.createdAt?.toMillis ? msg.createdAt.toMillis() : Date.now();
+                         
+                         // Chỉ xử lý các tin nhắn mới (sau khi mở app) và không phải do bản thân gửi
+                         if (msgTime > appStartTime + 2000 && msg.senderId !== auth.currentUser.uid) {
+                            const isForMe = msg.receiverId === auth.currentUser.uid;
+                            const isMyGroup = groupsCache[msg.chatId] && groupsCache[msg.chatId].members.includes(auth.currentUser.uid);
+                            
+                            if (isForMe || isMyGroup) {
+                                const currentChatId = activeChatType === 'group'
+                                    ? activeChatTargetId
+                                    : (activeChatTargetId ? (auth.currentUser.uid < activeChatTargetId ? `${auth.currentUser.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${auth.currentUser.uid}`) : null);
+
+                                // Nếu đang không mở hộp thoại của người này
+                                if (msg.chatId !== currentChatId) {
+                                    showToast(`Tin nhắn mới từ ${msg.senderName}`);
+                                    unreadMsgCount++;
+                                    updateNavMsgBadge();
+                                }
+                            }
+                         }
+                     }
+                 });
+            });
+        }
 
         function listenFriendRequests() {
             if (!auth.currentUser) return;
@@ -1507,10 +1582,9 @@
             hideLoading();
         };
 
-        // GỬI TEXT TRONG BÌNH LUẬN VÀ LẤY ĐÚNG INPUT ĐỂ KHÔNG LỖI TRONG TRANG CÁ NHÂN
+        // GỬI TEXT TRONG BÌNH LUẬN
         window.addComment = async (postId, el) => {
             if (!currentUserDoc) return;
-            // Tìm ô input gần nhất với nút bấm hoặc chính nó nếu ấn Enter
             const input = el.tagName === 'INPUT' ? el : el.parentElement.querySelector('input[type="text"]');
             const text = input.value.trim();
             if (!text) return;
@@ -1547,8 +1621,6 @@
                 const postSnap = await getDoc(postRef);
                 if (postSnap.exists()) {
                     const postData = postSnap.data();
-                    
-                    // Tìm ra đúng object bình luận để truyền vào arrayRemove của Firebase
                     const commentToDelete = (postData.comments || []).find(c => 
                         (commentId && c.commentId === commentId) || 
                         (!c.commentId && c.uid === fallbackUid && c.createdAt === Number(fallbackTime))
@@ -1615,7 +1687,6 @@
             document.getElementById('profile-handle').innerText = `@${targetUser.username || "--"}`;
             document.getElementById('profile-bio').innerText = targetUser.bio || "";
             
-            // Render Relation Actions
             const actionsContainer = document.getElementById('profile-actions-container');
             if (isMe) {
                 document.getElementById('edit-name').value = targetUser.displayName || "";
@@ -1640,7 +1711,6 @@
                 actionsContainer.innerHTML = `${relationHtml} <button onclick="openChatById('${uid}')" style="margin-left:5px;"><i class="fa-solid fa-message"></i> Nhắn tin</button>`;
             }
 
-            // Stats update
             document.getElementById('stat-followers').innerText = targetUser.followers ? targetUser.followers.length : 0;
             document.getElementById('stat-following').innerText = targetUser.following ? targetUser.following.length : 0;
 
@@ -1732,16 +1802,10 @@
             showLoading("Đang xóa tài khoản và dữ liệu liên quan...");
             try {
                 const uid = user.uid;
-
-                // 1. Xóa bài viết của user
                 const postsSnap = await getDocs(query(collection(db, "posts"), where("authorUid", "==", uid)));
                 const postDeletions = postsSnap.docs.map(d => deleteDoc(doc(db, "posts", d.id)));
                 await Promise.all(postDeletions);
-
-                // 2. Xóa thông tin user trong collection users
                 await deleteDoc(doc(db, "users", uid));
-
-                // 3. Xóa tài khoản Firebase Auth
                 await deleteUser(user);
 
                 showToast("Đã xóa tài khoản vĩnh viễn!");
@@ -1884,7 +1948,7 @@
             if (!currentUserDoc) return;
             activeChatTargetId = targetId;
 
-            switchPage('messages', null);
+            switchPage('messages', null); // Sẽ tự set unreadMsgCount = 0 trong hàm này
 
             document.getElementById('chat-top-actions').style.display = 'none';
             document.getElementById('chat-list').style.display = 'none';
@@ -1910,6 +1974,29 @@
                 ? targetId 
                 : (currentUserDoc.uid < targetId ? `${currentUserDoc.uid}_${targetId}` : `${targetId}_${currentUserDoc.uid}`);
             
+            // Lắng nghe người khác gõ tin
+            if (unsubscribeTyping) unsubscribeTyping();
+            unsubscribeTyping = onSnapshot(doc(db, "typing_status", chatId), (docSnap) => {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    let someoneTyping = false;
+                    for (const [uid, isTyping] of Object.entries(data)) {
+                        if (uid !== currentUserDoc.uid && isTyping) {
+                            someoneTyping = true;
+                            break;
+                        }
+                    }
+                    typingIndicator.style.display = someoneTyping ? 'block' : 'none';
+                    if (someoneTyping) {
+                        const box = document.getElementById('chat-messages-box');
+                        box.scrollTop = box.scrollHeight;
+                    }
+                } else {
+                    typingIndicator.style.display = 'none';
+                }
+            });
+            
             if(unsubscribeChat) unsubscribeChat();
             const q = query(collection(db, "messages"), where("chatId", "==", chatId));
             
@@ -1928,8 +2015,10 @@
                 box.innerHTML = '';
                 msgs.forEach(m => {
                     const isMe = m.senderId === currentUserDoc.uid;
+                    const timeDiff = Date.now() - (m.createdAt?.toMillis ? m.createdAt.toMillis() : Date.now());
+                    const canEditDelete = isMe && (timeDiff < 5 * 60 * 1000); // Cho phép sửa/xóa dưới 5 phút
+
                     let mediaHtml = '';
-                    
                     if (m.mediaUrl) {
                         if (m.mediaType === 'audio') {
                             mediaHtml = `<audio src="${m.mediaUrl}" controls style="margin-top:5px;"></audio>`;
@@ -1944,10 +2033,23 @@
                         ? `<div class="msg-sender-name">${escapeHtml(m.senderName || 'Thành viên')}</div>` 
                         : '';
 
+                    let optionsHtml = '';
+                    if (canEditDelete) {
+                        optionsHtml = `
+                            <div class="msg-options">
+                                ${!m.mediaUrl ? `<button class="msg-btn" onclick="editMessage('${m.id}', '${escapeHtml(m.text || '')}')" title="Sửa"><i class="fa-solid fa-pen"></i></button>` : ''}
+                                <button class="msg-btn" style="color: #ff4444;" onclick="deleteMessage('${m.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        `;
+                    }
+
+                    const editedMark = m.isEdited ? `<span style="font-size:0.7rem; opacity:0.6; margin-left:5px;">(đã sửa)</span>` : '';
+
                     box.innerHTML += `
                         <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
+                            ${optionsHtml}
                             ${senderNameHtml}
-                            ${m.text ? `<div>${escapeHtml(m.text)}</div>` : ''}
+                            ${m.text ? `<div>${escapeHtml(m.text)} ${editedMark}</div>` : ''}
                             ${mediaHtml}
                         </div>
                     `;
@@ -1963,6 +2065,44 @@
             document.getElementById('chat-top-actions').style.display = 'flex';
             activeChatTargetId = null;
             if(unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
+            if(unsubscribeTyping) { unsubscribeTyping(); unsubscribeTyping = null; }
+        };
+
+        // HÀM BẮT SỰ KIỆN GÕ TIN NHẮN
+        window.handleTyping = () => {
+            if (!currentUserDoc || !activeChatTargetId) return;
+            const chatId = activeChatType === 'group'
+                ? activeChatTargetId
+                : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`);
+
+            const typingRef = doc(db, "typing_status", chatId);
+            setDoc(typingRef, { [currentUserDoc.uid]: true }, { merge: true });
+
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                setDoc(typingRef, { [currentUserDoc.uid]: false }, { merge: true });
+            }, 1500);
+        };
+
+        // HÀM SỬA TIN NHẮN
+        window.editMessage = async (msgId, oldText) => {
+            const newText = prompt("Sửa tin nhắn:", unescapeHtml(oldText));
+            if (newText !== null && newText.trim() !== "" && newText !== unescapeHtml(oldText)) {
+                try {
+                    await updateDoc(doc(db, "messages", msgId), { text: newText.trim(), isEdited: true });
+                    showToast("Đã sửa tin nhắn");
+                } catch(e) { showToast("Lỗi sửa tin: " + e.message); }
+            }
+        };
+
+        // HÀM XÓA TIN NHẮN
+        window.deleteMessage = async (msgId) => {
+            if(confirm("Bạn có chắc chắn muốn xóa tin nhắn này? (Chỉ xóa ở phía mọi người)")) {
+                try {
+                    await deleteDoc(doc(db, "messages", msgId));
+                    showToast("Đã xóa tin nhắn");
+                } catch(e) { showToast("Lỗi xóa tin: " + e.message); }
+            }
         };
 
         async function sendMessageData(text = "", mediaUrl = "", mediaType = "text") {
@@ -1990,6 +2130,12 @@
             if(!text) return;
 
             input.value = '';
+            
+            // Xóa ngay trạng thái đang gõ khi bấm gửi
+            const chatId = activeChatType === 'group' 
+                ? activeChatTargetId 
+                : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`);
+            setDoc(doc(db, "typing_status", chatId), { [currentUserDoc.uid]: false }, { merge: true });
 
             const box = document.getElementById('chat-messages-box');
             const tempBubble = document.createElement('div');
