@@ -769,19 +769,23 @@
             let hasUsers = false;
             Object.values(usersCache).forEach(u => {
                 if (currentUserDoc && u.uid !== currentUserDoc.uid) {
-                    hasUsers = true;
-                    listContainer.innerHTML += `
-                        <label class="member-checkbox-item">
-                            <input type="checkbox" class="group-member-checkbox" value="${u.uid}">
-                            <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:30px; height:30px;">
-                            <span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span>
-                        </label>
-                    `;
+                    // Cập nhật: Chỉ cho phép tạo nhóm với bạn bè
+                    const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid);
+                    if (isFriend) {
+                        hasUsers = true;
+                        listContainer.innerHTML += `
+                            <label class="member-checkbox-item">
+                                <input type="checkbox" class="group-member-checkbox" value="${u.uid}">
+                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:30px; height:30px;">
+                                <span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span>
+                            </label>
+                        `;
+                    }
                 }
             });
 
             if (!hasUsers) {
-                listContainer.innerHTML = '<p style="text-align:center; color:gray; padding:10px;">Chưa tìm thấy thành viên khác trong hệ thống.</p>';
+                listContainer.innerHTML = '<p style="text-align:center; color:gray; padding:10px;">Bạn chưa có bạn bè nào để tạo nhóm.</p>';
             }
 
             document.getElementById('group-name-input').value = '';
@@ -1012,6 +1016,7 @@
                     createdAt: serverTimestamp()
                 });
                 showToast("Đã gửi lời mời kết bạn!");
+                if (document.getElementById('page-friends').classList.contains('active')) searchUsers();
             } catch(e) { showToast("Lỗi: " + e.message); }
             hideLoading();
         };
@@ -1030,12 +1035,16 @@
                     following: arrayUnion(currentUserDoc.uid)
                 });
                 showToast("Đã chấp nhận kết bạn!");
+                if (document.getElementById('page-friends').classList.contains('active')) searchUsers();
             } catch(e) { showToast("Lỗi: " + e.message); }
             hideLoading();
         };
 
         window.declineFriendRequest = async (reqId) => {
-            try { await deleteDoc(doc(db, "friend_requests", reqId)); } catch(e) { console.error(e); }
+            try { 
+                await deleteDoc(doc(db, "friend_requests", reqId)); 
+                if (document.getElementById('page-friends').classList.contains('active')) searchUsers();
+            } catch(e) { console.error(e); }
         };
 
         window.unfriend = async (uid) => {
@@ -1055,6 +1064,7 @@
                 const snaps = await Promise.all([getDocs(q1), getDocs(q2)]);
                 snaps.forEach(snap => snap.forEach(d => deleteDoc(doc(db, "friend_requests", d.id))));
                 showToast("Đã hủy kết bạn!");
+                if (document.getElementById('page-friends').classList.contains('active')) searchUsers();
             } catch(e) { showToast("Lỗi: " + e.message); }
             hideLoading();
         };
@@ -1668,20 +1678,45 @@
                 const list = document.getElementById('search-results');
                 list.innerHTML = '';
                 
+                let foundAny = false;
+                
                 snap.forEach(d => {
                     const u = d.data();
                     if(currentUserDoc && u.uid !== currentUserDoc.uid && (!text || u.username?.toLowerCase().includes(text) || u.displayName?.toLowerCase().includes(text))) {
                         usersCache[u.uid] = u;
+                        foundAny = true;
+                        
+                        // Kiểm tra trạng thái quan hệ
+                        const uid = u.uid;
+                        const isFriend = currentUserDoc?.followers?.includes(uid) && currentUserDoc?.following?.includes(uid);
+                        const sentReq = window.mySentRequests?.find(r => r.receiverId === uid);
+                        const rcvReq = window.myPendingRequests?.find(r => r.senderId === uid);
+
+                        let actionHtml = '';
+                        if (isFriend) {
+                            actionHtml = `<button onclick="openChatById('${uid}')" style="width:100%; font-size:0.8rem; background: var(--accent-white); color: var(--accent-black);"><i class="fa-solid fa-message"></i> Nhắn tin</button>`;
+                        } else if (sentReq) {
+                            actionHtml = `<button disabled style="width:100%; font-size:0.8rem; background: var(--bg-input);"><i class="fa-solid fa-clock"></i> Đã gửi</button>`;
+                        } else if (rcvReq) {
+                            actionHtml = `<button onclick="acceptFriendRequest('${rcvReq.id}', '${uid}')" style="width:100%; font-size:0.8rem; background: #2e7d32; color: white; border: none;"><i class="fa-solid fa-check"></i> Chấp nhận</button>`;
+                        } else {
+                            actionHtml = `<button onclick="sendFriendRequest('${uid}')" style="width:100%; font-size:0.8rem;"><i class="fa-solid fa-user-plus"></i> Kết bạn</button>`;
+                        }
+
                         list.innerHTML += `
                             <div class="card" style="text-align:center; padding: 15px 10px;">
-                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:60px; height:60px; margin:0 auto 10px;" loading="lazy">
-                                <strong style="display:block; font-size:0.9rem;">${escapeHtml(u.displayName || 'User')}</strong>
+                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:60px; height:60px; margin:0 auto 10px; cursor:pointer;" loading="lazy" onclick="viewUserProfile('${u.uid}')">
+                                <strong style="display:block; font-size:0.9rem; cursor:pointer;" onclick="viewUserProfile('${u.uid}')">${escapeHtml(u.displayName || 'User')}</strong>
                                 <p style="font-size:0.75rem; color:gray; margin-bottom:10px;">@${escapeHtml(u.username || 'user')}</p>
-                                <button onclick="openChatById('${u.uid}')" style="width:100%; font-size:0.8rem;"><i class="fa-solid fa-message"></i> Nhắn tin</button>
+                                ${actionHtml}
                             </div>
                         `;
                     }
                 });
+                
+                if (!foundAny) {
+                    list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column: span 2;">Không tìm thấy người dùng nào.</p>';
+                }
             } catch(err) {
                 console.error("Search error:", err);
             }
@@ -1704,9 +1739,12 @@
             const list = document.getElementById('chat-list');
             list.innerHTML = '';
 
+            let hasChats = false;
+
             // 1. Hiển thị danh sách nhóm chat của user hiện tại
             Object.values(groupsCache).forEach(g => {
                 if (currentUserDoc && g.members && g.members.includes(currentUserDoc.uid)) {
+                    hasChats = true;
                     list.innerHTML += `
                         <div class="chat-user-item" onclick="openGroupChat('${g.id}', '${escapeHtml(g.name)}', '${g.avatar}')">
                             <img src="${g.avatar || 'https://ui-avatars.com/api/?name=Group'}" class="avatar-sm" loading="lazy">
@@ -1720,20 +1758,28 @@
                 }
             });
 
-            // 2. Hiển thị danh sách cá nhân 1-1
+            // 2. Hiển thị danh sách cá nhân 1-1 (Chỉ hiển thị BẠN BÈ)
             Object.values(usersCache).forEach(u => {
                 if (currentUserDoc && u.uid !== currentUserDoc.uid) {
-                    list.innerHTML += `
-                        <div class="chat-user-item" onclick="openChatById('${u.uid}')">
-                            <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
-                            <div>
-                                <strong style="font-size:0.95rem;">${escapeHtml(u.displayName || 'User')}</strong>
-                                <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(u.username || 'user')}</p>
+                    const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid);
+                    if (isFriend) {
+                        hasChats = true;
+                        list.innerHTML += `
+                            <div class="chat-user-item" onclick="openChatById('${u.uid}')">
+                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
+                                <div>
+                                    <strong style="font-size:0.95rem;">${escapeHtml(u.displayName || 'User')}</strong>
+                                    <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(u.username || 'user')}</p>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    }
                 }
             });
+
+            if (!hasChats) {
+                list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding: 20px;">Bạn chưa có bạn bè hoặc nhóm chat nào để trò chuyện.</p>';
+            }
         }
 
         let unsubscribeChat = null;
