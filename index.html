@@ -223,6 +223,7 @@
                 <div class="card">
                     <input type="text" id="search-input" placeholder="Nhập tên người dùng cần tìm..." oninput="searchUsers()">
                 </div>
+                <!-- Cập nhật CSS hiển thị kết quả tìm kiếm -->
                 <div id="search-results" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
             </div>
 
@@ -237,8 +238,9 @@
                     <div class="chat-room-view" id="chat-room">
                         <div class="chat-room-header">
                             <i class="fa-solid fa-chevron-left" onclick="closeChatRoom()" style="cursor: pointer; padding: 5px; font-size: 1.1rem;"></i>
-                            <img id="chat-active-avatar" src="" class="avatar-sm">
-                            <div>
+                            <!-- Cập nhật: Cho phép ấn vào avatar và tên trong chat để vào trang cá nhân -->
+                            <img id="chat-active-avatar" src="" class="avatar-sm" style="cursor: pointer;" onclick="if(activeChatType === 'private') viewUserProfile(activeChatTargetId)">
+                            <div style="cursor: pointer;" onclick="if(activeChatType === 'private') viewUserProfile(activeChatTargetId)">
                                 <strong id="chat-active-name">--</strong>
                                 <span id="chat-type-badge" class="group-badge" style="display:none;">Nhóm</span>
                             </div>
@@ -769,7 +771,6 @@
             let hasUsers = false;
             Object.values(usersCache).forEach(u => {
                 if (currentUserDoc && u.uid !== currentUserDoc.uid) {
-                    // Cập nhật: Chỉ cho phép tạo nhóm với bạn bè
                     const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid);
                     if (isFriend) {
                         hasUsers = true;
@@ -806,7 +807,6 @@
 
             if (selectedMemberUids.length === 0) return showToast("Vui lòng chọn ít nhất 1 thành viên!");
 
-            // Thêm bản thân vào nhóm
             selectedMemberUids.push(currentUserDoc.uid);
 
             showLoading("Đang khởi tạo nhóm...");
@@ -822,7 +822,6 @@
                 closeCreateGroupModal();
                 showToast("Đã tạo nhóm thành công!");
                 
-                // Tự động mở nhóm mới tạo
                 openGroupChat(groupRef.id, groupName, `https://ui-avatars.com/api/?name=${encodeURIComponent(groupName)}&background=000&color=fff`);
             } catch (err) {
                 showToast("Lỗi tạo nhóm: " + err.message);
@@ -1671,6 +1670,7 @@
             hideLoading();
         };
 
+        // CẬP NHẬT TRỌNG TÂM: Hàm tìm bạn, thêm nút vào Trang cá nhân trực tiếp và đổi layout thân thiện
         window.searchUsers = async () => {
             const text = document.getElementById('search-input').value.toLowerCase().trim();
             try {
@@ -1692,23 +1692,31 @@
                         const sentReq = window.mySentRequests?.find(r => r.receiverId === uid);
                         const rcvReq = window.myPendingRequests?.find(r => r.senderId === uid);
 
-                        let actionHtml = '';
+                        let actionBtn = '';
                         if (isFriend) {
-                            actionHtml = `<button onclick="openChatById('${uid}')" style="width:100%; font-size:0.8rem; background: var(--accent-white); color: var(--accent-black);"><i class="fa-solid fa-message"></i> Nhắn tin</button>`;
+                            actionBtn = `<button onclick="openChatById('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--accent-white); color: var(--accent-black);"><i class="fa-solid fa-message"></i> Nhắn tin</button>`;
                         } else if (sentReq) {
-                            actionHtml = `<button disabled style="width:100%; font-size:0.8rem; background: var(--bg-input);"><i class="fa-solid fa-clock"></i> Đã gửi</button>`;
+                            actionBtn = `<button disabled style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--bg-input);"><i class="fa-solid fa-clock"></i> Đã gửi</button>`;
                         } else if (rcvReq) {
-                            actionHtml = `<button onclick="acceptFriendRequest('${rcvReq.id}', '${uid}')" style="width:100%; font-size:0.8rem; background: #2e7d32; color: white; border: none;"><i class="fa-solid fa-check"></i> Chấp nhận</button>`;
+                            actionBtn = `<button onclick="acceptFriendRequest('${rcvReq.id}', '${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: #2e7d32; color: white; border: none;"><i class="fa-solid fa-check"></i> Chấp nhận</button>`;
                         } else {
-                            actionHtml = `<button onclick="sendFriendRequest('${uid}')" style="width:100%; font-size:0.8rem;"><i class="fa-solid fa-user-plus"></i> Kết bạn</button>`;
+                            actionBtn = `<button onclick="sendFriendRequest('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px;"><i class="fa-solid fa-user-plus"></i> Kết bạn</button>`;
                         }
 
+                        // Thêm nút Trang cá nhân / Hồ sơ cực kì rõ ràng
+                        const profileBtn = `<button onclick="viewUserProfile('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--bg-input); border-color: var(--border-color);"><i class="fa-solid fa-user"></i> Hồ sơ</button>`;
+
                         list.innerHTML += `
-                            <div class="card" style="text-align:center; padding: 15px 10px;">
-                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:60px; height:60px; margin:0 auto 10px; cursor:pointer;" loading="lazy" onclick="viewUserProfile('${u.uid}')">
-                                <strong style="display:block; font-size:0.9rem; cursor:pointer;" onclick="viewUserProfile('${u.uid}')">${escapeHtml(u.displayName || 'User')}</strong>
-                                <p style="font-size:0.75rem; color:gray; margin-bottom:10px;">@${escapeHtml(u.username || 'user')}</p>
-                                ${actionHtml}
+                            <div class="card" style="text-align:center; padding: 15px 10px; display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:60px; height:60px; margin:0 auto 10px; cursor:pointer;" loading="lazy" onclick="viewUserProfile('${u.uid}')">
+                                    <strong style="display:block; font-size:0.95rem; cursor:pointer;" onclick="viewUserProfile('${u.uid}')">${escapeHtml(u.displayName || 'User')}</strong>
+                                    <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:15px;">@${escapeHtml(u.username || 'user')}</p>
+                                </div>
+                                <div style="display: flex; gap: 6px; width: 100%; flex-wrap: wrap; justify-content: center;">
+                                    ${actionBtn}
+                                    ${profileBtn}
+                                </div>
                             </div>
                         `;
                     }
