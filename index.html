@@ -60,7 +60,7 @@
 
         .comment-section { margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px; }
         .comment-item { display: flex; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; align-items: flex-start; }
-        .comment-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #222; }
+        .comment-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #222; flex-shrink: 0; }
         .comment-box { background: var(--bg-input); padding: 8px 12px; border-radius: 12px; flex: 1; }
 
         .profile-header-card { padding: 0; overflow: hidden; }
@@ -468,8 +468,8 @@
         let isVideoMuted = false;
 
         let currentUserDoc = null;
-        let activeChatTargetId = null; // Can be User UID or Group ID
-        let activeChatType = 'private'; // 'private' or 'group'
+        let activeChatTargetId = null; 
+        let activeChatType = 'private'; 
         const usersCache = {};
         const groupsCache = {};
         const expandedComments = new Set();
@@ -480,7 +480,6 @@
         let unsubscribePendingReqs = null;
         window.currentViewedProfileUid = null;
 
-        // Voice Recorder State Variables
         let mediaRecorder = null;
         let audioChunks = [];
         let recordTimerInterval = null;
@@ -516,6 +515,7 @@
             return Math.floor(seconds/86400) + ' ngày trước';
         };
 
+        // ====== PHẦN SỬA ĐỔI: TẠO GIAO DIỆN BÀI VIẾT (Xóa bình luận & Gửi ảnh bình luận) ======
         window.createPostHTML = (p, currentUid) => {
             const isLiked = currentUid && p.likes && Array.isArray(p.likes) && p.likes.includes(currentUid);
             const isAuthor = currentUid && p.authorUid === currentUid;
@@ -528,15 +528,30 @@
                     : `<div class="post-media-box"><img src="${p.mediaUrl}" loading="lazy"></div>`;
             }
 
-            let commentsHtml = (p.comments || []).map(c => `
-                <div class="comment-item">
-                    <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}" loading="lazy" style="cursor:pointer;" onclick="viewUserProfile('${c.uid}')">
-                    <div class="comment-box">
-                        <strong style="font-size:0.85rem; cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}</strong>
-                        <p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(c.text)}</p>
+            let commentsHtml = (p.comments || []).map(c => {
+                const isCommentAuthor = currentUid && c.uid === currentUid;
+                const canDelete = isCommentAuthor || isAuthor; // Cả người bình luận hoặc chủ bài viết đều được xóa
+                const safeId = c.commentId || ''; // ID an toàn cho các bình luận cũ
+
+                let commentMedia = '';
+                if (c.imageUrl) {
+                    commentMedia = `<div style="margin-top: 5px;"><img src="${c.imageUrl}" style="max-width: 100%; max-height: 250px; border-radius: 8px; object-fit: contain; cursor: pointer;" onclick="window.open(this.src)"></div>`;
+                }
+
+                return `
+                    <div class="comment-item" id="comment-${safeId}">
+                        <img src="${c.avatar || 'https://ui-avatars.com/api/?name=User'}" loading="lazy" style="cursor:pointer;" onclick="viewUserProfile('${c.uid}')">
+                        <div class="comment-box" style="position: relative;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <strong style="font-size:0.85rem; cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}</strong>
+                                ${canDelete ? `<button onclick="deleteComment('${p.id}', '${safeId}', '${c.uid}', ${c.createdAt})" style="background:none; border:none; color:var(--danger-red); padding:0 5px; font-size:0.8rem; margin-left: 10px;" title="Xóa bình luận"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            </div>
+                            ${c.text ? `<p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(c.text)}</p>` : ''}
+                            ${commentMedia}
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             return `
                 <div class="card">
@@ -562,10 +577,17 @@
                         </button>
                     </div>
                     <div class="comment-section" id="comments-${p.id}" style="display: ${isOpen ? 'block' : 'none'};">
-                        <div id="comments-list-${p.id}">${commentsHtml}</div>
-                        <div style="display:flex; gap:10px; margin-top:10px;">
-                            <input type="text" id="comment-input-${p.id}" placeholder="Viết bình luận..." style="margin-bottom:0; flex:1;" onkeypress="if(event.key==='Enter') addComment('${p.id}')">
-                            <button onclick="addComment('${p.id}')" style="padding: 10px 15px;"><i class="fa-solid fa-paper-plane"></i></button>
+                        <div class="comments-list">${commentsHtml}</div>
+                        
+                        <!-- Đã thay đổi ID cố định thành this để tránh lỗi trùng lặp khi ở trang cá nhân -->
+                        <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+                            <label style="cursor:pointer; color: var(--text-primary); font-size:1.2rem; padding:5px; margin-bottom: 0;">
+                                <i class="fa-solid fa-image"></i>
+                                <input type="file" accept="image/*" style="display:none;" onchange="sendCommentImage('${p.id}', this)">
+                            </label>
+                            
+                            <input type="text" placeholder="Viết bình luận..." style="margin-bottom:0; flex:1;" onkeypress="if(event.key==='Enter') addComment('${p.id}', this)">
+                            <button onclick="addComment('${p.id}', this)" style="padding: 10px 15px;"><i class="fa-solid fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </div>
@@ -1450,42 +1472,100 @@
             }
         };
 
-        window.addComment = async (postId) => {
+        // GỬI ẢNH TRONG BÌNH LUẬN
+        window.sendCommentImage = async (postId, inputEl) => {
             if (!currentUserDoc) return;
-            const input = document.getElementById(`comment-input-${postId}`);
-            if (!input) return;
+            const file = inputEl.files[0];
+            if(!file) return;
+            
+            showLoading("Đang nén & gửi ảnh...");
+            try {
+                let uploadFile = await compressImage(file, 800, 0.7);
+                const imageUrl = await uploadFileToStorage(uploadFile, "commentImages");
+                
+                expandedComments.add(postId);
+                
+                const commentObj = {
+                    commentId: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                    uid: currentUserDoc.uid,
+                    name: currentUserDoc.displayName || currentUserDoc.username || 'Người dùng',
+                    avatar: currentUserDoc.avatar || `https://ui-avatars.com/api/?name=User`,
+                    text: "",
+                    imageUrl: imageUrl,
+                    createdAt: Date.now()
+                };
+                
+                await updateDoc(doc(db, "posts", postId), {
+                    comments: arrayUnion(commentObj)
+                });
+                
+            } catch(e) {
+                showToast("Lỗi gửi ảnh: " + e.message);
+            }
+            inputEl.value = '';
+            hideLoading();
+        };
+
+        // GỬI TEXT TRONG BÌNH LUẬN VÀ LẤY ĐÚNG INPUT ĐỂ KHÔNG LỖI TRONG TRANG CÁ NHÂN
+        window.addComment = async (postId, el) => {
+            if (!currentUserDoc) return;
+            // Tìm ô input gần nhất với nút bấm hoặc chính nó nếu ấn Enter
+            const input = el.tagName === 'INPUT' ? el : el.parentElement.querySelector('input[type="text"]');
             const text = input.value.trim();
             if (!text) return;
 
             input.value = '';
             expandedComments.add(postId);
 
-            const commentsList = document.getElementById(`comments-list-${postId}`);
-            if (commentsList) {
-                commentsList.insertAdjacentHTML('beforeend', `
-                    <div class="comment-item">
-                        <img src="${currentUserDoc.avatar || 'https://ui-avatars.com/api/?name=User'}">
-                        <div class="comment-box">
-                            <strong style="font-size:0.85rem;">${escapeHtml(currentUserDoc.displayName || currentUserDoc.username)}</strong>
-                            <p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(text)}</p>
-                        </div>
-                    </div>
-                `);
-            }
+            const commentObj = {
+                commentId: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                uid: currentUserDoc.uid,
+                name: currentUserDoc.displayName || currentUserDoc.username || 'Người dùng',
+                avatar: currentUserDoc.avatar || `https://ui-avatars.com/api/?name=User`,
+                text: text,
+                createdAt: Date.now()
+            };
 
             try {
                 await updateDoc(doc(db, "posts", postId), {
-                    comments: arrayUnion({
-                        uid: currentUserDoc.uid,
-                        name: currentUserDoc.displayName || currentUserDoc.username || 'Người dùng',
-                        avatar: currentUserDoc.avatar || `https://ui-avatars.com/api/?name=User`,
-                        text: text,
-                        createdAt: Date.now()
-                    })
+                    comments: arrayUnion(commentObj)
                 });
             } catch (e) {
                 showToast("Lỗi gửi bình luận: " + e.message);
             }
+        };
+
+        // XÓA BÌNH LUẬN
+        window.deleteComment = async (postId, commentId, fallbackUid, fallbackTime) => {
+            if (!currentUserDoc) return;
+            if(!confirm("Bạn có chắc chắn muốn xóa bình luận này?")) return;
+            
+            showLoading("Đang xóa...");
+            try {
+                const postRef = doc(db, "posts", postId);
+                const postSnap = await getDoc(postRef);
+                if (postSnap.exists()) {
+                    const postData = postSnap.data();
+                    
+                    // Tìm ra đúng object bình luận để truyền vào arrayRemove của Firebase
+                    const commentToDelete = (postData.comments || []).find(c => 
+                        (commentId && c.commentId === commentId) || 
+                        (!c.commentId && c.uid === fallbackUid && c.createdAt === Number(fallbackTime))
+                    );
+                    
+                    if (commentToDelete) {
+                        await updateDoc(postRef, {
+                            comments: arrayRemove(commentToDelete)
+                        });
+                        showToast("Đã xóa bình luận!");
+                    } else {
+                        showToast("Không tìm thấy bình luận cần xóa.");
+                    }
+                }
+            } catch(e) {
+                showToast("Lỗi xóa bình luận: " + e.message);
+            }
+            hideLoading();
         };
 
         window.toggleLike = async (postId, isLiked) => {
@@ -1670,7 +1750,6 @@
             hideLoading();
         };
 
-        // CẬP NHẬT TRỌNG TÂM: Hàm tìm bạn, thêm nút vào Trang cá nhân trực tiếp và đổi layout thân thiện
         window.searchUsers = async () => {
             const text = document.getElementById('search-input').value.toLowerCase().trim();
             try {
@@ -1686,7 +1765,6 @@
                         usersCache[u.uid] = u;
                         foundAny = true;
                         
-                        // Kiểm tra trạng thái quan hệ
                         const uid = u.uid;
                         const isFriend = currentUserDoc?.followers?.includes(uid) && currentUserDoc?.following?.includes(uid);
                         const sentReq = window.mySentRequests?.find(r => r.receiverId === uid);
@@ -1703,7 +1781,6 @@
                             actionBtn = `<button onclick="sendFriendRequest('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px;"><i class="fa-solid fa-user-plus"></i> Kết bạn</button>`;
                         }
 
-                        // Thêm nút Trang cá nhân / Hồ sơ cực kì rõ ràng
                         const profileBtn = `<button onclick="viewUserProfile('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--bg-input); border-color: var(--border-color);"><i class="fa-solid fa-user"></i> Hồ sơ</button>`;
 
                         list.innerHTML += `
@@ -1731,7 +1808,6 @@
         };
 
         function listenChatList() {
-            // Lắng nghe người dùng & nhóm để hiển thị danh sách hội thoại
             onSnapshot(collection(db, "users"), (userSnap) => {
                 userSnap.forEach(d => { usersCache[d.id] = d.data(); });
                 renderCombinedChatList();
@@ -1749,7 +1825,6 @@
 
             let hasChats = false;
 
-            // 1. Hiển thị danh sách nhóm chat của user hiện tại
             Object.values(groupsCache).forEach(g => {
                 if (currentUserDoc && g.members && g.members.includes(currentUserDoc.uid)) {
                     hasChats = true;
@@ -1766,7 +1841,6 @@
                 }
             });
 
-            // 2. Hiển thị danh sách cá nhân 1-1 (Chỉ hiển thị BẠN BÈ)
             Object.values(usersCache).forEach(u => {
                 if (currentUserDoc && u.uid !== currentUserDoc.uid) {
                     const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid);
@@ -1830,7 +1904,6 @@
                 typeBadge.style.display = 'none';
             }
             
-            // Tính chatId: nhóm thì dùng groupId, 1-1 thì ghép 2 UID theo thứ tự alphabetic
             const chatId = activeChatType === 'group' 
                 ? targetId 
                 : (currentUserDoc.uid < targetId ? `${currentUserDoc.uid}_${targetId}` : `${targetId}_${currentUserDoc.uid}`);
@@ -1915,7 +1988,6 @@
 
             input.value = '';
 
-            // Optimistic Instant UI Append
             const box = document.getElementById('chat-messages-box');
             const tempBubble = document.createElement('div');
             tempBubble.className = 'msg-bubble sent sending';
