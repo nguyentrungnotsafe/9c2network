@@ -508,6 +508,19 @@
             <input type="file" id="edit-avatar-file" accept="image/*">
             <label>Đổi Ảnh bìa:</label>
             <input type="file" id="edit-cover-file" accept="image/*">
+            
+            <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">Bảo mật & Đăng nhập</h3>
+                <label>Tên đăng nhập mới (Tùy chọn):</label>
+                <input type="text" id="edit-username" placeholder="Nhập tên đăng nhập mới...">
+                
+                <label>Mật khẩu hiện tại (Bắt buộc nếu đổi tên/mật khẩu):</label>
+                <input type="password" id="edit-current-password" placeholder="Nhập mật khẩu hiện tại...">
+                
+                <label>Mật khẩu mới (Tùy chọn):</label>
+                <input type="password" id="edit-new-password" placeholder="Nhập mật khẩu mới...">
+            </div>
+
             <div style="margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 15px;">
                 <button onclick="confirmDeleteMyAccount()" style="width: 100%; background: #c62828; color: #fff; border: none;"><i class="fa-solid fa-triangle-exclamation"></i> Xóa Tài Khoản Này Vĩnh Viễn</button>
             </div>
@@ -565,7 +578,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, deleteUser, updatePassword, updateEmail, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, setDoc, query, where, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
@@ -1255,6 +1268,9 @@
             if (isMe) {
                 document.getElementById('edit-name').value = targetUser.displayName || "";
                 document.getElementById('edit-bio').value = targetUser.bio || "";
+                document.getElementById('edit-username').value = targetUser.username || "";
+                document.getElementById('edit-current-password').value = "";
+                document.getElementById('edit-new-password').value = "";
                 actionsContainer.innerHTML = `<button onclick="document.getElementById('modal-edit-profile').style.display='flex'"><i class="fa-solid fa-pen"></i> Chỉnh sửa</button>`;
             } else {
                 let relationHtml = '';
@@ -1307,7 +1323,84 @@
             });
         }
 
-        window.saveProfile = async () => { if (!currentUserDoc) return; const name = document.getElementById('edit-name').value.trim(); const bio = document.getElementById('edit-bio').value.trim(); const avatarFile = document.getElementById('edit-avatar-file').files[0]; const coverFile = document.getElementById('edit-cover-file').files[0]; showLoading("Đang nén & lưu thông tin..."); try { let updates = { displayName: name, bio: bio }; if(avatarFile) { const compressedAvatar = await compressImage(avatarFile, 300, 0.8); updates.avatar = await uploadFileToStorage(compressedAvatar, "avatars"); } if(coverFile) { const compressedCover = await compressImage(coverFile, 1000, 0.75); updates.cover = await uploadFileToStorage(compressedCover, "covers"); } await updateDoc(doc(db, "users", currentUserDoc.uid), updates); const q = query(collection(db, "posts"), where("authorUid", "==", currentUserDoc.uid)); const snap = await getDocs(q); snap.forEach(d => updateDoc(doc(db, "posts", d.id), { authorName: name, authorAvatar: updates.avatar || currentUserDoc.avatar })); document.getElementById('modal-edit-profile').style.display = 'none'; showToast("Đã cập nhật hồ sơ!"); } catch (err) { showToast("Lỗi lưu hồ sơ: " + err.message); } hideLoading(); };
+        window.saveProfile = async () => { 
+            if (!currentUserDoc) return; 
+            const name = document.getElementById('edit-name').value.trim(); 
+            const bio = document.getElementById('edit-bio').value.trim(); 
+            const avatarFile = document.getElementById('edit-avatar-file').files[0]; 
+            const coverFile = document.getElementById('edit-cover-file').files[0]; 
+            
+            const newUsername = document.getElementById('edit-username').value.trim().toLowerCase().replace(/\s/g, '');
+            const currentPassword = document.getElementById('edit-current-password').value;
+            const newPassword = document.getElementById('edit-new-password').value;
+            
+            // Xác định xem có đang thay đổi thông tin bảo mật không
+            const isChangingSecurity = (newUsername && newUsername !== currentUserDoc.username) || newPassword;
+            
+            if (isChangingSecurity && !currentPassword) {
+                return showToast("Vui lòng nhập mật khẩu hiện tại để đổi thông tin bảo mật!");
+            }
+
+            showLoading("Đang nén & lưu thông tin..."); 
+            try { 
+                if (isChangingSecurity) {
+                    const user = auth.currentUser;
+                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                    await reauthenticateWithCredential(user, credential);
+                    
+                    if (newPassword) {
+                        await updatePassword(user, newPassword);
+                    }
+                    if (newUsername && newUsername !== currentUserDoc.username) {
+                        await updateEmail(user, formatEmail(newUsername));
+                    }
+                }
+
+                let updates = { displayName: name, bio: bio }; 
+                if (newUsername && newUsername !== currentUserDoc.username) {
+                    updates.username = newUsername;
+                }
+
+                if(avatarFile) { 
+                    const compressedAvatar = await compressImage(avatarFile, 300, 0.8); 
+                    updates.avatar = await uploadFileToStorage(compressedAvatar, "avatars"); 
+                } 
+                if(coverFile) { 
+                    const compressedCover = await compressImage(coverFile, 1000, 0.75); 
+                    updates.cover = await uploadFileToStorage(compressedCover, "covers"); 
+                } 
+                
+                await updateDoc(doc(db, "users", currentUserDoc.uid), updates); 
+                
+                // Update post author infos if name, username, or avatar changed
+                const q = query(collection(db, "posts"), where("authorUid", "==", currentUserDoc.uid)); 
+                const snap = await getDocs(q); 
+                snap.forEach(d => updateDoc(doc(db, "posts", d.id), { 
+                    authorName: name, 
+                    authorAvatar: updates.avatar || currentUserDoc.avatar,
+                    authorUsername: updates.username || currentUserDoc.username
+                })); 
+                
+                // Update currentUser cache
+                if (updates.username) currentUserDoc.username = updates.username;
+
+                document.getElementById('modal-edit-profile').style.display = 'none'; 
+                document.getElementById('edit-current-password').value = '';
+                document.getElementById('edit-new-password').value = '';
+                
+                showToast("Đã cập nhật hồ sơ!"); 
+            } catch (err) { 
+                if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+                    showToast("Mật khẩu hiện tại không đúng!");
+                } else if (err.code === 'auth/email-already-in-use') {
+                    showToast("Tên đăng nhập mới đã được sử dụng!");
+                } else {
+                    showToast("Lỗi lưu hồ sơ: " + err.message); 
+                }
+            } 
+            hideLoading(); 
+        };
+
         window.confirmDeleteMyAccount = () => { document.getElementById('modal-edit-profile').style.display = 'none'; document.getElementById('modal-confirm-delete-account').style.display = 'flex'; };
         window.closeDeleteAccountModal = () => { document.getElementById('modal-confirm-delete-account').style.display = 'none'; };
         window.executeDeleteMyAccount = async () => { closeDeleteAccountModal(); const user = auth.currentUser; if (!user) return; showLoading("Đang xóa tài khoản..."); try { const uid = user.uid; const postsSnap = await getDocs(query(collection(db, "posts"), where("authorUid", "==", uid))); const postDeletions = postsSnap.docs.map(d => deleteDoc(doc(db, "posts", d.id))); await Promise.all(postDeletions); await deleteDoc(doc(db, "users", uid)); await deleteUser(user); showToast("Đã xóa tài khoản vĩnh viễn!"); } catch (err) { showToast("Không thể xóa: " + err.message); } hideLoading(); };
