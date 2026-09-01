@@ -77,7 +77,7 @@
         .chat-user-item:hover { background: #161616; }
         .group-badge { background: #333; color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
 
-        <comment-tag id="1">.chat-room-view { display: none; flex-direction: column; height: 100%; }</comment-tag id="1" text="Đổi `height: 100%` thành `flex: 1; min-height: 0;` để phần giao diện chat tự động lấy chiều cao còn lại của `.chat-layout` thay vì chèn ép và đẩy phần nhập liệu ra ngoài." type="suggestion">.chat-room-view { display: none; flex-direction: column; flex: 1; min-height: 0; }</comment-tag id="1">
+        .chat-room-view { display: none; flex-direction: column; height: 100%; }
         .chat-room-header { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; background: var(--bg-main); }
         .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #080808; }
 
@@ -1776,258 +1776,253 @@
                         } else if (sentReq) {
                             actionBtn = `<button disabled style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--bg-input);"><i class="fa-solid fa-clock"></i> Đã gửi</button>`;
                         } else if (rcvReq) {
-                            actionBtn = `<button onclick="acceptFriendRequest('${rcvReq.id}', '${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--accent-white); color: black;"><i class="fa-solid fa-check"></i> Chấp nhận</button>`;
+                            actionBtn = `<button onclick="acceptFriendRequest('${rcvReq.id}', '${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: #2e7d32; color: white; border: none;"><i class="fa-solid fa-check"></i> Chấp nhận</button>`;
                         } else {
                             actionBtn = `<button onclick="sendFriendRequest('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px;"><i class="fa-solid fa-user-plus"></i> Kết bạn</button>`;
                         }
 
+                        const profileBtn = `<button onclick="viewUserProfile('${uid}')" style="flex: 1 1 40%; font-size:0.75rem; padding: 8px 4px; background: var(--bg-input); border-color: var(--border-color);"><i class="fa-solid fa-user"></i> Hồ sơ</button>`;
+
                         list.innerHTML += `
-                            <div class="card" style="padding: 10px; display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 0;">
-                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-large" style="position:static; border:none; width:60px; height:60px; margin-bottom:10px; cursor:pointer;" onclick="viewUserProfile('${uid}')">
-                                <strong style="font-size:0.9rem; cursor:pointer; width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" onclick="viewUserProfile('${uid}')">${escapeHtml(u.displayName || u.username)}</strong>
-                                <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:10px;">@${escapeHtml(u.username)}</p>
-                                <div style="display:flex; gap:5px; width:100%; justify-content:center; flex-wrap:wrap;">
+                            <div class="card" style="text-align:center; padding: 15px 10px; display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" style="width:60px; height:60px; margin:0 auto 10px; cursor:pointer;" loading="lazy" onclick="viewUserProfile('${u.uid}')">
+                                    <strong style="display:block; font-size:0.95rem; cursor:pointer;" onclick="viewUserProfile('${u.uid}')">${escapeHtml(u.displayName || 'User')}</strong>
+                                    <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:15px;">@${escapeHtml(u.username || 'user')}</p>
+                                </div>
+                                <div style="display: flex; gap: 6px; width: 100%; flex-wrap: wrap; justify-content: center;">
                                     ${actionBtn}
+                                    ${profileBtn}
                                 </div>
                             </div>
                         `;
                     }
                 });
-                if(!foundAny) list.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; color:gray;">Không tìm thấy kết quả</p>';
-            } catch(e) { console.error(e); }
+                
+                if (!foundAny) {
+                    list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column: span 2;">Không tìm thấy người dùng nào.</p>';
+                }
+            } catch(err) {
+                console.error("Search error:", err);
+            }
         };
 
-        // --- Chat Functions ---
-        let currentChatUnsubscribe = null;
+        function listenChatList() {
+            onSnapshot(collection(db, "users"), (userSnap) => {
+                userSnap.forEach(d => { usersCache[d.id] = d.data(); });
+                renderCombinedChatList();
+            });
 
-        function getChatId(uid1, uid2) { return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`; }
+            onSnapshot(collection(db, "groups"), (groupSnap) => {
+                groupSnap.forEach(d => { groupsCache[d.id] = { id: d.id, ...d.data() }; });
+                renderCombinedChatList();
+            });
+        }
+
+        function renderCombinedChatList() {
+            const list = document.getElementById('chat-list');
+            list.innerHTML = '';
+
+            let hasChats = false;
+
+            Object.values(groupsCache).forEach(g => {
+                if (currentUserDoc && g.members && g.members.includes(currentUserDoc.uid)) {
+                    hasChats = true;
+                    list.innerHTML += `
+                        <div class="chat-user-item" onclick="openGroupChat('${g.id}', '${escapeHtml(g.name)}', '${g.avatar}')">
+                            <img src="${g.avatar || 'https://ui-avatars.com/api/?name=Group'}" class="avatar-sm" loading="lazy">
+                            <div style="flex:1;">
+                                <strong style="font-size:0.95rem;">${escapeHtml(g.name)}</strong>
+                                <span class="group-badge">Nhóm (${g.members.length})</span>
+                                <p style="font-size:0.75rem; color:var(--text-secondary);">Nhóm trò chuyện chung</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            Object.values(usersCache).forEach(u => {
+                if (currentUserDoc && u.uid !== currentUserDoc.uid) {
+                    const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid);
+                    if (isFriend) {
+                        hasChats = true;
+                        list.innerHTML += `
+                            <div class="chat-user-item" onclick="openChatById('${u.uid}')">
+                                <img src="${u.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm" loading="lazy">
+                                <div>
+                                    <strong style="font-size:0.95rem;">${escapeHtml(u.displayName || 'User')}</strong>
+                                    <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(u.username || 'user')}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            if (!hasChats) {
+                list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding: 20px;">Bạn chưa có bạn bè hoặc nhóm chat nào để trò chuyện.</p>';
+            }
+        }
+
+        let unsubscribeChat = null;
 
         window.openChatById = (uid) => {
-            switchPage('messages');
-            const target = usersCache[uid];
-            if (target) {
-                openChatRoom('private', uid, target.displayName || target.username, target.avatar);
-            }
-        };
-
-        window.openChatRoom = (type, targetId, name, avatar) => {
-            document.getElementById('chat-list').style.display = 'none';
-            document.getElementById('chat-room').style.display = 'flex';
-            document.getElementById('chat-active-name').innerText = name || '--';
-            document.getElementById('chat-active-avatar').src = avatar || 'https://ui-avatars.com/api/?name=User';
-            
-            activeChatTargetId = targetId;
-            activeChatType = type;
-
-            const badge = document.getElementById('chat-type-badge');
-            if (type === 'group') {
-                badge.style.display = 'inline-block';
-                document.getElementById('hdr-btn-audio-call').style.display = 'none';
-                document.getElementById('hdr-btn-video-call').style.display = 'none';
-            } else {
-                badge.style.display = 'none';
-                document.getElementById('hdr-btn-audio-call').style.display = 'inline-block';
-                document.getElementById('hdr-btn-video-call').style.display = 'inline-block';
-            }
-
-            if (currentChatUnsubscribe) currentChatUnsubscribe();
-            document.getElementById('chat-messages-box').innerHTML = '';
-
-            let messagesRef;
-            if (type === 'private') {
-                const chatId = getChatId(currentUserDoc.uid, targetId);
-                messagesRef = collection(db, "chats", chatId, "messages");
-            } else {
-                messagesRef = collection(db, "groups", targetId, "messages");
-            }
-
-            const q = query(messagesRef); 
-            
-            currentChatUnsubscribe = onSnapshot(q, (snapshot) => {
-                let msgs = [];
-                snapshot.forEach(doc => msgs.push(doc.data()));
-                msgs.sort((a,b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
-                
-                const box = document.getElementById('chat-messages-box');
-                box.innerHTML = msgs.map(m => {
-                    const isMe = m.senderUid === currentUserDoc.uid;
-                    let mediaHtml = '';
-                    if (m.mediaUrl) {
-                        if (m.msgType === 'image') mediaHtml = `<br><img src="${m.mediaUrl}" style="max-width:100%; max-height:200px; border-radius:8px; margin-top:5px; cursor:pointer;" onclick="window.open(this.src)">`;
-                        else if (m.msgType === 'video') mediaHtml = `<br><video src="${m.mediaUrl}" controls style="max-width:100%; max-height:200px; border-radius:8px; margin-top:5px;"></video>`;
-                        else if (m.msgType === 'audio') mediaHtml = `<br><audio src="${m.mediaUrl}" controls style="margin-top:5px;"></audio>`;
-                    }
-                    
-                    let senderNameHtml = '';
-                    if (type === 'group' && !isMe) {
-                        senderNameHtml = `<div class="msg-sender-name">${escapeHtml(m.senderName || 'Thành viên')}</div>`;
-                    }
-
-                    return `<div class="msg-bubble ${isMe ? 'sent' : 'received'}">${senderNameHtml}${escapeHtml(m.text || '')}${mediaHtml}</div>`;
-                }).join('');
-                
-                box.scrollTop = box.scrollHeight;
-            });
-        };
-
-        window.closeChatRoom = () => {
-            document.getElementById('chat-room').style.display = 'none';
-            document.getElementById('chat-list').style.display = 'block';
-            activeChatTargetId = null;
-            if (currentChatUnsubscribe) {
-                currentChatUnsubscribe();
-                currentChatUnsubscribe = null;
+            const u = usersCache[uid];
+            if (u) {
+                activeChatType = 'private';
+                openChat(u.uid, u.displayName || u.username, u.avatar);
             }
         };
 
         window.openGroupChat = (groupId, name, avatar) => {
-            openChatRoom('group', groupId, name, avatar);
+            activeChatType = 'group';
+            openChat(groupId, name, avatar);
         };
 
-        async function sendMessageData(text, mediaUrl = "", msgType = "text") {
-            if (!currentUserDoc || !activeChatTargetId) return;
-            const msgData = {
-                senderUid: currentUserDoc.uid,
-                senderName: currentUserDoc.displayName || currentUserDoc.username,
-                text: text,
-                mediaUrl: mediaUrl,
-                msgType: msgType,
-                createdAt: serverTimestamp()
-            };
+        window.openChat = (targetId, name, avatar) => {
+            if (!currentUserDoc) return;
+            activeChatTargetId = targetId;
 
-            try {
-                if (activeChatType === 'private') {
-                    const chatId = getChatId(currentUserDoc.uid, activeChatTargetId);
-                    await addDoc(collection(db, "chats", chatId, "messages"), msgData);
-                    
-                    const chatMetaRef = doc(db, "chats", chatId);
-                    await setDoc(chatMetaRef, {
-                        lastMessage: msgType === 'text' ? text : `[${msgType === 'audio' ? 'Ghi âm' : (msgType === 'video' ? 'Video' : 'Hình ảnh')}]`,
-                        lastUpdatedAt: serverTimestamp(),
-                        users: [currentUserDoc.uid, activeChatTargetId]
-                    }, { merge: true });
-                } else {
-                    await addDoc(collection(db, "groups", activeChatTargetId, "messages"), msgData);
-                    await updateDoc(doc(db, "groups", activeChatTargetId), {
-                        lastMessage: msgType === 'text' ? text : `[${msgType === 'audio' ? 'Ghi âm' : (msgType === 'video' ? 'Video' : 'Hình ảnh')}]`,
-                        lastUpdatedAt: serverTimestamp()
-                    });
-                }
-            } catch (err) {
-                showToast("Lỗi gửi tin nhắn: " + err.message);
+            switchPage('messages', null);
+
+            document.getElementById('chat-list').style.display = 'none';
+            document.getElementById('chat-room').style.display = 'flex';
+            document.getElementById('chat-active-avatar').src = avatar || 'https://ui-avatars.com/api/?name=User';
+            document.getElementById('chat-active-name').innerText = name || 'User';
+
+            const callAudioBtn = document.getElementById('hdr-btn-audio-call');
+            const callVideoBtn = document.getElementById('hdr-btn-video-call');
+            const typeBadge = document.getElementById('chat-type-badge');
+
+            if (activeChatType === 'group') {
+                callAudioBtn.style.display = 'none';
+                callVideoBtn.style.display = 'none';
+                typeBadge.style.display = 'inline-block';
+            } else {
+                callAudioBtn.style.display = 'inline-block';
+                callVideoBtn.style.display = 'inline-block';
+                typeBadge.style.display = 'none';
             }
+            
+            const chatId = activeChatType === 'group' 
+                ? targetId 
+                : (currentUserDoc.uid < targetId ? `${currentUserDoc.uid}_${targetId}` : `${targetId}_${currentUserDoc.uid}`);
+            
+            if(unsubscribeChat) unsubscribeChat();
+            const q = query(collection(db, "messages"), where("chatId", "==", chatId));
+            
+            unsubscribeChat = onSnapshot(q, (snap) => {
+                const box = document.getElementById('chat-messages-box');
+                
+                let msgs = [];
+                snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+                
+                msgs.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
+                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0);
+                    return timeA - timeB;
+                });
+
+                box.innerHTML = '';
+                msgs.forEach(m => {
+                    const isMe = m.senderId === currentUserDoc.uid;
+                    let mediaHtml = '';
+                    
+                    if (m.mediaUrl) {
+                        if (m.mediaType === 'audio') {
+                            mediaHtml = `<audio src="${m.mediaUrl}" controls style="margin-top:5px;"></audio>`;
+                        } else if (m.mediaType === 'video') {
+                            mediaHtml = `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>`;
+                        } else {
+                            mediaHtml = `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`;
+                        }
+                    }
+
+                    const senderNameHtml = (activeChatType === 'group' && !isMe) 
+                        ? `<div class="msg-sender-name">${escapeHtml(m.senderName || 'Thành viên')}</div>` 
+                        : '';
+
+                    box.innerHTML += `
+                        <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
+                            ${senderNameHtml}
+                            ${m.text ? `<div>${escapeHtml(m.text)}</div>` : ''}
+                            ${mediaHtml}
+                        </div>
+                    `;
+                });
+                setTimeout(() => { box.scrollTop = box.scrollHeight; }, 30);
+            }, (err) => console.error("Message room error:", err));
+        };
+
+        window.closeChatRoom = () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') cancelVoiceRecording();
+            document.getElementById('chat-room').style.display = 'none';
+            document.getElementById('chat-list').style.display = 'block';
+            activeChatTargetId = null;
+            if(unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
+        };
+
+        async function sendMessageData(text = "", mediaUrl = "", mediaType = "text") {
+            if (!currentUserDoc || !activeChatTargetId) return;
+            const chatId = activeChatType === 'group' 
+                ? activeChatTargetId 
+                : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`);
+
+            await addDoc(collection(db, "messages"), {
+                chatId: chatId, 
+                senderId: currentUserDoc.uid,
+                senderName: currentUserDoc.displayName || currentUserDoc.username,
+                receiverId: activeChatTargetId,
+                text: text, 
+                mediaUrl: mediaUrl, 
+                mediaType: mediaType, 
+                createdAt: serverTimestamp()
+            });
         }
 
         window.sendChatText = async () => {
+            if (!currentUserDoc || !activeChatTargetId) return;
             const input = document.getElementById('chat-text');
             const text = input.value.trim();
-            if (!text) return;
+            if(!text) return;
+
             input.value = '';
-            
-            await sendMessageData(text);
+
+            const box = document.getElementById('chat-messages-box');
+            const tempBubble = document.createElement('div');
+            tempBubble.className = 'msg-bubble sent sending';
+            tempBubble.innerHTML = `<div>${escapeHtml(text)}</div>`;
+            box.appendChild(tempBubble);
+            box.scrollTop = box.scrollHeight;
+
+            try {
+                await sendMessageData(text, "", "text");
+            } catch(e) {
+                tempBubble.style.background = '#aa0000';
+                showToast("Không thể gửi: " + e.message);
+            }
         };
 
-        window.sendChatFile = async (input) => {
-            const file = input.files[0];
-            if (!file) return;
+        window.sendChatFile = async (inputEl) => {
+            if (!currentUserDoc || !activeChatTargetId) return;
+            const file = inputEl.files[0];
+            if(!file) return;
             
-            showLoading("Đang gửi...");
+            showLoading("Đang nén & gửi tập tin...");
             try {
                 let uploadFile = file;
-                let msgType = "text";
-                if(file.type.startsWith('image/')) {
-                    uploadFile = await compressImage(file, 800, 0.75);
-                    msgType = "image";
-                } else if(file.type.startsWith('video/')) {
-                    msgType = "video";
-                }
+                if(file.type.startsWith('image/')) uploadFile = await compressImage(file, 800, 0.7);
                 
-                const url = await uploadFileToStorage(uploadFile, "chatMedia");
-                await sendMessageData("", url, msgType);
-            } catch (e) {
-                showToast("Lỗi gửi file: " + e.message);
+                const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia");
+                const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+                
+                await sendMessageData("", mediaUrl, mediaType);
+            } catch(e) { 
+                showToast("Lỗi gửi tập tin: " + e.message); 
             }
-            input.value = '';
+            inputEl.value = '';
             hideLoading();
         };
-
-        function listenChatList() {
-            if (!currentUserDoc) return;
-            const listEl = document.getElementById('chat-list');
-            
-            const q = query(collection(db, "chats"), where("users", "array-contains", currentUserDoc.uid));
-            onSnapshot(q, async (snap) => {
-                const chats = [];
-                snap.forEach(d => {
-                    const data = d.data();
-                    const partnerUid = data.users.find(u => u !== currentUserDoc.uid);
-                    if (partnerUid) {
-                        chats.push({
-                            id: partnerUid,
-                            type: 'private',
-                            lastMessage: data.lastMessage,
-                            time: data.lastUpdatedAt?.toMillis() || 0
-                        });
-                    }
-                });
-
-                const groupQ = query(collection(db, "groups"), where("members", "array-contains", currentUserDoc.uid));
-                const groupSnap = await getDocs(groupQ);
-                groupSnap.forEach(d => {
-                    const data = d.data();
-                    chats.push({
-                        id: d.id,
-                        type: 'group',
-                        name: data.name,
-                        avatar: data.avatar,
-                        lastMessage: data.lastMessage,
-                        time: data.lastUpdatedAt?.toMillis() || data.createdAt?.toMillis() || 0
-                    });
-                });
-
-                chats.sort((a,b) => b.time - a.time);
-
-                listEl.innerHTML = '';
-                for (const c of chats) {
-                    if (c.type === 'private') {
-                        let partner = usersCache[c.id];
-                        if (!partner) {
-                            try {
-                                const pSnap = await getDoc(doc(db, "users", c.id));
-                                if (pSnap.exists()) {
-                                    partner = pSnap.data();
-                                    usersCache[c.id] = partner;
-                                }
-                            } catch(e){}
-                        }
-                        if (partner) {
-                            listEl.innerHTML += `
-                                <div class="chat-user-item" onclick="openChatById('${c.id}')">
-                                    <img src="${partner.avatar || 'https://ui-avatars.com/api/?name=User'}" class="avatar-sm">
-                                    <div style="flex:1; overflow:hidden;">
-                                        <div style="font-weight:bold; font-size:0.95rem;">${escapeHtml(partner.displayName || partner.username)}</div>
-                                        <div style="font-size:0.8rem; color:var(--text-secondary); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${escapeHtml(c.lastMessage || 'Chưa có tin nhắn')}</div>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    } else {
-                        listEl.innerHTML += `
-                            <div class="chat-user-item" onclick="openGroupChat('${c.id}', '${escapeHtml(c.name)}', '${c.avatar}')">
-                                <img src="${c.avatar || 'https://ui-avatars.com/api/?name=Group'}" class="avatar-sm">
-                                <div style="flex:1; overflow:hidden;">
-                                    <div style="font-weight:bold; font-size:0.95rem;">${escapeHtml(c.name)} <span class="group-badge">Nhóm</span></div>
-                                    <div style="font-size:0.8rem; color:var(--text-secondary); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${escapeHtml(c.lastMessage || 'Chưa có tin nhắn')}</div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
-                if (chats.length === 0) {
-                    listEl.innerHTML = '<p style="text-align:center; padding:20px; color:gray;">Chưa có cuộc trò chuyện nào.</p>';
-                }
-            });
-        }
     </script>
 </body>
 </html>
