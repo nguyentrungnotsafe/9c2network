@@ -1331,28 +1331,66 @@
                     : `<div class="post-media-box"><img src="${p.mediaUrl}" loading="lazy"></div>`;
             }
 
-            let commentsHtml = (p.comments || []).map(c => {
+            const allComments = p.comments || [];
+            const topLevel = allComments.filter(c => !c.replyTo);
+            const replies = allComments.filter(c => c.replyTo);
+
+            const renderComment = (c, isReply = false, parentId = null) => {
                 const isCommentAuthor = currentUid && c.uid === currentUid;
                 const canDelete = isCommentAuthor || isAuthor; 
                 const safeId = c.commentId || ''; 
+                const rootId = parentId || safeId;
+                const safeName = (c.name || 'Người dùng').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
                 let commentMedia = '';
                 if (c.imageUrl) {
                     commentMedia = `<div style="margin-top: 5px;"><img src="${c.imageUrl}" style="max-width: 100%; max-height: 250px; border-radius: 8px; object-fit: contain; cursor: pointer;" onclick="window.open(this.src)"></div>`;
                 }
+
+                let replyInputHtml = '';
+                if (!isReply) {
+                    replyInputHtml = `
+                        <div id="reply-container-${safeId}" style="display:none; margin-top: 8px; margin-bottom: 10px; align-items:center; gap:8px;">
+                            <input type="text" id="reply-input-${safeId}" placeholder="Viết câu trả lời..." style="margin-bottom:0; flex:1; padding: 6px 10px; font-size: 0.85rem; border-radius: 20px;" onkeypress="if(event.key==='Enter') window.submitReply('${p.id}', '${safeId}')">
+                            <button onclick="window.submitReply('${p.id}', '${safeId}')" style="padding: 6px 15px; font-size:0.85rem; border-radius: 20px;"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    `;
+                }
+
+                let childRepliesHtml = '';
+                if (!isReply) {
+                    const childReplies = replies.filter(r => r.replyTo === safeId);
+                    if (childReplies.length > 0) {
+                        childRepliesHtml = `<div class="replies-list" style="margin-top: 8px; padding-left: 15px; border-left: 2px solid var(--border-color);">` + 
+                                           childReplies.map(r => renderComment(r, true, safeId)).join('') + 
+                                           `</div>`;
+                    }
+                }
+
                 return `
-                    <div class="comment-item" id="comment-${safeId}">
-                        ${window.getAvatarHtml(c.uid, c.avatar, 'avatar-sm', 'cursor:pointer;', `viewUserProfile('${c.uid}')`)}
-                        <div class="comment-box" style="position: relative;">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                                <strong style="font-size:0.85rem; cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}</strong>
-                                ${canDelete ? `<button onclick="deleteComment('${p.id}', '${safeId}', '${c.uid}', ${c.createdAt})" style="background:none; border:none; color:var(--danger-red); padding:0 5px; font-size:0.8rem; margin-left: 10px;" title="Xóa bình luận"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    <div class="comment-item" id="comment-${safeId}" style="margin-bottom: ${isReply ? '8px' : '15px'}; gap: 8px;">
+                        ${window.getAvatarHtml(c.uid, c.avatar, isReply ? 'avatar-sm' : 'avatar-sm', isReply ? 'width: 28px; height: 28px;' : '', `viewUserProfile('${c.uid}')`)}
+                        <div style="flex:1; min-width:0;">
+                            <div class="comment-box" style="position: relative; padding: ${isReply ? '6px 10px' : '8px 12px'}; display: inline-block; min-width: 100px; max-width: 100%;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <strong style="font-size: ${isReply ? '0.8rem' : '0.85rem'}; cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}</strong>
+                                    ${canDelete ? `<button onclick="deleteComment('${p.id}', '${safeId}', '${c.uid}', ${c.createdAt})" style="background:none; border:none; color:var(--danger-red); padding:0 5px; font-size:0.8rem; margin-left: 10px;" title="Xóa bình luận"><i class="fa-solid fa-trash"></i></button>` : ''}
+                                </div>
+                                ${c.text ? `<p style="margin-top:2px; font-size: ${isReply ? '0.85rem' : '0.9rem'}; word-break: break-word;">${escapeHtml(c.text)}</p>` : ''}
+                                ${commentMedia}
                             </div>
-                            ${c.text ? `<p style="margin-top:2px; font-size:0.9rem;">${escapeHtml(c.text)}</p>` : ''}
-                            ${commentMedia}
+                            <div style="display:flex; align-items:center; margin-left: 5px; margin-top: 4px;">
+                                <button onclick="window.showReplyInput('${rootId}', '${safeName}')" style="background:none; border:none; color:var(--text-secondary); font-size:0.75rem; padding:0; margin-right: 15px; cursor:pointer; font-weight: bold;">Trả lời</button>
+                                <span style="font-size:0.7rem; color:var(--text-secondary);">${timeAgo(c.createdAt)}</span>
+                            </div>
+                            ${!isReply ? replyInputHtml : ''}
+                            ${childRepliesHtml}
                         </div>
                     </div>
                 `;
-            }).join('');
+            };
+
+            let commentsHtml = topLevel.map(c => renderComment(c, false, null)).join('');
 
             return `
                 <div class="card">
@@ -1385,8 +1423,8 @@
                                 <i class="fa-solid fa-image"></i>
                                 <input type="file" accept="image/*" style="display:none;" onchange="sendCommentImage('${p.id}', this)">
                             </label>
-                            <input type="text" placeholder="Viết bình luận..." style="margin-bottom:0; flex:1;" onkeypress="if(event.key==='Enter') addComment('${p.id}', this)">
-                            <button onclick="addComment('${p.id}', this)" style="padding: 10px 15px;"><i class="fa-solid fa-paper-plane"></i></button>
+                            <input type="text" placeholder="Viết bình luận..." style="margin-bottom:0; flex:1; border-radius: 20px;" onkeypress="if(event.key==='Enter') addComment('${p.id}', this)">
+                            <button onclick="addComment('${p.id}', this)" style="padding: 10px 15px; border-radius: 20px;"><i class="fa-solid fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </div>
@@ -1556,6 +1594,46 @@
         window.sendCommentImage = async (postId, inputEl) => { if (!currentUserDoc) return; const file = inputEl.files[0]; if(!file) return; showLoading("Đang nén & gửi ảnh..."); try { let uploadFile = await compressImage(file, 800, 0.7); const imageUrl = await uploadFileToStorage(uploadFile, "commentImages"); expandedComments.add(postId); const commentObj = { commentId: Date.now().toString() + Math.random().toString(36).substr(2, 5), uid: currentUserDoc.uid, name: currentUserDoc.displayName || currentUserDoc.username || 'Người dùng', avatar: currentUserDoc.avatar || `https://ui-avatars.com/api/?name=User`, text: "", imageUrl: imageUrl, createdAt: Date.now() }; await updateDoc(doc(db, "posts", postId), { comments: arrayUnion(commentObj) }); } catch(e) { showToast("Lỗi gửi ảnh: " + e.message); } inputEl.value = ''; hideLoading(); };
         window.addComment = async (postId, el) => { if (!currentUserDoc) return; const input = el.tagName === 'INPUT' ? el : el.parentElement.querySelector('input[type="text"]'); const text = input.value.trim(); if (!text) return; input.value = ''; expandedComments.add(postId); const commentObj = { commentId: Date.now().toString() + Math.random().toString(36).substr(2, 5), uid: currentUserDoc.uid, name: currentUserDoc.displayName || currentUserDoc.username || 'Người dùng', avatar: currentUserDoc.avatar || `https://ui-avatars.com/api/?name=User`, text: text, createdAt: Date.now() }; try { await updateDoc(doc(db, "posts", postId), { comments: arrayUnion(commentObj) }); } catch (e) { showToast("Lỗi gửi bình luận: " + e.message); } };
         
+        window.showReplyInput = (rootId, replyToName) => {
+            const container = document.getElementById(`reply-container-${rootId}`);
+            if (container) {
+                container.style.display = 'flex';
+                const input = document.getElementById(`reply-input-${rootId}`);
+                if (replyToName && !input.value.includes(`@${replyToName}`)) {
+                    input.value = `@${replyToName} ` + input.value;
+                }
+                input.focus();
+            }
+        };
+
+        window.submitReply = async (postId, rootId) => {
+            if (!currentUserDoc) return;
+            const input = document.getElementById(`reply-input-${rootId}`);
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            
+            expandedComments.add(postId);
+            const commentObj = { 
+                commentId: Date.now().toString() + Math.random().toString(36).substr(2, 5), 
+                uid: currentUserDoc.uid, 
+                name: currentUserDoc.displayName || currentUserDoc.username || 'Người dùng', 
+                avatar: currentUserDoc.avatar || `https://ui-avatars.com/api/?name=User`, 
+                text: text, 
+                createdAt: Date.now(),
+                replyTo: rootId
+            }; 
+            
+            const container = document.getElementById(`reply-container-${rootId}`);
+            if (container) container.style.display = 'none';
+
+            try { 
+                await updateDoc(doc(db, "posts", postId), { comments: arrayUnion(commentObj) }); 
+            } catch (e) { 
+                showToast("Lỗi gửi câu trả lời: " + e.message); 
+            }
+        };
+
         window.deleteComment = async (postId, commentId, fallbackUid, fallbackTime) => { 
             if (!currentUserDoc) return; 
             window.showConfirmModal("Xóa bình luận", "Bạn có chắc chắn muốn xóa bình luận này không?", async () => { 
