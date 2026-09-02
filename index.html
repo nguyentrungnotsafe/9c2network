@@ -40,12 +40,11 @@
         .page { display: none; animation: fadeIn 0.2s ease-in-out; } .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Đã chỉnh sửa bottom-nav để chứa 5 nút */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 0.7rem; border: none; background: none; padding: 5px; flex: 1; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; gap: 10px; padding: 10px 0; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 0.75rem; border: none; background: none; padding: 5px 10px; }
         .nav-item.active { color: var(--text-primary); }
         .nav-item i { font-size: 1.2rem; }
-        .nav-badge { background: var(--danger-red); color: white; border-radius: 50%; font-size: 0.6rem; font-weight: bold; padding: 2px 5px; position: absolute; top: -2px; right: 20%; display: none; }
+        .nav-badge { background: var(--danger-red); color: white; border-radius: 50%; font-size: 0.6rem; font-weight: bold; padding: 2px 5px; position: absolute; top: -2px; right: 5px; display: none; }
 
         .avatar-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .online-dot { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background-color: #25d366; border: 2px solid var(--bg-card); border-radius: 50%; z-index: 10; display: none; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
@@ -101,7 +100,11 @@
         .call-card { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px; }
         .incoming-ring-avatar { position: relative; margin-bottom: 10px; }
         .incoming-ring-avatar .avatar-large { position: static; width: 100px; height: 100px; animation: pulseRing 1.5s infinite; }
-        @keyframes pulseRing { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
 
         .call-actions-row { display: flex; gap: 20px; width: 100%; justify-content: center; margin-top: 15px; }
         .btn-call-accept { background: #2e7d32; color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
@@ -185,44 +188,125 @@
         
         .group-member-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
 
-        /* --- STYLES CHO TÍNH NĂNG POCKET (LOCKET STYLE) --- */
-        .pocket-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 15px; }
-        .pocket-tab { flex: 1; text-align: center; padding: 12px; color: var(--text-secondary); cursor: pointer; font-weight: 500; }
-        .pocket-tab.active { color: var(--text-primary); border-bottom: 2px solid var(--accent-white); }
+        /* ========================================================
+           CSS CHO TÍNH NĂNG POCKET (STYLE LOCKET)
+           ======================================================== */
+        .pocket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .pocket-title { font-size: 1.5rem; font-weight: 700; color: var(--accent-white); }
         
-        /* Camera View */
-        .pocket-camera-container { position: relative; width: 100%; aspect-ratio: 3/4; max-height: 65vh; background: #000; border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border-color); margin-bottom: 20px; }
-        #pocket-video-el { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
-        
-        .pocket-controls-top { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 10; }
-        .pocket-controls-bottom { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: space-evenly; align-items: center; z-index: 10; }
-        
-        .pocket-icon-btn { width: 45px; height: 45px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); transition: 0.2s; }
-        .pocket-icon-btn:hover { background: rgba(0,0,0,0.8); border-color: white; }
-        .pocket-icon-btn.active-mode { color: var(--danger-red); }
-        
-        .pocket-shutter-wrap { position: relative; display: flex; justify-content: center; align-items: center; }
-        .pocket-shutter { width: 75px; height: 75px; border-radius: 50%; border: 4px solid white; background: rgba(255,255,255,0.2); cursor: pointer; transition: 0.2s; }
-        .pocket-shutter:active { transform: scale(0.9); }
-        .pocket-shutter.recording { border-color: var(--danger-red); background: rgba(229,57,53,0.3); border-radius: 20px; animation: pulseRecord 1s infinite alternate; }
-        
-        .pocket-recording-indicator { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); color: var(--danger-red); padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; display: none; align-items: center; gap: 5px; z-index: 10; }
+        /* Khung Camera / Hình ảnh 1:1 */
+        .pocket-frame {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 24px;
+            background: #111;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 15px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pocket-frame video, .pocket-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.2s ease;
+        }
+        /* Hiệu ứng ghi hình */
+        .pocket-recording-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.6);
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: none;
+            align-items: center;
+            gap: 5px;
+            color: #ff4444;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .pocket-recording-indicator .dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #ff4444;
+            animation: pulseRecord 1s infinite;
+        }
+        .pocket-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 5; }
 
-        /* Preview View (Sau khi chụp) */
-        #pocket-preview-view { display: none; flex-direction: column; width: 100%; }
-        .pocket-preview-box { width: 100%; aspect-ratio: 3/4; max-height: 50vh; background: #000; border-radius: 24px; overflow: hidden; border: 1px solid var(--border-color); margin-bottom: 15px; display: flex; justify-content: center; align-items: center; }
-        .pocket-preview-box img, .pocket-preview-box video { width: 100%; height: 100%; object-fit: cover; }
+        /* Các nút điều khiển nằm ngoài Camera */
+        .pocket-controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0 20px;
+        }
+        .pocket-btn-circle {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .pocket-btn-circle:hover { background: var(--border-color); }
         
-        .pocket-caption-input { background: transparent; border: none; border-bottom: 1px solid var(--border-color); border-radius: 0; padding: 10px 0; font-size: 1.1rem; text-align: center; margin-bottom: 20px; }
-        .pocket-caption-input:focus { border-bottom-color: var(--accent-white); }
-        
-        /* Lịch sử Pocket Feed */
-        #pocket-history-feed { display: none; flex-direction: column; gap: 20px; }
-        .pocket-card { background: transparent; padding: 0; position: relative; display: flex; flex-direction: column; align-items: center; }
-        .pocket-card-media { width: 100%; max-width: 400px; aspect-ratio: 3/4; border-radius: 24px; overflow: hidden; border: 1px solid var(--border-color); background: #000; position: relative; }
-        .pocket-card-media img, .pocket-card-media video { width: 100%; height: 100%; object-fit: cover; }
-        .pocket-card-header { position: absolute; top: 15px; left: 15px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); padding: 5px 10px 5px 5px; border-radius: 30px; backdrop-filter: blur(5px); z-index: 5; }
-        .pocket-card-caption { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; text-align: center; background: rgba(0,0,0,0.6); color: white; padding: 10px; border-radius: 12px; font-weight: 500; font-size: 1rem; backdrop-filter: blur(5px); word-break: break-word; z-index: 5; }
+        .pocket-capture-btn {
+            width: 75px; height: 75px;
+            border-radius: 50%;
+            background: transparent;
+            border: 4px solid var(--text-primary);
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .pocket-capture-inner {
+            width: 55px; height: 55px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            transition: 0.2s;
+        }
+        .pocket-capture-btn:active .pocket-capture-inner, 
+        .pocket-capture-btn.recording .pocket-capture-inner {
+            transform: scale(0.6); background: #ff4444; border-radius: 10px;
+        }
+
+        .pocket-send-area { display: none; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .pocket-caption-input {
+            width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--border-color);
+            color: var(--text-primary); font-size: 1.1rem; padding: 10px; text-align: center; outline: none; margin-bottom: 10px;
+        }
+        .pocket-caption-input::placeholder { color: var(--text-secondary); }
+        .pocket-send-btn { background: #ffeb3b; color: #000; font-weight: 700; border: none; padding: 12px; border-radius: 30px; font-size: 1rem; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .pocket-send-btn:hover { background: #fbc02d; color: #000; }
+
+        /* Giao diện Lịch sử Pocket (Feed) */
+        #pocket-history-view { display: none; }
+        .pocket-feed-item {
+            margin-bottom: 30px;
+        }
+        .pocket-feed-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+        }
+        .pocket-feed-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .pocket-feed-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--border-color); object-fit: cover; }
+        .pocket-feed-media {
+            width: 100%; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; border: 1px solid var(--border-color);
+        }
+        .pocket-feed-caption {
+            text-align: center; font-weight: 600; font-size: 1.1rem; margin-top: 12px; margin-bottom: 10px;
+        }
+        .pocket-comments {
+            background: var(--bg-card); border-radius: 16px; padding: 12px; border: 1px solid var(--border-color);
+        }
+        .pocket-comment-row { display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; align-items: flex-start; }
+        .pocket-comment-input-area { display: flex; gap: 8px; margin-top: 10px; }
+        .pocket-comment-input { flex: 1; background: var(--bg-input); border: none; padding: 8px 12px; border-radius: 20px; color: white; outline: none; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -318,65 +402,6 @@
                 <div id="search-results" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
             </div>
 
-            <!-- TAB POCKET MỚI -->
-            <div id="page-pocket" class="page">
-                <div class="pocket-tabs">
-                    <div class="pocket-tab active" id="tab-pocket-camera" onclick="switchPocketTab('camera')"><i class="fa-solid fa-camera"></i> Máy ảnh</div>
-                    <div class="pocket-tab" id="tab-pocket-history" onclick="switchPocketTab('history')"><i class="fa-solid fa-images"></i> Lịch sử Pocket</div>
-                </div>
-
-                <!-- Chế độ Camera & Gửi -->
-                <div id="pocket-camera-view">
-                    <!-- Khung Camera -->
-                    <div class="pocket-camera-container" id="pocket-live-container">
-                        <div class="pocket-recording-indicator" id="pocket-rec-indicator"><div class="recording-pulse" style="width:10px;height:10px;"></div> REC</div>
-                        <video id="pocket-video-el" autoplay playsinline muted></video>
-                        
-                        <div class="pocket-controls-top">
-                            <button class="pocket-icon-btn" onclick="togglePocketZoom()" title="Zoom 1x/2x"><i class="fa-solid fa-magnifying-glass"></i></button>
-                            <button class="pocket-icon-btn" onclick="flipPocketCamera()" title="Đổi Camera"><i class="fa-solid fa-camera-rotate"></i></button>
-                        </div>
-                        
-                        <div class="pocket-controls-bottom">
-                            <label class="pocket-icon-btn" title="Thư viện ảnh/video">
-                                <i class="fa-solid fa-image"></i>
-                                <input type="file" id="pocket-file-upload" accept="image/*,video/*" style="display:none;" onchange="handlePocketDeviceUpload(this)">
-                            </label>
-                            
-                            <div class="pocket-shutter-wrap">
-                                <div class="pocket-shutter" id="pocket-shutter-btn" onclick="handlePocketShutter()"></div>
-                            </div>
-                            
-                            <button class="pocket-icon-btn" id="pocket-mode-btn" onclick="togglePocketMode()" title="Đổi chế độ Ảnh/Video"><i class="fa-solid fa-camera"></i></button>
-                        </div>
-                        <canvas id="pocket-canvas" style="display:none;"></canvas>
-                    </div>
-
-                    <!-- Khung Preview & Gửi -->
-                    <div id="pocket-preview-view">
-                        <div class="pocket-preview-box" id="pocket-preview-box">
-                            <!-- Sẽ chèn img hoặc video vào đây -->
-                        </div>
-                        <input type="text" id="pocket-caption" class="pocket-caption-input" placeholder="Thêm chú thích... (tùy chọn)">
-                        
-                        <label style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px; display:block;"><i class="fa-solid fa-user-group"></i> Gửi cho bạn bè:</label>
-                        <div id="pocket-friends-selector" style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 15px; background: var(--bg-input);">
-                            <!-- Render bạn bè ở đây -->
-                        </div>
-
-                        <div style="display:flex; gap: 10px;">
-                            <button onclick="cancelPocketPreview()" style="flex:1; background: var(--bg-input); border-color: var(--border-color);"><i class="fa-solid fa-xmark"></i> Hủy</button>
-                            <button onclick="sendPocket()" style="flex:2; background: var(--accent-white); color: black;"><i class="fa-solid fa-paper-plane"></i> Gửi Pocket</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chế độ Lịch sử -->
-                <div id="pocket-history-feed">
-                    <!-- Các Pocket sẽ được render ở đây -->
-                </div>
-            </div>
-
             <div id="page-messages" class="page">
                 <div class="chat-layout">
                     <div class="chat-top-actions" id="chat-top-actions">
@@ -430,6 +455,56 @@
                 </div>
             </div>
 
+            <!-- TRANG POCKET MỚI -->
+            <div id="page-pocket" class="page">
+                <div class="pocket-header">
+                    <span class="pocket-title">Pocket</span>
+                    <button onclick="togglePocketView()" id="pocket-view-toggle" style="background:var(--bg-input); border:none; padding:6px 12px; font-size:0.85rem;"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử</button>
+                </div>
+
+                <!-- Chế độ Camera -->
+                <div id="pocket-camera-view">
+                    <div class="pocket-frame">
+                        <video id="pocket-video-preview" autoplay playsinline muted></video>
+                        <img id="pocket-image-preview" style="display: none;">
+                        <div class="pocket-recording-indicator" id="pocket-rec-indicator"><div class="dot"></div> REC</div>
+                        <div class="pocket-overlay" id="pocket-overlay"><i class="fa-solid fa-check" style="font-size:3rem; color:var(--accent-white);"></i></div>
+                    </div>
+
+                    <div class="pocket-controls-row" id="pocket-controls-main">
+                        <label class="pocket-btn-circle" title="Tải lên">
+                            <i class="fa-solid fa-image"></i>
+                            <input type="file" id="pocket-upload" accept="image/*,video/*" style="display:none;" onchange="handlePocketUpload(this)">
+                        </label>
+
+                        <button class="pocket-btn-circle" onclick="togglePocketZoom()" title="Zoom 1x/2x" id="pocket-zoom-btn">1x</button>
+
+                        <!-- Nút bấm giữ để quay, nhấn để chụp -->
+                        <div class="pocket-capture-btn" id="pocket-capture-btn" onmousedown="startPocketHold()" onmouseup="endPocketHold()" onmouseleave="cancelPocketHold()" ontouchstart="startPocketHold(event)" ontouchend="endPocketHold(event)" ontouchcancel="cancelPocketHold()">
+                            <div class="pocket-capture-inner"></div>
+                        </div>
+
+                        <button class="pocket-btn-circle" onclick="switchPocketCamera()" title="Đổi Camera"><i class="fa-solid fa-rotate"></i></button>
+                        
+                        <div style="width: 45px;"></div> <!-- Spacer -->
+                    </div>
+
+                    <div class="pocket-send-area" id="pocket-send-area">
+                        <input type="text" id="pocket-caption" class="pocket-caption-input" placeholder="Thêm chú thích...">
+                        <div style="display:flex; gap:10px;">
+                            <button class="pocket-send-btn" onclick="sendPocket('all')" style="flex:1;"><i class="fa-solid fa-paper-plane"></i> Gửi cho tất cả</button>
+                            <button class="pocket-send-btn" onclick="openPocketFriendsModal()" style="flex:1; background:var(--bg-input); color:white;"><i class="fa-solid fa-user-group"></i> Chọn bạn</button>
+                        </div>
+                        <button onclick="resetPocketCamera()" style="background:transparent; border:none; color:var(--text-secondary); margin-top:10px;"><i class="fa-solid fa-xmark"></i> Hủy</button>
+                    </div>
+                </div>
+
+                <!-- Chế độ Lịch sử -->
+                <div id="pocket-history-view">
+                    <div id="pocket-feed-list"></div>
+                </div>
+            </div>
+
             <div id="page-profile" class="page">
                 <div class="card profile-header-card">
                     <img id="profile-cover" src="" class="cover-photo">
@@ -461,8 +536,10 @@
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchPage('feed', this)"><i class="fa-solid fa-house"></i> Bảng tin</button>
             <button class="nav-item" onclick="switchPage('friends', this)"><i class="fa-solid fa-magnifying-glass"></i> Tìm bạn</button>
+            
             <!-- Nút Pocket Mới -->
             <button class="nav-item" onclick="switchPage('pocket', this)"><i class="fa-solid fa-camera-retro"></i> Pocket</button>
+
             <button class="nav-item" onclick="switchPage('messages', this)" style="position: relative;">
                 <i class="fa-solid fa-message"></i> Tin nhắn
                 <span id="nav-msg-badge" class="nav-badge">0</span>
@@ -487,6 +564,7 @@
                 <button onclick="openAddGroupMemberModal()" style="font-size:0.75rem; padding: 6px 10px;"><i class="fa-solid fa-plus"></i> Thêm người</button>
             </div>
             <div id="group-settings-members" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 5px; margin-bottom: 20px;">
+                <!-- Members injected here -->
             </div>
             
             <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; justify-content: space-between;">
@@ -525,6 +603,7 @@
                 </select>
             </div>
             <div id="story-friends-selector" style="display: none; max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 10px; background: var(--bg-input);">
+                <!-- Bạn bè sẽ render ở đây -->
             </div>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
@@ -557,6 +636,20 @@
 
             <div class="story-nav-left" onclick="prevStory()"></div>
             <div class="story-nav-right" onclick="nextStory()"></div>
+        </div>
+    </div>
+
+    <!-- Modal Chọn bạn cho Pocket -->
+    <div id="modal-pocket-friends" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-user-group"></i> Chọn bạn gửi Pocket</h3>
+            <div id="pocket-friends-selector" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 15px; background: var(--bg-input);">
+                <!-- Load danh sách bạn -->
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="document.getElementById('modal-pocket-friends').style.display='none'" style="background: var(--bg-input); border-color: var(--border-color);">Hủy</button>
+                <button onclick="sendPocket('selected')"><i class="fa-solid fa-paper-plane"></i> Gửi Pocket</button>
+            </div>
         </div>
     </div>
 
@@ -694,6 +787,7 @@
         </div>
     </div>
     
+    <!-- Modal Xác nhận chung -->
     <div id="modal-generic-confirm" class="modal" style="z-index: 1005;">
         <div class="modal-content" style="text-align: center; max-width: 350px;">
             <h3 style="margin-bottom: 15px; color: #ff4444;" id="generic-confirm-title"><i class="fa-solid fa-triangle-exclamation"></i> Xác nhận</h3>
@@ -705,6 +799,7 @@
         </div>
     </div>
 
+    <!-- Modal Nhập liệu chung -->
     <div id="modal-generic-prompt" class="modal" style="z-index: 1005;">
         <div class="modal-content" style="max-width: 350px;">
             <h3 style="margin-bottom: 15px;" id="generic-prompt-title">Nhập nội dung</h3>
@@ -759,16 +854,6 @@
         const appStartTime = Date.now();
         let unreadMsgCount = 0, globalMsgUnsubscribe = null, typingTimeout = null, unsubscribeTyping = null;
 
-        // --- CÁC BIẾN CHO TÍNH NĂNG POCKET ---
-        let pocketStream = null;
-        let pocketFacingMode = 'environment';
-        let pocketZoom = 1;
-        let pocketMode = 'photo'; // 'photo' hoặc 'video'
-        let pocketMediaRecorder = null;
-        let pocketAudioChunks = [];
-        let pocketPendingFile = null;
-        let unsubscribePockets = null;
-
         const showLoading = (text) => { document.getElementById('loading-text').innerText = text; document.getElementById('loading-overlay').style.display = 'flex'; };
         const hideLoading = () => document.getElementById('loading-overlay').style.display = 'none';
         const showToast = (msg) => { const toast = document.getElementById('toast'); toast.innerText = msg; toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 2500); };
@@ -798,27 +883,58 @@
 
         async function setOnlineStatus(isOnline) {
             if (auth.currentUser) {
-                try { await updateDoc(doc(db, "users", auth.currentUser.uid), { isOnline: isOnline, lastActive: serverTimestamp() }); } catch(e) {}
+                try {
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), { isOnline: isOnline, lastActive: serverTimestamp() });
+                } catch(e) { console.warn("Lỗi cập nhật trạng thái hoạt động:", e); }
             }
         }
         
         window.addEventListener('beforeunload', () => setOnlineStatus(false));
-        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') setOnlineStatus(true); else setOnlineStatus(false); });
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') setOnlineStatus(true);
+            else setOnlineStatus(false);
+        });
         window.addEventListener('pagehide', () => setOnlineStatus(false));
         window.addEventListener('focus', () => setOnlineStatus(true));
         window.addEventListener('blur', () => setOnlineStatus(false));
 
         window.genericConfirmCallback = null;
-        window.showConfirmModal = (title, message, callback) => { document.getElementById('generic-confirm-title').innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${title}`; document.getElementById('generic-confirm-msg').innerText = message; window.genericConfirmCallback = callback; document.getElementById('modal-generic-confirm').style.display = 'flex'; };
-        window.closeGenericConfirmModal = () => { window.genericConfirmCallback = null; document.getElementById('modal-generic-confirm').style.display = 'none'; };
-        window.executeGenericConfirm = () => { if (window.genericConfirmCallback) window.genericConfirmCallback(); window.closeGenericConfirmModal(); };
+        window.showConfirmModal = (title, message, callback) => {
+            document.getElementById('generic-confirm-title').innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${title}`;
+            document.getElementById('generic-confirm-msg').innerText = message;
+            window.genericConfirmCallback = callback;
+            document.getElementById('modal-generic-confirm').style.display = 'flex';
+        };
+        window.closeGenericConfirmModal = () => {
+            window.genericConfirmCallback = null;
+            document.getElementById('modal-generic-confirm').style.display = 'none';
+        };
+        window.executeGenericConfirm = () => {
+            if (window.genericConfirmCallback) window.genericConfirmCallback();
+            window.closeGenericConfirmModal();
+        };
 
         window.genericPromptCallback = null;
-        window.showPromptModal = (title, defaultValue, callback) => { document.getElementById('generic-prompt-title').innerText = title; const inputEl = document.getElementById('generic-prompt-input'); inputEl.value = defaultValue || ''; window.genericPromptCallback = callback; document.getElementById('modal-generic-prompt').style.display = 'flex'; inputEl.focus(); };
-        window.closeGenericPromptModal = () => { window.genericPromptCallback = null; document.getElementById('modal-generic-prompt').style.display = 'none'; };
-        window.executeGenericPrompt = () => { const val = document.getElementById('generic-prompt-input').value; if (window.genericPromptCallback) window.genericPromptCallback(val); window.closeGenericPromptModal(); };
+        window.showPromptModal = (title, defaultValue, callback) => {
+            document.getElementById('generic-prompt-title').innerText = title;
+            const inputEl = document.getElementById('generic-prompt-input');
+            inputEl.value = defaultValue || '';
+            window.genericPromptCallback = callback;
+            document.getElementById('modal-generic-prompt').style.display = 'flex';
+            inputEl.focus();
+        };
+        window.closeGenericPromptModal = () => {
+            window.genericPromptCallback = null;
+            document.getElementById('modal-generic-prompt').style.display = 'none';
+        };
+        window.executeGenericPrompt = () => {
+            const val = document.getElementById('generic-prompt-input').value;
+            if (window.genericPromptCallback) window.genericPromptCallback(val);
+            window.closeGenericPromptModal();
+        };
 
-        window.populateFriendsSelector = (containerId, selectedIds = [], customClass = 'checkbox-friends') => {
+
+        window.populateFriendsSelector = (containerId, selectedIds = []) => {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
             let hasFriends = false;
@@ -830,7 +946,7 @@
                         const isChecked = selectedIds.includes(u.uid) ? 'checked' : '';
                         container.innerHTML += `
                             <label style="display:flex; align-items:center; gap:10px; margin-bottom:8px; cursor:pointer; padding: 5px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-card);">
-                                <input type="checkbox" class="${customClass}" value="${u.uid}" ${isChecked} style="width: auto; margin:0;">
+                                <input type="checkbox" class="${containerId}-checkbox" value="${u.uid}" ${isChecked} style="width: auto; margin:0;">
                                 ${window.getAvatarHtml(u.uid, u.avatar, 'avatar-sm', 'width:28px; height:28px;')}
                                 <span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span>
                             </label>
@@ -838,7 +954,9 @@
                     }
                 }
             });
-            if (!hasFriends) { container.innerHTML = '<p style="font-size:0.85rem; color:var(--text-secondary); text-align:center;">Bạn chưa có bạn bè nào.</p>'; }
+            if (!hasFriends) {
+                container.innerHTML = '<p style="font-size:0.85rem; color:var(--text-secondary); text-align:center;">Bạn chưa có bạn bè nào.</p>';
+            }
         };
 
         window.handlePrivacyChange = (type) => {
@@ -852,8 +970,7 @@
             
             if (select.value === 'friends') {
                 selectorDiv.style.display = 'block';
-                if(type === 'create') window.populateFriendsSelector(selectorDivId, [], 'create-friends-selector-checkbox');
-                if(type === 'story') window.populateFriendsSelector(selectorDivId, [], 'story-friends-selector-checkbox');
+                if(type === 'create' || type === 'story') window.populateFriendsSelector(selectorDivId);
             } else {
                 selectorDiv.style.display = 'none';
             }
@@ -864,8 +981,9 @@
             const select = document.getElementById('edit-privacy-select');
             select.value = currentMode || 'public';
             const allowedIds = allowedFriendsStr ? allowedFriendsStr.split(',') : [];
-            if (select.value === 'friends') { document.getElementById('edit-friends-selector').style.display = 'block'; } else { document.getElementById('edit-friends-selector').style.display = 'none'; }
-            window.populateFriendsSelector('edit-friends-selector', allowedIds, 'edit-friends-selector-checkbox');
+            if (select.value === 'friends') { document.getElementById('edit-friends-selector').style.display = 'block'; } 
+            else { document.getElementById('edit-friends-selector').style.display = 'none'; }
+            window.populateFriendsSelector('edit-friends-selector', allowedIds);
             document.getElementById('modal-edit-privacy').style.display = 'flex';
         };
 
@@ -886,17 +1004,268 @@
             hideLoading();
         };
 
-        // --- CÁC HÀM XỬ LÝ NHẬT KÝ (STORIES) ---
-        let allStories = {}; let viewedStories = JSON.parse(localStorage.getItem('viewedStories') || '{}'); let currentStoryUserIds = []; let currentUserStoryIdx = 0; let currentStoryIdx = 0; let storyProgressTimeout = null; let storyAnimationInterval = null;
-        function listenStories() { onSnapshot(collection(db, "stories"), (snapshot) => { const now = Date.now(); const oneDay = 24 * 60 * 60 * 1000; let tempStories = {}; snapshot.forEach(docSnap => { const data = docSnap.data(); const time = data.createdAt?.toMillis ? data.createdAt.toMillis() : Date.now(); if (now - time < oneDay) { const s = { id: docSnap.id, ...data, time }; let canView = false; const isAuthor = s.authorUid === currentUserDoc?.uid; if (!s.privacyMode || s.privacyMode === 'public') { canView = true; } else if (s.privacyMode === 'friends') { if (isAuthor || (s.allowedFriends && currentUserDoc && s.allowedFriends.includes(currentUserDoc.uid))) { canView = true; } } if (canView) { if (!tempStories[s.authorUid]) tempStories[s.authorUid] = []; tempStories[s.authorUid].push(s); } } }); for (let uid in tempStories) { tempStories[uid].sort((a, b) => a.time - b.time); } allStories = tempStories; renderStoriesBar(); }); }
-        function renderStoriesBar() { if (!currentUserDoc) return; const myStories = allStories[currentUserDoc.uid] || []; const myAvatarEl = document.getElementById('my-story-avatar'); const myStoryItem = document.getElementById('my-story-item'); myAvatarEl.src = currentUserDoc.avatar || 'https://ui-avatars.com/api/?name=User'; myAvatarEl.style.opacity = '1'; if (myStories.length > 0) { const allViewed = myStories.every(s => viewedStories[s.id]); myStoryItem.className = `story-item ${allViewed ? 'viewed' : ''}`; myStoryItem.onclick = (e) => { if(e.target.closest('.story-add-icon')) { e.stopPropagation(); openCreateStoryModal(); } else { openStoryViewer(currentUserDoc.uid); } }; } else { myStoryItem.className = 'story-item viewed'; myStoryItem.onclick = openCreateStoryModal; } const list = document.getElementById('friends-stories-list'); list.innerHTML = ''; let otherUsers = Object.keys(allStories).filter(uid => uid !== currentUserDoc.uid); otherUsers.sort((a, b) => { const aHasUnviewed = allStories[a].some(s => !viewedStories[s.id]); const bHasUnviewed = allStories[b].some(s => !viewedStories[s.id]); if (aHasUnviewed && !bHasUnviewed) return -1; if (!aHasUnviewed && bHasUnviewed) return 1; return allStories[b][allStories[b].length - 1].time - allStories[a][allStories[a].length - 1].time; }); otherUsers.forEach(uid => { const userStories = allStories[uid]; const allViewed = userStories.every(s => viewedStories[s.id]); const author = userStories[0]; const isOnline = usersCache[uid]?.isOnline === true; list.innerHTML += ` <div class="story-item ${allViewed ? 'viewed' : ''}" onclick="openStoryViewer('${uid}')"> <div class="story-avatar-container"> <img src="${author.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="story-avatar"> ${isOnline ? '<div class="online-dot active" style="right: 2px; bottom: 2px;"></div>' : ''} </div> <span class="story-name">${escapeHtml(author.authorName)}</span> </div> `; }); }
-        window.openCreateStoryModal = () => { document.getElementById('story-text').value = ''; document.getElementById('story-file').value = ''; document.getElementById('story-privacy').value = 'public'; document.getElementById('story-friends-selector').style.display = 'none'; document.getElementById('modal-create-story').style.display = 'flex'; };
-        window.submitStory = async () => { if (!currentUserDoc) return; const text = document.getElementById('story-text').value.trim(); const file = document.getElementById('story-file').files[0]; const privacyMode = document.getElementById('story-privacy').value; let allowedFriends = []; if (privacyMode === 'friends') { const checkedBoxes = document.querySelectorAll('.story-friends-selector-checkbox:checked'); allowedFriends = Array.from(checkedBoxes).map(cb => cb.value); } if (!text && !file) return showToast("Vui lòng nhập văn bản hoặc chọn ảnh/video!"); showLoading("Đang đăng tin..."); try { let mediaUrl = ""; let mediaType = "text"; if (file) { let uploadFile = file; if (file.type.startsWith('image/')) uploadFile = await compressImage(file, 1080, 0.75); mediaUrl = await uploadFileToStorage(uploadFile, "stories"); mediaType = file.type.startsWith('video/') ? 'video' : 'image'; } await addDoc(collection(db, "stories"), { authorUid: currentUserDoc.uid, authorName: currentUserDoc.displayName || currentUserDoc.username, authorAvatar: currentUserDoc.avatar, text: text, mediaUrl: mediaUrl, mediaType: mediaType, privacyMode: privacyMode, allowedFriends: allowedFriends, createdAt: serverTimestamp() }); document.getElementById('modal-create-story').style.display = 'none'; showToast("Đăng tin thành công!"); } catch(e) { showToast("Lỗi: " + e.message); } hideLoading(); };
-        window.openStoryViewer = (uid) => { let otherUsers = Object.keys(allStories).filter(id => id !== currentUserDoc.uid); otherUsers.sort((a, b) => { const aHasUnviewed = allStories[a].some(s => !viewedStories[s.id]); const bHasUnviewed = allStories[b].some(s => !viewedStories[s.id]); if (aHasUnviewed && !bHasUnviewed) return -1; if (!aHasUnviewed && bHasUnviewed) return 1; return allStories[b][allStories[b].length - 1].time - allStories[a][allStories[a].length - 1].time; }); currentStoryUserIds = []; if (allStories[currentUserDoc.uid]) currentStoryUserIds.push(currentUserDoc.uid); currentStoryUserIds = currentStoryUserIds.concat(otherUsers); currentUserStoryIdx = currentStoryUserIds.indexOf(uid); if (currentUserStoryIdx === -1) return; const userStories = allStories[uid]; currentStoryIdx = userStories.findIndex(s => !viewedStories[s.id]); if (currentStoryIdx === -1) currentStoryIdx = 0; document.getElementById('modal-view-story').style.display = 'flex'; renderCurrentStory(); };
-        window.renderCurrentStory = () => { clearTimeout(storyProgressTimeout); clearInterval(storyAnimationInterval); if (currentUserStoryIdx >= currentStoryUserIds.length || currentUserStoryIdx < 0) { closeStoryViewer(); return; } const uid = currentStoryUserIds[currentUserStoryIdx]; const userStories = allStories[uid]; if (currentStoryIdx >= userStories.length) { currentUserStoryIdx++; currentStoryIdx = 0; renderCurrentStory(); return; } if (currentStoryIdx < 0) { currentUserStoryIdx--; if (currentUserStoryIdx < 0) { closeStoryViewer(); return; } currentStoryIdx = allStories[currentStoryUserIds[currentUserStoryIdx]].length - 1; renderCurrentStory(); return; } const story = userStories[currentStoryIdx]; viewedStories[story.id] = true; localStorage.setItem('viewedStories', JSON.stringify(viewedStories)); renderStoriesBar(); document.getElementById('story-viewer-avatar').src = story.authorAvatar || 'https://ui-avatars.com/api/?name=User'; document.getElementById('story-viewer-name').innerText = story.authorName; document.getElementById('story-viewer-time').innerText = timeAgo(story.time); document.getElementById('story-viewer-user-area').onclick = () => { closeStoryViewer(); viewUserProfile(story.authorUid); }; const delBtn = document.getElementById('btn-delete-story'); if (story.authorUid === currentUserDoc.uid) { delBtn.style.display = 'block'; } else { delBtn.style.display = 'none'; } const contentBox = document.getElementById('story-viewer-content'); if (story.mediaUrl) { if (story.mediaType === 'video') { contentBox.innerHTML = `<video src="${story.mediaUrl}" autoplay playsinline id="story-video"></video>`; const vid = document.getElementById('story-video'); vid.onended = nextStory; vid.onloadedmetadata = () => { startStoryTimer(vid.duration * 1000); }; } else { contentBox.innerHTML = `<img src="${story.mediaUrl}">`; if (story.text) { contentBox.innerHTML += `<div style="position:absolute; bottom:50px; left:0; width:100%; text-align:center; padding:10px; background:rgba(0,0,0,0.5); color:white; font-size:1.1rem; text-shadow:0 1px 2px #000;">${escapeHtml(story.text)}</div>`; } startStoryTimer(5000); } } else { contentBox.innerHTML = `<div class="story-text-only">${escapeHtml(story.text)}</div>`; startStoryTimer(5000); } const progContainer = document.getElementById('story-progress-container'); progContainer.innerHTML = ''; for (let i = 0; i < userStories.length; i++) { let fillWidth = '0%'; if (i < currentStoryIdx) fillWidth = '100%'; progContainer.innerHTML += `<div class="story-progress-bar"><div class="story-progress-fill" id="story-fill-${i}" style="width: ${fillWidth};"></div></div>`; } };
-        window.startStoryTimer = (duration) => { const fillEl = document.getElementById(`story-fill-${currentStoryIdx}`); if (!fillEl) return; let startTime = Date.now(); storyAnimationInterval = setInterval(() => { let elapsed = Date.now() - startTime; let percent = (elapsed / duration) * 100; if (percent > 100) percent = 100; fillEl.style.width = percent + '%'; }, 50); storyProgressTimeout = setTimeout(() => { nextStory(); }, duration); };
-        window.nextStory = () => { currentStoryIdx++; renderCurrentStory(); }; window.prevStory = () => { currentStoryIdx--; renderCurrentStory(); }; window.closeStoryViewer = () => { clearTimeout(storyProgressTimeout); clearInterval(storyAnimationInterval); document.getElementById('modal-view-story').style.display = 'none'; };
-        window.deleteCurrentStory = async () => { const uid = currentStoryUserIds[currentUserStoryIdx]; const story = allStories[uid][currentStoryIdx]; window.showConfirmModal("Xóa tin", "Bạn có chắc chắn muốn xóa tin này không?", async () => { closeStoryViewer(); showLoading("Đang xóa tin..."); try { await deleteDoc(doc(db, "stories", story.id)); showToast("Đã xóa tin."); } catch(e) {} hideLoading(); }); };
+        let allStories = {}; 
+        let viewedStories = JSON.parse(localStorage.getItem('viewedStories') || '{}');
+        let currentStoryUserIds = []; 
+        let currentUserStoryIdx = 0; 
+        let currentStoryIdx = 0; 
+        let storyProgressTimeout = null;
+        let storyAnimationInterval = null;
+
+        function listenStories() {
+            onSnapshot(collection(db, "stories"), (snapshot) => {
+                const now = Date.now();
+                const oneDay = 24 * 60 * 60 * 1000;
+                let tempStories = {};
+                
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const time = data.createdAt?.toMillis ? data.createdAt.toMillis() : Date.now();
+                    
+                    if (now - time < oneDay) {
+                        const s = { id: docSnap.id, ...data, time };
+                        let canView = false;
+                        const isAuthor = s.authorUid === currentUserDoc?.uid;
+                        if (!s.privacyMode || s.privacyMode === 'public') { canView = true; } 
+                        else if (s.privacyMode === 'friends') {
+                            if (isAuthor || (s.allowedFriends && currentUserDoc && s.allowedFriends.includes(currentUserDoc.uid))) {
+                                canView = true;
+                            }
+                        }
+                        
+                        if (canView) {
+                            if (!tempStories[s.authorUid]) tempStories[s.authorUid] = [];
+                            tempStories[s.authorUid].push(s);
+                        }
+                    }
+                });
+
+                for (let uid in tempStories) {
+                    tempStories[uid].sort((a, b) => a.time - b.time);
+                }
+                
+                allStories = tempStories;
+                renderStoriesBar();
+            });
+        }
+
+        function renderStoriesBar() {
+            if (!currentUserDoc) return;
+            
+            const myStories = allStories[currentUserDoc.uid] || [];
+            const myAvatarEl = document.getElementById('my-story-avatar');
+            const myStoryItem = document.getElementById('my-story-item');
+            
+            myAvatarEl.src = currentUserDoc.avatar || 'https://ui-avatars.com/api/?name=User';
+            myAvatarEl.style.opacity = '1';
+            
+            if (myStories.length > 0) {
+                const allViewed = myStories.every(s => viewedStories[s.id]);
+                myStoryItem.className = `story-item ${allViewed ? 'viewed' : ''}`;
+                myStoryItem.onclick = (e) => {
+                    if(e.target.closest('.story-add-icon')) {
+                        e.stopPropagation(); openCreateStoryModal();
+                    } else { openStoryViewer(currentUserDoc.uid); }
+                };
+            } else {
+                myStoryItem.className = 'story-item viewed';
+                myStoryItem.onclick = openCreateStoryModal;
+            }
+            
+            const list = document.getElementById('friends-stories-list');
+            list.innerHTML = '';
+            
+            let otherUsers = Object.keys(allStories).filter(uid => uid !== currentUserDoc.uid);
+            otherUsers.sort((a, b) => {
+                const aHasUnviewed = allStories[a].some(s => !viewedStories[s.id]);
+                const bHasUnviewed = allStories[b].some(s => !viewedStories[s.id]);
+                if (aHasUnviewed && !bHasUnviewed) return -1;
+                if (!aHasUnviewed && bHasUnviewed) return 1;
+                const aLatest = allStories[a][allStories[a].length - 1].time;
+                const bLatest = allStories[b][allStories[b].length - 1].time;
+                return bLatest - aLatest;
+            });
+
+            otherUsers.forEach(uid => {
+                const userStories = allStories[uid];
+                const allViewed = userStories.every(s => viewedStories[s.id]);
+                const author = userStories[0]; 
+                const isOnline = usersCache[uid]?.isOnline === true;
+                
+                list.innerHTML += `
+                    <div class="story-item ${allViewed ? 'viewed' : ''}" onclick="openStoryViewer('${uid}')">
+                        <div class="story-avatar-container">
+                            <img src="${author.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="story-avatar">
+                            ${isOnline ? '<div class="online-dot active" style="right: 2px; bottom: 2px;"></div>' : ''}
+                        </div>
+                        <span class="story-name">${escapeHtml(author.authorName)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        window.openCreateStoryModal = () => {
+            document.getElementById('story-text').value = '';
+            document.getElementById('story-file').value = '';
+            document.getElementById('story-privacy').value = 'public';
+            document.getElementById('story-friends-selector').style.display = 'none';
+            document.getElementById('modal-create-story').style.display = 'flex';
+        };
+
+        window.submitStory = async () => {
+            if (!currentUserDoc) return;
+            const text = document.getElementById('story-text').value.trim();
+            const file = document.getElementById('story-file').files[0];
+            const privacyMode = document.getElementById('story-privacy').value;
+            let allowedFriends = [];
+            if (privacyMode === 'friends') {
+                const checkedBoxes = document.querySelectorAll('.story-friends-selector-checkbox:checked');
+                allowedFriends = Array.from(checkedBoxes).map(cb => cb.value);
+            }
+            if (!text && !file) return showToast("Vui lòng nhập văn bản hoặc chọn ảnh/video!");
+            
+            showLoading("Đang đăng tin...");
+            try {
+                let mediaUrl = "";
+                let mediaType = "text";
+                if (file) {
+                    let uploadFile = file;
+                    if (file.type.startsWith('image/')) uploadFile = await compressImage(file, 1080, 0.75);
+                    mediaUrl = await uploadFileToStorage(uploadFile, "stories");
+                    mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+                }
+                await addDoc(collection(db, "stories"), {
+                    authorUid: currentUserDoc.uid, authorName: currentUserDoc.displayName || currentUserDoc.username,
+                    authorAvatar: currentUserDoc.avatar, text: text, mediaUrl: mediaUrl, mediaType: mediaType,
+                    privacyMode: privacyMode, allowedFriends: allowedFriends, createdAt: serverTimestamp()
+                });
+                document.getElementById('modal-create-story').style.display = 'none';
+                showToast("Đăng tin thành công!");
+            } catch(e) { showToast("Lỗi: " + e.message); }
+            hideLoading();
+        };
+
+        window.openStoryViewer = (uid) => {
+            let otherUsers = Object.keys(allStories).filter(id => id !== currentUserDoc.uid);
+            otherUsers.sort((a, b) => {
+                const aHasUnviewed = allStories[a].some(s => !viewedStories[s.id]);
+                const bHasUnviewed = allStories[b].some(s => !viewedStories[s.id]);
+                if (aHasUnviewed && !bHasUnviewed) return -1;
+                if (!aHasUnviewed && bHasUnviewed) return 1;
+                return allStories[b][allStories[b].length - 1].time - allStories[a][allStories[a].length - 1].time;
+            });
+            
+            currentStoryUserIds = [];
+            if (allStories[currentUserDoc.uid]) currentStoryUserIds.push(currentUserDoc.uid);
+            currentStoryUserIds = currentStoryUserIds.concat(otherUsers);
+            
+            currentUserStoryIdx = currentStoryUserIds.indexOf(uid);
+            if (currentUserStoryIdx === -1) return; 
+            
+            const userStories = allStories[uid];
+            currentStoryIdx = userStories.findIndex(s => !viewedStories[s.id]);
+            if (currentStoryIdx === -1) currentStoryIdx = 0;
+            
+            document.getElementById('modal-view-story').style.display = 'flex';
+            renderCurrentStory();
+        };
+
+        window.renderCurrentStory = () => {
+            clearTimeout(storyProgressTimeout); clearInterval(storyAnimationInterval);
+            
+            if (currentUserStoryIdx >= currentStoryUserIds.length || currentUserStoryIdx < 0) {
+                closeStoryViewer(); return;
+            }
+            
+            const uid = currentStoryUserIds[currentUserStoryIdx];
+            const userStories = allStories[uid];
+            
+            if (currentStoryIdx >= userStories.length) {
+                currentUserStoryIdx++; currentStoryIdx = 0;
+                renderCurrentStory(); return;
+            }
+            if (currentStoryIdx < 0) {
+                currentUserStoryIdx--;
+                if (currentUserStoryIdx < 0) { closeStoryViewer(); return; }
+                currentStoryIdx = allStories[currentStoryUserIds[currentUserStoryIdx]].length - 1;
+                renderCurrentStory(); return;
+            }
+            
+            const story = userStories[currentStoryIdx];
+            
+            viewedStories[story.id] = true;
+            localStorage.setItem('viewedStories', JSON.stringify(viewedStories));
+            renderStoriesBar(); 
+            
+            document.getElementById('story-viewer-avatar').src = story.authorAvatar || 'https://ui-avatars.com/api/?name=User';
+            document.getElementById('story-viewer-name').innerText = story.authorName;
+            document.getElementById('story-viewer-time').innerText = timeAgo(story.time);
+            document.getElementById('story-viewer-user-area').onclick = () => { closeStoryViewer(); viewUserProfile(story.authorUid); };
+            
+            const delBtn = document.getElementById('btn-delete-story');
+            if (story.authorUid === currentUserDoc.uid) { delBtn.style.display = 'block'; } 
+            else { delBtn.style.display = 'none'; }
+            
+            const contentBox = document.getElementById('story-viewer-content');
+            if (story.mediaUrl) {
+                if (story.mediaType === 'video') {
+                    contentBox.innerHTML = `<video src="${story.mediaUrl}" autoplay playsinline id="story-video"></video>`;
+                    const vid = document.getElementById('story-video');
+                    vid.onended = nextStory;
+                    vid.onloadedmetadata = () => { startStoryTimer(vid.duration * 1000); };
+                } else {
+                    contentBox.innerHTML = `<img src="${story.mediaUrl}">`;
+                    if (story.text) {
+                         contentBox.innerHTML += `<div style="position:absolute; bottom:50px; left:0; width:100%; text-align:center; padding:10px; background:rgba(0,0,0,0.5); color:white; font-size:1.1rem; text-shadow:0 1px 2px #000;">${escapeHtml(story.text)}</div>`;
+                    }
+                    startStoryTimer(5000); 
+                }
+            } else {
+                contentBox.innerHTML = `<div class="story-text-only">${escapeHtml(story.text)}</div>`;
+                startStoryTimer(5000);
+            }
+            
+            const progContainer = document.getElementById('story-progress-container');
+            progContainer.innerHTML = '';
+            for (let i = 0; i < userStories.length; i++) {
+                let fillWidth = '0%';
+                if (i < currentStoryIdx) fillWidth = '100%';
+                progContainer.innerHTML += `<div class="story-progress-bar"><div class="story-progress-fill" id="story-fill-${i}" style="width: ${fillWidth};"></div></div>`;
+            }
+        };
+
+        window.startStoryTimer = (duration) => {
+            const fillEl = document.getElementById(`story-fill-${currentStoryIdx}`);
+            if (!fillEl) return;
+            let startTime = Date.now();
+            storyAnimationInterval = setInterval(() => {
+                let elapsed = Date.now() - startTime;
+                let percent = (elapsed / duration) * 100;
+                if (percent > 100) percent = 100;
+                fillEl.style.width = percent + '%';
+            }, 50);
+            storyProgressTimeout = setTimeout(() => { nextStory(); }, duration);
+        };
+
+        window.nextStory = () => { currentStoryIdx++; renderCurrentStory(); };
+        window.prevStory = () => { currentStoryIdx--; renderCurrentStory(); };
+        window.closeStoryViewer = () => {
+            clearTimeout(storyProgressTimeout); clearInterval(storyAnimationInterval);
+            document.getElementById('modal-view-story').style.display = 'none';
+        };
+
+        window.deleteCurrentStory = async () => {
+            const uid = currentStoryUserIds[currentUserStoryIdx];
+            const story = allStories[uid][currentStoryIdx];
+            window.showConfirmModal("Xóa tin", "Bạn có chắc chắn muốn xóa tin này không?", async () => {
+                closeStoryViewer(); showLoading("Đang xóa tin...");
+                try {
+                    await deleteDoc(doc(db, "stories", story.id));
+                    showToast("Đã xóa tin.");
+                } catch(e) { showToast("Lỗi: " + e.message); }
+                hideLoading();
+            });
+        };
 
         window.createPostHTML = (p, currentUid) => {
             const isLiked = currentUid && p.likes && Array.isArray(p.likes) && p.likes.includes(currentUid);
@@ -989,259 +1358,6 @@
         async function compressImage(file, maxWidth = 1080, quality = 0.75) { if (!file || !file.type.startsWith('image/')) return file; return new Promise((r) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = (event) => { const img = new Image(); img.src = event.target.result; img.onload = () => { let w = img.width, h = img.height; if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; } const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); canvas.toBlob((blob) => { if (!blob) { r(file); return; } const cFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg', lastModified: Date.now() }); r(cFile); }, 'image/jpeg', quality); }; img.onerror = () => r(file); }; reader.onerror = () => r(file); }); }
         async function uploadFileToStorage(file, folder) { if (!file) return null; try { const sanitizeName = file.name ? file.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'file'; const fileRef = ref(storage, `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}_${sanitizeName}`); await uploadBytes(fileRef, file); return await getDownloadURL(fileRef); } catch (err) { console.warn("Storage fallback:", err); if (file.type && file.type.startsWith('image/')) { showToast("Dùng bộ nhớ tạm cho ảnh..."); return await compressImageToDataUrl(file, 850, 0.65); } else { return new Promise((r) => { const reader = new FileReader(); reader.onload = (e) => r(e.target.result); reader.readAsDataURL(file); }); } } }
 
-        // --- CÁC HÀM XỬ LÝ POCKET ---
-        window.switchPocketTab = (tab) => {
-            document.querySelectorAll('.pocket-tab').forEach(t => t.classList.remove('active'));
-            if(tab === 'camera') {
-                document.getElementById('tab-pocket-camera').classList.add('active');
-                document.getElementById('pocket-camera-view').style.display = 'block';
-                document.getElementById('pocket-history-feed').style.display = 'none';
-                startPocketCamera();
-            } else {
-                document.getElementById('tab-pocket-history').classList.add('active');
-                document.getElementById('pocket-camera-view').style.display = 'none';
-                document.getElementById('pocket-history-feed').style.display = 'flex';
-                stopPocketCamera();
-            }
-        };
-
-        async function startPocketCamera() {
-            if(pocketStream) return;
-            try {
-                const constraints = { video: { facingMode: pocketFacingMode } };
-                pocketStream = await navigator.mediaDevices.getUserMedia(constraints);
-                document.getElementById('pocket-video-el').srcObject = pocketStream;
-            } catch (err) { console.error("Camera error", err); showToast("Không thể mở Camera: " + err.message); }
-        }
-
-        function stopPocketCamera() {
-            if (pocketStream) { pocketStream.getTracks().forEach(t => t.stop()); pocketStream = null; }
-            if (pocketMediaRecorder && pocketMediaRecorder.state !== 'inactive') {
-                pocketMediaRecorder.stop();
-                document.getElementById('pocket-shutter-btn').classList.remove('recording');
-                document.getElementById('pocket-rec-indicator').style.display = 'none';
-            }
-        }
-
-        window.flipPocketCamera = () => {
-            pocketFacingMode = pocketFacingMode === 'environment' ? 'user' : 'environment';
-            stopPocketCamera();
-            startPocketCamera();
-        };
-
-        window.togglePocketZoom = () => {
-            pocketZoom = pocketZoom === 1 ? 2 : 1;
-            document.getElementById('pocket-video-el').style.transform = `scale(${pocketZoom})`;
-        };
-
-        window.togglePocketMode = () => {
-            pocketMode = pocketMode === 'photo' ? 'video' : 'photo';
-            const btn = document.getElementById('pocket-mode-btn');
-            if (pocketMode === 'video') {
-                btn.innerHTML = '<i class="fa-solid fa-video"></i>';
-                btn.classList.add('active-mode');
-                showToast("Chế độ: Quay Video");
-            } else {
-                btn.innerHTML = '<i class="fa-solid fa-camera"></i>';
-                btn.classList.remove('active-mode');
-                showToast("Chế độ: Chụp Ảnh");
-            }
-        };
-
-        window.handlePocketDeviceUpload = (input) => {
-            if(input.files && input.files[0]) {
-                pocketPendingFile = input.files[0];
-                showPocketPreview(pocketPendingFile);
-            }
-        };
-
-        window.handlePocketShutter = async () => {
-            if (pocketMode === 'photo') {
-                const videoEl = document.getElementById('pocket-video-el');
-                const canvas = document.getElementById('pocket-canvas');
-                canvas.width = videoEl.videoWidth;
-                canvas.height = videoEl.videoHeight;
-                const ctx = canvas.getContext('2d');
-                
-                if (pocketZoom > 1) {
-                    const w = canvas.width / pocketZoom;
-                    const h = canvas.height / pocketZoom;
-                    const x = (canvas.width - w) / 2;
-                    const y = (canvas.height - h) / 2;
-                    ctx.drawImage(videoEl, x, y, w, h, 0, 0, canvas.width, canvas.height);
-                } else {
-                    ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-                }
-
-                canvas.toBlob((blob) => {
-                    pocketPendingFile = new File([blob], `pocket_${Date.now()}.jpg`, { type: 'image/jpeg' });
-                    showPocketPreview(pocketPendingFile);
-                }, 'image/jpeg', 0.85);
-
-            } else {
-                // Video Mode
-                if (pocketMediaRecorder && pocketMediaRecorder.state === 'recording') {
-                    // Stop recording
-                    pocketMediaRecorder.stop();
-                    document.getElementById('pocket-shutter-btn').classList.remove('recording');
-                    document.getElementById('pocket-rec-indicator').style.display = 'none';
-                } else {
-                    // Start recording
-                    if (!pocketStream) return;
-                    pocketAudioChunks = [];
-                    try {
-                        const streamToRecord = pocketStream;
-                        // Try to add audio if not present
-                        if(streamToRecord.getAudioTracks().length === 0) {
-                            try {
-                                const audioStream = await navigator.mediaDevices.getUserMedia({audio: true});
-                                audioStream.getAudioTracks().forEach(t => streamToRecord.addTrack(t));
-                            } catch(e) { console.warn("No mic access for pocket video"); }
-                        }
-                        
-                        pocketMediaRecorder = new MediaRecorder(streamToRecord);
-                        pocketMediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) pocketAudioChunks.push(e.data); };
-                        pocketMediaRecorder.onstop = () => {
-                            const blob = new Blob(pocketAudioChunks, { type: 'video/webm' });
-                            pocketPendingFile = new File([blob], `pocket_vid_${Date.now()}.webm`, { type: 'video/webm' });
-                            showPocketPreview(pocketPendingFile);
-                        };
-                        pocketMediaRecorder.start();
-                        document.getElementById('pocket-shutter-btn').classList.add('recording');
-                        document.getElementById('pocket-rec-indicator').style.display = 'flex';
-                    } catch(e) { showToast("Lỗi quay video: " + e.message); }
-                }
-            }
-        };
-
-        function showPocketPreview(file) {
-            stopPocketCamera();
-            document.getElementById('pocket-live-container').style.display = 'none';
-            document.getElementById('pocket-preview-view').style.display = 'flex';
-            
-            const previewBox = document.getElementById('pocket-preview-box');
-            previewBox.innerHTML = '';
-            
-            const url = URL.createObjectURL(file);
-            if (file.type.startsWith('video/')) {
-                previewBox.innerHTML = `<video src="${url}" autoplay loop playsinline controls style="max-height:50vh; width:100%; object-fit:contain;"></video>`;
-            } else {
-                previewBox.innerHTML = `<img src="${url}" style="max-height:50vh; width:100%; object-fit:contain;">`;
-            }
-            
-            document.getElementById('pocket-caption').value = '';
-            window.populateFriendsSelector('pocket-friends-selector', [], 'pocket-friend-cb');
-        }
-
-        window.cancelPocketPreview = () => {
-            pocketPendingFile = null;
-            document.getElementById('pocket-preview-view').style.display = 'none';
-            document.getElementById('pocket-live-container').style.display = 'flex';
-            document.getElementById('pocket-file-upload').value = '';
-            startPocketCamera();
-        };
-
-        window.sendPocket = async () => {
-            if (!currentUserDoc || !pocketPendingFile) return;
-            
-            const caption = document.getElementById('pocket-caption').value.trim();
-            const checkedBoxes = document.querySelectorAll('.pocket-friend-cb:checked');
-            const receiverIds = Array.from(checkedBoxes).map(cb => cb.value);
-            
-            if (receiverIds.length === 0) return showToast("Vui lòng chọn ít nhất 1 người bạn để gửi!");
-            
-            showLoading("Đang nén & gửi Pocket...");
-            try {
-                let uploadFile = pocketPendingFile;
-                if (pocketPendingFile.type.startsWith('image/')) {
-                    uploadFile = await compressImage(pocketPendingFile, 1080, 0.8);
-                }
-                const mediaUrl = await uploadFileToStorage(uploadFile, "pockets");
-                const mediaType = pocketPendingFile.type.startsWith('video/') ? 'video' : 'image';
-                
-                await addDoc(collection(db, "pockets"), {
-                    senderId: currentUserDoc.uid,
-                    senderName: currentUserDoc.displayName || currentUserDoc.username,
-                    senderAvatar: currentUserDoc.avatar,
-                    receiverIds: receiverIds,
-                    mediaUrl: mediaUrl,
-                    mediaType: mediaType,
-                    caption: caption,
-                    createdAt: serverTimestamp()
-                });
-                
-                showToast("Đã gửi Pocket thành công!");
-                cancelPocketPreview(); // Trở lại camera
-                switchPocketTab('history'); // Tự động chuyển qua tab lịch sử để xem
-            } catch (e) {
-                showToast("Lỗi gửi Pocket: " + e.message);
-            }
-            hideLoading();
-        };
-
-        function listenPockets() {
-            if (!currentUserDoc) return;
-            if (unsubscribePockets) unsubscribePockets();
-            
-            unsubscribePockets = onSnapshot(collection(db, "pockets"), (snapshot) => {
-                let pockets = [];
-                const currentUid = currentUserDoc.uid;
-                
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    // Lấy ra các pocket do mình gửi HOẶC gửi cho mình
-                    if (data.senderId === currentUid || (data.receiverIds && data.receiverIds.includes(currentUid))) {
-                        pockets.push({ id: docSnap.id, ...data });
-                    }
-                });
-                
-                pockets.sort((a, b) => {
-                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
-                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0);
-                    return timeB - timeA;
-                });
-                
-                const feed = document.getElementById('pocket-history-feed');
-                feed.innerHTML = '';
-                
-                if (pockets.length === 0) {
-                    feed.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding: 20px;">Bạn chưa gửi hoặc nhận Pocket nào.</p>';
-                    return;
-                }
-                
-                pockets.forEach(p => {
-                    const isMine = p.senderId === currentUid;
-                    let mediaHtml = '';
-                    if (p.mediaType === 'video') {
-                        mediaHtml = `<video src="${p.mediaUrl}" controls playsinline preload="metadata" onclick="this.paused?this.play():this.pause()"></video>`;
-                    } else {
-                        mediaHtml = `<img src="${p.mediaUrl}" loading="lazy">`;
-                    }
-                    
-                    const avatarHtml = window.getAvatarHtml(p.senderId, p.senderAvatar, 'avatar-sm', 'width:30px; height:30px; border-color:transparent;', `viewUserProfile('${p.senderId}')`);
-                    
-                    feed.innerHTML += `
-                        <div class="pocket-card">
-                            <div class="pocket-card-media">
-                                ${mediaHtml}
-                                <div class="pocket-card-header">
-                                    ${avatarHtml}
-                                    <div style="display:flex; flex-direction:column;">
-                                        <strong style="font-size:0.85rem; color:white; text-shadow:0 1px 2px #000; cursor:pointer;" onclick="viewUserProfile('${p.senderId}')">${isMine ? 'Bạn' : escapeHtml(p.senderName)}</strong>
-                                        <span style="font-size:0.65rem; color:#ddd; text-shadow:0 1px 2px #000;">${timeAgo(p.createdAt)}</span>
-                                    </div>
-                                </div>
-                                ${p.caption ? `<div class="pocket-card-caption">${escapeHtml(p.caption)}</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        // --- END POCKET FUNCTIONS ---
-
-
         window.startVoiceRecording = async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); audioChunks = []; mediaRecorder = new MediaRecorder(stream); mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); }; mediaRecorder.start(); recordStartTime = Date.now(); document.getElementById('normal-chat-controls').style.display = 'none'; document.getElementById('voice-recording-ui').style.display = 'flex'; document.getElementById('voice-timer').innerText = "00:00"; recordTimerInterval = setInterval(() => { const elapsed = Math.floor((Date.now() - recordStartTime) / 1000); const mins = String(Math.floor(elapsed / 60)).padStart(2, '0'); const secs = String(elapsed % 60).padStart(2, '0'); document.getElementById('voice-timer').innerText = `${mins}:${secs}`; }, 1000); } catch (err) { showToast("Không thể mở Micro: " + err.message); } };
         window.cancelVoiceRecording = () => { if (mediaRecorder && mediaRecorder.state !== 'inactive') { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t => t.stop()); } clearInterval(recordTimerInterval); audioChunks = []; document.getElementById('voice-recording-ui').style.display = 'none'; document.getElementById('normal-chat-controls').style.display = 'flex'; };
         window.stopAndSendVoiceRecording = () => { if (!mediaRecorder || mediaRecorder.state === 'inactive') return; mediaRecorder.onstop = async () => { const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); mediaRecorder.stream.getTracks().forEach(t => t.stop()); clearInterval(recordTimerInterval); document.getElementById('voice-recording-ui').style.display = 'none'; document.getElementById('normal-chat-controls').style.display = 'flex'; if (audioBlob.size < 500) return showToast("Bản ghi quá ngắn!"); showLoading("Đang xử lý & gửi..."); try { const audioFile = new File([audioBlob], `voice_${Date.now()}.webm`, { type: 'audio/webm' }); const voiceUrl = await uploadFileToStorage(audioFile, "voiceMessages"); await sendMessageData("", voiceUrl, "audio"); } catch (err) { showToast("Lỗi: " + err.message); } hideLoading(); }; mediaRecorder.stop(); };
@@ -1254,27 +1370,22 @@
         window.viewUserProfile = (uid) => { switchPage('profile'); renderProfilePage(uid); };
         window.updateNavMsgBadge = () => { const badge = document.getElementById('nav-msg-badge'); if (unreadMsgCount > 0) { badge.style.display = 'block'; badge.innerText = unreadMsgCount; } else { badge.style.display = 'none'; } };
         
-        window.switchPage = (pageId, btn) => { 
+        // Cập nhật lại Switch Page để Hỗ trợ Tính năng Pocket
+        const originalSwitchPage = (pageId, btn) => { 
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); 
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
             document.getElementById(`page-${pageId}`).classList.add('active'); 
             
-            if (btn) { btn.classList.add('active'); } 
-            else { 
-                const navMap = { 'feed': 0, 'friends': 1, 'pocket': 2, 'messages': 3, 'profile': 4 };
-                const navIndex = navMap[pageId]; 
+            if (btn) { 
+                btn.classList.add('active'); 
+            } else { 
+                const mapping = {'feed':0, 'friends':1, 'pocket':2, 'messages':3, 'profile':4};
                 const navBtns = document.querySelectorAll('.nav-item'); 
-                if (navBtns[navIndex]) navBtns[navIndex].classList.add('active'); 
+                if (navBtns[mapping[pageId]]) navBtns[mapping[pageId]].classList.add('active'); 
             } 
+            
             window.scrollTo({top: 0}); 
             
-            // Xử lý bật/tắt camera Pocket khi chuyển trang
-            if(pageId === 'pocket' && document.getElementById('tab-pocket-camera').classList.contains('active')) {
-                startPocketCamera();
-            } else {
-                stopPocketCamera();
-            }
-
             if(pageId === 'profile' && btn) renderProfilePage(currentUserDoc?.uid); 
             if(pageId === 'friends') searchUsers(); 
             if(pageId === 'messages') { 
@@ -1286,6 +1397,15 @@
                 } 
             } 
         };
+
+        window.switchPage = (pageId, btn) => {
+            originalSwitchPage(pageId, btn);
+            if (pageId === 'pocket') {
+                if(!pocketHistoryActive) initPocketCamera();
+            } else {
+                stopPocketCamera();
+            }
+        }
         
         window.handleAuth = async (e, type) => { e.preventDefault(); showLoading("Đang xử lý..."); try { if(type === 'login') { const user = document.getElementById('login-user').value; const pass = document.getElementById('login-pass').value; await signInWithEmailAndPassword(auth, formatEmail(user), pass); } else { const name = document.getElementById('reg-name').value; const user = document.getElementById('reg-user').value.toLowerCase().replace(/\s/g, ''); const pass = document.getElementById('reg-pass').value; const res = await createUserWithEmailAndPassword(auth, formatEmail(user), pass); await setDoc(doc(db, "users", res.user.uid), { uid: res.user.uid, username: user, displayName: name, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`, cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800", bio: "Người dùng mới tại 9c2network", followers: [], following: [], isOnline: true, lastActive: serverTimestamp() }); } } catch (error) { showToast("Lỗi xác thực: " + error.message); } hideLoading(); };
         window.handleLogout = () => { setOnlineStatus(false); signOut(auth); };
@@ -1301,7 +1421,8 @@
                     document.getElementById('header-username').innerText = `@${currentUserDoc.username || 'user'}`;
                     if(document.getElementById('page-profile').classList.contains('active')) renderProfilePage(window.currentViewedProfileUid);
                 });
-                listenFeed(); listenStories(); listenChatList(); listenIncomingCalls(); listenFriendRequests(); listenGlobalMessages(); listenPockets();
+                listenFeed(); listenStories(); listenChatList(); listenIncomingCalls(); listenFriendRequests(); listenGlobalMessages();
+                listenPocketFeed();
             } else {
                 document.getElementById('auth-container').style.display = 'flex';
                 document.getElementById('app-container').style.display = 'none';
@@ -1310,8 +1431,6 @@
                 if (unsubscribePendingReqs) unsubscribePendingReqs();
                 if (unsubscribeSentReqs) unsubscribeSentReqs();
                 if (globalMsgUnsubscribe) globalMsgUnsubscribe();
-                if (unsubscribePockets) unsubscribePockets();
-                stopPocketCamera();
             }
         });
 
@@ -1396,7 +1515,29 @@
         window.toggleCommentSection = (postId) => { const sec = document.getElementById(`comments-${postId}`); if (!sec) return; if (expandedComments.has(postId)) { expandedComments.delete(postId); sec.style.display = 'none'; } else { expandedComments.add(postId); sec.style.display = 'block'; } };
         window.sendCommentImage = async (postId, inputEl) => { if (!currentUserDoc) return; const file = inputEl.files[0]; if(!file) return; showLoading("Đang nén & gửi ảnh..."); try { let uploadFile = await compressImage(file, 800, 0.7); const imageUrl = await uploadFileToStorage(uploadFile, "commentImages"); expandedComments.add(postId); const commentObj = { commentId: Date.now().toString() + Math.random().toString(36).substr(2, 5), uid: currentUserDoc.uid, name: currentUserDoc.displayName || currentUserDoc.username || 'Người dùng', avatar: currentUserDoc.avatar || `https://ui-avatars.com/api/?name=User`, text: "", imageUrl: imageUrl, createdAt: Date.now() }; await updateDoc(doc(db, "posts", postId), { comments: arrayUnion(commentObj) }); } catch(e) { showToast("Lỗi gửi ảnh: " + e.message); } inputEl.value = ''; hideLoading(); };
         window.addComment = async (postId, el) => { if (!currentUserDoc) return; const input = el.tagName === 'INPUT' ? el : el.parentElement.querySelector('input[type="text"]'); const text = input.value.trim(); if (!text) return; input.value = ''; expandedComments.add(postId); const commentObj = { commentId: Date.now().toString() + Math.random().toString(36).substr(2, 5), uid: currentUserDoc.uid, name: currentUserDoc.displayName || currentUserDoc.username || 'Người dùng', avatar: currentUserDoc.avatar || `https://ui-avatars.com/api/?name=User`, text: text, createdAt: Date.now() }; try { await updateDoc(doc(db, "posts", postId), { comments: arrayUnion(commentObj) }); } catch (e) { showToast("Lỗi gửi bình luận: " + e.message); } };
-        window.deleteComment = async (postId, commentId, fallbackUid, fallbackTime) => { if (!currentUserDoc) return; window.showConfirmModal("Xóa bình luận", "Bạn có chắc chắn muốn xóa bình luận này không?", async () => { showLoading("Đang xóa..."); try { const postRef = doc(db, "posts", postId); const postSnap = await getDoc(postRef); if (postSnap.exists()) { const postData = postSnap.data(); const commentToDelete = (postData.comments || []).find(c => (commentId && c.commentId === commentId) || (!c.commentId && c.uid === fallbackUid && c.createdAt === Number(fallbackTime)) ); if (commentToDelete) { await updateDoc(postRef, { comments: arrayRemove(commentToDelete) }); showToast("Đã xóa bình luận!"); } else { showToast("Không tìm thấy bình luận cần xóa."); } } } catch(e) { showToast("Lỗi xóa bình luận: " + e.message); } hideLoading(); }); };
+        
+        window.deleteComment = async (postId, commentId, fallbackUid, fallbackTime) => { 
+            if (!currentUserDoc) return; 
+            window.showConfirmModal("Xóa bình luận", "Bạn có chắc chắn muốn xóa bình luận này không?", async () => { 
+                showLoading("Đang xóa..."); 
+                try { 
+                    const postRef = doc(db, "posts", postId); 
+                    const postSnap = await getDoc(postRef); 
+                    if (postSnap.exists()) { 
+                        const postData = postSnap.data(); 
+                        const commentToDelete = (postData.comments || []).find(c => (commentId && c.commentId === commentId) || (!c.commentId && c.uid === fallbackUid && c.createdAt === Number(fallbackTime)) ); 
+                        if (commentToDelete) { 
+                            await updateDoc(postRef, { comments: arrayRemove(commentToDelete) }); 
+                            showToast("Đã xóa bình luận!"); 
+                        } else { 
+                            showToast("Không tìm thấy bình luận cần xóa."); 
+                        } 
+                    } 
+                } catch(e) { showToast("Lỗi xóa bình luận: " + e.message); } 
+                hideLoading(); 
+            }); 
+        };
+        
         window.toggleLike = async (postId, isLiked) => { if (!currentUserDoc) return; const postRef = doc(db, "posts", postId); if (isLiked) { await updateDoc(postRef, { likes: arrayRemove(currentUserDoc.uid) }); } else { await updateDoc(postRef, { likes: arrayUnion(currentUserDoc.uid) }); } };
 
         let unsubscribeProfilePosts = null;
@@ -1408,7 +1549,9 @@
             if (isMe) { targetUser = currentUserDoc; } 
             else {
                 if (usersCache[uid]) { targetUser = usersCache[uid]; } 
-                else { try { const snap = await getDoc(doc(db, "users", uid)); if(snap.exists()) { targetUser = snap.data(); usersCache[uid] = targetUser; } else { showToast("Người dùng không tồn tại!"); return; } } catch(e) { console.error(e); return; } }
+                else {
+                    try { const snap = await getDoc(doc(db, "users", uid)); if(snap.exists()) { targetUser = snap.data(); usersCache[uid] = targetUser; } else { showToast("Người dùng không tồn tại!"); return; } } catch(e) { console.error(e); return; }
+                }
             }
             if (!targetUser) return;
 
@@ -1416,7 +1559,8 @@
             document.getElementById('profile-avatar').src = targetUser.avatar || "https://ui-avatars.com/api/?name=User";
             
             const onlineDot = document.getElementById('profile-online-dot');
-            if (targetUser.isOnline) { onlineDot.classList.add('active'); } else { onlineDot.classList.remove('active'); }
+            if (targetUser.isOnline) { onlineDot.classList.add('active'); }
+            else { onlineDot.classList.remove('active'); }
 
             document.getElementById('profile-name').innerText = targetUser.displayName || "--";
             document.getElementById('profile-handle').innerText = `@${targetUser.username || "--"}`;
@@ -1493,7 +1637,10 @@
             const newPassword = document.getElementById('edit-new-password').value;
             
             const isChangingSecurity = (newUsername && newUsername !== currentUserDoc.username) || newPassword;
-            if (isChangingSecurity && !currentPassword) { return showToast("Vui lòng nhập mật khẩu hiện tại để đổi thông tin bảo mật!"); }
+            
+            if (isChangingSecurity && !currentPassword) {
+                return showToast("Vui lòng nhập mật khẩu hiện tại để đổi thông tin bảo mật!");
+            }
 
             showLoading("Đang nén & lưu thông tin..."); 
             try { 
@@ -1501,30 +1648,54 @@
                     const user = auth.currentUser;
                     const credential = EmailAuthProvider.credential(user.email, currentPassword);
                     await reauthenticateWithCredential(user, credential);
-                    if (newPassword) { await updatePassword(user, newPassword); }
-                    if (newUsername && newUsername !== currentUserDoc.username) { await updateEmail(user, formatEmail(newUsername)); }
+                    
+                    if (newPassword) {
+                        await updatePassword(user, newPassword);
+                    }
+                    if (newUsername && newUsername !== currentUserDoc.username) {
+                        await updateEmail(user, formatEmail(newUsername));
+                    }
                 }
 
                 let updates = { displayName: name, bio: bio }; 
-                if (newUsername && newUsername !== currentUserDoc.username) { updates.username = newUsername; }
-                if(avatarFile) { const compressedAvatar = await compressImage(avatarFile, 300, 0.8); updates.avatar = await uploadFileToStorage(compressedAvatar, "avatars"); } 
-                if(coverFile) { const compressedCover = await compressImage(coverFile, 1000, 0.75); updates.cover = await uploadFileToStorage(compressedCover, "covers"); } 
+                if (newUsername && newUsername !== currentUserDoc.username) {
+                    updates.username = newUsername;
+                }
+
+                if(avatarFile) { 
+                    const compressedAvatar = await compressImage(avatarFile, 300, 0.8); 
+                    updates.avatar = await uploadFileToStorage(compressedAvatar, "avatars"); 
+                } 
+                if(coverFile) { 
+                    const compressedCover = await compressImage(coverFile, 1000, 0.75); 
+                    updates.cover = await uploadFileToStorage(compressedCover, "covers"); 
+                } 
                 
                 await updateDoc(doc(db, "users", currentUserDoc.uid), updates); 
                 
                 const q = query(collection(db, "posts"), where("authorUid", "==", currentUserDoc.uid)); 
                 const snap = await getDocs(q); 
-                snap.forEach(d => updateDoc(doc(db, "posts", d.id), { authorName: name, authorAvatar: updates.avatar || currentUserDoc.avatar, authorUsername: updates.username || currentUserDoc.username })); 
+                snap.forEach(d => updateDoc(doc(db, "posts", d.id), { 
+                    authorName: name, 
+                    authorAvatar: updates.avatar || currentUserDoc.avatar,
+                    authorUsername: updates.username || currentUserDoc.username
+                })); 
                 
                 if (updates.username) currentUserDoc.username = updates.username;
 
                 document.getElementById('modal-edit-profile').style.display = 'none'; 
-                document.getElementById('edit-current-password').value = ''; document.getElementById('edit-new-password').value = '';
+                document.getElementById('edit-current-password').value = '';
+                document.getElementById('edit-new-password').value = '';
+                
                 showToast("Đã cập nhật hồ sơ!"); 
             } catch (err) { 
-                if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') { showToast("Mật khẩu hiện tại không đúng!"); } 
-                else if (err.code === 'auth/email-already-in-use') { showToast("Tên đăng nhập mới đã được sử dụng!"); } 
-                else { showToast("Lỗi lưu hồ sơ: " + err.message); }
+                if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+                    showToast("Mật khẩu hiện tại không đúng!");
+                } else if (err.code === 'auth/email-already-in-use') {
+                    showToast("Tên đăng nhập mới đã được sử dụng!");
+                } else {
+                    showToast("Lỗi lưu hồ sơ: " + err.message); 
+                }
             } 
             hideLoading(); 
         };
@@ -1543,7 +1714,9 @@
                 snap.forEach(d => { 
                     const u = d.data(); 
                     if(currentUserDoc && u.uid !== currentUserDoc.uid && (!text || u.username?.toLowerCase().includes(text) || u.displayName?.toLowerCase().includes(text))) { 
-                        usersCache[u.uid] = u; foundAny = true; const uid = u.uid; 
+                        usersCache[u.uid] = u; 
+                        foundAny = true; 
+                        const uid = u.uid; 
                         const isFriend = currentUserDoc?.followers?.includes(uid) && currentUserDoc?.following?.includes(uid); 
                         const sentReq = window.mySentRequests?.find(r => r.receiverId === uid); 
                         const rcvReq = window.myPendingRequests?.find(r => r.senderId === uid); 
@@ -1577,12 +1750,24 @@
         };
 
         function listenChatList() { 
-            onSnapshot(collection(db, "users"), (userSnap) => { userSnap.forEach(d => { usersCache[d.id] = d.data(); }); renderCombinedChatList(); renderStoriesBar(); }); 
-            onSnapshot(collection(db, "groups"), (groupSnap) => { groupSnap.forEach(d => { groupsCache[d.id] = { id: d.id, ...d.data() }; }); renderCombinedChatList(); if (document.getElementById('modal-group-settings').style.display === 'flex') { renderGroupSettingsMembers(); } }); 
+            onSnapshot(collection(db, "users"), (userSnap) => { 
+                userSnap.forEach(d => { usersCache[d.id] = d.data(); }); 
+                renderCombinedChatList(); 
+                renderStoriesBar();
+            }); 
+            onSnapshot(collection(db, "groups"), (groupSnap) => { 
+                groupSnap.forEach(d => { groupsCache[d.id] = { id: d.id, ...d.data() }; }); 
+                renderCombinedChatList(); 
+                if (document.getElementById('modal-group-settings').style.display === 'flex') {
+                    renderGroupSettingsMembers();
+                }
+            }); 
         }
         
         function renderCombinedChatList() { 
-            const list = document.getElementById('chat-list'); list.innerHTML = ''; let hasChats = false; 
+            const list = document.getElementById('chat-list'); 
+            list.innerHTML = ''; 
+            let hasChats = false; 
             Object.values(groupsCache).forEach(g => { 
                 if (currentUserDoc && g.members && g.members.includes(currentUserDoc.uid)) { 
                     hasChats = true; 
@@ -1639,12 +1824,16 @@
             const onlineDot = document.getElementById('chat-active-online-dot');
 
             if (activeChatType === 'group') { 
-                callAudioBtn.style.display = 'none'; callVideoBtn.style.display = 'none'; 
-                typeBadge.style.display = 'inline-block'; onlineDot.classList.remove('active');
+                callAudioBtn.style.display = 'none'; 
+                callVideoBtn.style.display = 'none'; 
+                typeBadge.style.display = 'inline-block'; 
+                onlineDot.classList.remove('active');
             } else { 
-                callAudioBtn.style.display = 'inline-block'; callVideoBtn.style.display = 'inline-block'; 
+                callAudioBtn.style.display = 'inline-block'; 
+                callVideoBtn.style.display = 'inline-block'; 
                 typeBadge.style.display = 'none'; 
-                if (usersCache[targetId]?.isOnline) onlineDot.classList.add('active'); else onlineDot.classList.remove('active');
+                if (usersCache[targetId]?.isOnline) onlineDot.classList.add('active');
+                else onlineDot.classList.remove('active');
             } 
             
             const chatId = activeChatType === 'group' ? targetId : (currentUserDoc.uid < targetId ? `${currentUserDoc.uid}_${targetId}` : `${targetId}_${currentUserDoc.uid}`); 
@@ -1653,8 +1842,11 @@
             unsubscribeTyping = onSnapshot(doc(db, "typing_status", chatId), (docSnap) => { 
                 const typingIndicator = document.getElementById('typing-indicator'); 
                 if (docSnap.exists()) { 
-                    const data = docSnap.data(); let someoneTyping = false; 
-                    for (const [uid, isTyping] of Object.entries(data)) { if (uid !== currentUserDoc.uid && isTyping) { someoneTyping = true; break; } } 
+                    const data = docSnap.data(); 
+                    let someoneTyping = false; 
+                    for (const [uid, isTyping] of Object.entries(data)) { 
+                        if (uid !== currentUserDoc.uid && isTyping) { someoneTyping = true; break; } 
+                    } 
                     typingIndicator.style.display = someoneTyping ? 'block' : 'none'; 
                     if (someoneTyping) { const box = document.getElementById('chat-messages-box'); box.scrollTop = box.scrollHeight; } 
                 } else { typingIndicator.style.display = 'none'; } 
@@ -1664,7 +1856,8 @@
             const q = query(collection(db, "messages"), where("chatId", "==", chatId)); 
             unsubscribeChat = onSnapshot(q, (snap) => { 
                 const box = document.getElementById('chat-messages-box'); 
-                let msgs = []; snap.forEach(d => msgs.push({ id: d.id, ...d.data() })); 
+                let msgs = []; 
+                snap.forEach(d => msgs.push({ id: d.id, ...d.data() })); 
                 msgs.sort((a, b) => { const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0); const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0); return timeA - timeB; }); 
                 box.innerHTML = ''; 
                 msgs.forEach(m => { 
@@ -1680,7 +1873,10 @@
                     } 
                     
                     let optionsHtml = ''; 
-                    if (canEditDelete) { optionsHtml = ` <div class="msg-options"> ${!m.mediaUrl ? `<button class="msg-btn" onclick="editMessage('${m.id}', '${escapeHtml(m.text || '')}')" title="Sửa"><i class="fa-solid fa-pen"></i></button>` : ''} <button class="msg-btn" style="color: #ff4444;" onclick="deleteMessage('${m.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button> </div> `; } 
+                    if (canEditDelete) { 
+                        optionsHtml = ` <div class="msg-options"> ${!m.mediaUrl ? `<button class="msg-btn" onclick="editMessage('${m.id}', '${escapeHtml(m.text || '')}')" title="Sửa"><i class="fa-solid fa-pen"></i></button>` : ''} <button class="msg-btn" style="color: #ff4444;" onclick="deleteMessage('${m.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button> </div> `; 
+                    } 
+                    
                     const editedMark = m.isEdited ? `<span style="font-size:0.7rem; opacity:0.6; margin-left:5px;">(đã sửa)</span>` : ''; 
                     
                     if (!isMe && activeChatType === 'group') {
@@ -1697,26 +1893,186 @@
                                 </div>
                             </div>
                         `;
-                    } else { box.innerHTML += ` <div class="msg-bubble ${isMe ? 'sent' : 'received'}"> ${optionsHtml} ${m.text ? `<div>${escapeHtml(m.text)} ${editedMark}</div>` : ''} ${mediaHtml} </div> `; }
+                    } else {
+                        box.innerHTML += ` <div class="msg-bubble ${isMe ? 'sent' : 'received'}"> ${optionsHtml} ${m.text ? `<div>${escapeHtml(m.text)} ${editedMark}</div>` : ''} ${mediaHtml} </div> `; 
+                    }
                 }); 
                 setTimeout(() => { box.scrollTop = box.scrollHeight; }, 30); 
             }, (err) => console.error("Message room error:", err)); 
         };
 
-        window.handleChatHeaderClick = () => { if (activeChatType === 'private') { viewUserProfile(activeChatTargetId); } else if (activeChatType === 'group') { openGroupSettings(); } };
-        window.openGroupSettings = () => { const group = groupsCache[activeChatTargetId]; if (!group) return; document.getElementById('edit-group-name').value = group.name; const isAdmin = currentUserDoc.uid === group.createdBy; document.getElementById('btn-delete-group').style.display = isAdmin ? 'inline-block' : 'none'; renderGroupSettingsMembers(); document.getElementById('modal-group-settings').style.display = 'flex'; };
-        window.closeGroupSettings = () => { document.getElementById('modal-group-settings').style.display = 'none'; };
-        window.renderGroupSettingsMembers = () => { const group = groupsCache[activeChatTargetId]; if (!group) return; const list = document.getElementById('group-settings-members'); list.innerHTML = ''; const isAdmin = currentUserDoc.uid === group.createdBy; group.members.forEach(uid => { const u = usersCache[uid] || { uid: uid, displayName: 'Thành viên', username: 'user', avatar: '' }; const isMe = uid === currentUserDoc.uid; const isTargetAdmin = uid === group.createdBy; let removeBtn = ''; if (isAdmin && !isTargetAdmin) { removeBtn = `<button onclick="removeGroupMember('${uid}')" style="background:none; border:none; color:var(--danger-red); font-size:1rem; padding: 5px;"><i class="fa-solid fa-user-minus"></i></button>`; } else if (isMe && !isTargetAdmin) { removeBtn = `<button onclick="leaveGroup()" style="background:none; border:none; color:var(--danger-red); font-size:0.85rem; padding: 5px;"><i class="fa-solid fa-right-from-bracket"></i> Rời nhóm</button>`; } list.innerHTML += ` <div class="group-member-item"> <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="closeGroupSettings(); viewUserProfile('${uid}')"> ${window.getAvatarHtml(uid, u.avatar, 'avatar-sm', 'width:32px; height:32px;')} <div> <span style="font-size:0.9rem; font-weight:600;">${escapeHtml(u.displayName || u.username)} ${isTargetAdmin ? '<i class="fa-solid fa-crown" style="color:gold; font-size:0.75rem;"></i>' : ''}</span> </div> </div> ${removeBtn} </div> `; }); };
-        window.saveGroupName = async () => { const newName = document.getElementById('edit-group-name').value.trim(); if (!newName) return showToast('Vui lòng nhập tên nhóm!'); showLoading("Đang lưu..."); try { await updateDoc(doc(db, "groups", activeChatTargetId), { name: newName }); document.getElementById('chat-active-name').innerText = newName; showToast("Đã đổi tên nhóm!"); } catch(e) { showToast("Lỗi: " + e.message); } hideLoading(); };
-        window.removeGroupMember = async (uid) => { window.showConfirmModal("Xóa thành viên", "Chắc chắn muốn xóa người này khỏi nhóm?", async () => { showLoading("Đang xóa..."); try { await updateDoc(doc(db, "groups", activeChatTargetId), { members: arrayRemove(uid) }); showToast("Đã xóa thành viên!"); } catch(e) { showToast("Lỗi: " + e.message); } hideLoading(); }); };
-        window.leaveGroup = async () => { window.showConfirmModal("Rời nhóm", "Bạn có chắc chắn muốn rời khỏi nhóm này không?", async () => { showLoading("Đang rời nhóm..."); try { await updateDoc(doc(db, "groups", activeChatTargetId), { members: arrayRemove(currentUserDoc.uid) }); showToast("Đã rời nhóm!"); closeGroupSettings(); closeChatRoom(); } catch(e) { showToast("Lỗi: " + e.message); } hideLoading(); }); }
-        window.openAddGroupMemberModal = () => { const group = groupsCache[activeChatTargetId]; if (!group) return; const list = document.getElementById('add-group-members-list'); list.innerHTML = ''; let hasFriends = false; Object.values(usersCache).forEach(u => { if (currentUserDoc && u.uid !== currentUserDoc.uid) { const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid); if (isFriend && !group.members.includes(u.uid)) { hasFriends = true; list.innerHTML += ` <label class="member-checkbox-item"> <input type="checkbox" class="add-member-checkbox" value="${u.uid}"> ${window.getAvatarHtml(u.uid, u.avatar, 'avatar-sm', 'width:30px; height:30px;')} <span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span> </label> `; } } }); if (!hasFriends) { list.innerHTML = '<p style="text-align:center; color:gray; padding:10px;">Không có bạn bè nào để thêm.</p>'; } document.getElementById('modal-add-group-members').style.display = 'flex'; };
-        window.submitAddGroupMembers = async () => { const checkboxes = document.querySelectorAll('.add-member-checkbox:checked'); const uidsToAdd = Array.from(checkboxes).map(cb => cb.value); if (uidsToAdd.length === 0) return showToast("Vui lòng chọn ít nhất 1 người!"); showLoading("Đang thêm..."); try { const groupRef = doc(db, "groups", activeChatTargetId); for(let uid of uidsToAdd) { await updateDoc(groupRef, { members: arrayUnion(uid) }); } document.getElementById('modal-add-group-members').style.display = 'none'; showToast("Đã thêm thành viên!"); } catch(e) { showToast("Lỗi: " + e.message); } hideLoading(); };
-        window.deleteGroupChat = async () => { window.showConfirmModal("Giải tán nhóm", "Bạn có chắc chắn muốn xóa nhóm này vĩnh viễn? Mọi tin nhắn sẽ không thể khôi phục.", async () => { showLoading("Đang giải tán nhóm..."); try { await deleteDoc(doc(db, "groups", activeChatTargetId)); showToast("Đã xóa nhóm!"); closeGroupSettings(); closeChatRoom(); } catch(e) { showToast("Lỗi: " + e.message); } hideLoading(); }); };
+        window.handleChatHeaderClick = () => {
+            if (activeChatType === 'private') {
+                viewUserProfile(activeChatTargetId);
+            } else if (activeChatType === 'group') {
+                openGroupSettings();
+            }
+        };
+
+        window.openGroupSettings = () => {
+            const group = groupsCache[activeChatTargetId];
+            if (!group) return;
+            document.getElementById('edit-group-name').value = group.name;
+            
+            const isAdmin = currentUserDoc.uid === group.createdBy;
+            const delBtn = document.getElementById('btn-delete-group');
+            delBtn.style.display = isAdmin ? 'inline-block' : 'none';
+
+            renderGroupSettingsMembers();
+            document.getElementById('modal-group-settings').style.display = 'flex';
+        };
+
+        window.closeGroupSettings = () => {
+            document.getElementById('modal-group-settings').style.display = 'none';
+        };
+
+        window.renderGroupSettingsMembers = () => {
+            const group = groupsCache[activeChatTargetId];
+            if (!group) return;
+            const list = document.getElementById('group-settings-members');
+            list.innerHTML = '';
+            const isAdmin = currentUserDoc.uid === group.createdBy;
+
+            group.members.forEach(uid => {
+                const u = usersCache[uid] || { uid: uid, displayName: 'Thành viên', username: 'user', avatar: '' };
+                const isMe = uid === currentUserDoc.uid;
+                const isTargetAdmin = uid === group.createdBy;
+                let removeBtn = '';
+                
+                if (isAdmin && !isTargetAdmin) {
+                    removeBtn = `<button onclick="removeGroupMember('${uid}')" style="background:none; border:none; color:var(--danger-red); font-size:1rem; padding: 5px;"><i class="fa-solid fa-user-minus"></i></button>`;
+                } else if (isMe && !isTargetAdmin) {
+                     removeBtn = `<button onclick="leaveGroup()" style="background:none; border:none; color:var(--danger-red); font-size:0.85rem; padding: 5px;"><i class="fa-solid fa-right-from-bracket"></i> Rời nhóm</button>`;
+                }
+
+                list.innerHTML += `
+                    <div class="group-member-item">
+                        <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="closeGroupSettings(); viewUserProfile('${uid}')">
+                            ${window.getAvatarHtml(uid, u.avatar, 'avatar-sm', 'width:32px; height:32px;')}
+                            <div>
+                                <span style="font-size:0.9rem; font-weight:600;">${escapeHtml(u.displayName || u.username)} ${isTargetAdmin ? '<i class="fa-solid fa-crown" style="color:gold; font-size:0.75rem;"></i>' : ''}</span>
+                            </div>
+                        </div>
+                        ${removeBtn}
+                    </div>
+                `;
+            });
+        };
+
+        window.saveGroupName = async () => {
+            const newName = document.getElementById('edit-group-name').value.trim();
+            if (!newName) return showToast('Vui lòng nhập tên nhóm!');
+            showLoading("Đang lưu...");
+            try {
+                await updateDoc(doc(db, "groups", activeChatTargetId), { name: newName });
+                document.getElementById('chat-active-name').innerText = newName;
+                showToast("Đã đổi tên nhóm!");
+            } catch(e) { showToast("Lỗi: " + e.message); }
+            hideLoading();
+        };
+
+        window.removeGroupMember = async (uid) => {
+            window.showConfirmModal("Xóa thành viên", "Chắc chắn muốn xóa người này khỏi nhóm?", async () => {
+                showLoading("Đang xóa...");
+                try {
+                    await updateDoc(doc(db, "groups", activeChatTargetId), { members: arrayRemove(uid) });
+                    showToast("Đã xóa thành viên!");
+                } catch(e) { showToast("Lỗi: " + e.message); }
+                hideLoading();
+            });
+        };
+
+        window.leaveGroup = async () => {
+             window.showConfirmModal("Rời nhóm", "Bạn có chắc chắn muốn rời khỏi nhóm này không?", async () => {
+                showLoading("Đang rời nhóm...");
+                try {
+                    await updateDoc(doc(db, "groups", activeChatTargetId), { members: arrayRemove(currentUserDoc.uid) });
+                    showToast("Đã rời nhóm!");
+                    closeGroupSettings();
+                    closeChatRoom();
+                } catch(e) { showToast("Lỗi: " + e.message); }
+                hideLoading();
+            });
+        }
+
+        window.openAddGroupMemberModal = () => {
+            const group = groupsCache[activeChatTargetId];
+            if (!group) return;
+            const list = document.getElementById('add-group-members-list');
+            list.innerHTML = '';
+            let hasFriends = false;
+
+            Object.values(usersCache).forEach(u => {
+                if (currentUserDoc && u.uid !== currentUserDoc.uid) {
+                    const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid);
+                    if (isFriend && !group.members.includes(u.uid)) {
+                        hasFriends = true;
+                        list.innerHTML += `
+                            <label class="member-checkbox-item">
+                                <input type="checkbox" class="add-member-checkbox" value="${u.uid}">
+                                ${window.getAvatarHtml(u.uid, u.avatar, 'avatar-sm', 'width:30px; height:30px;')}
+                                <span style="font-size:0.9rem;">${escapeHtml(u.displayName || u.username)}</span>
+                            </label>
+                        `;
+                    }
+                }
+            });
+            if (!hasFriends) { list.innerHTML = '<p style="text-align:center; color:gray; padding:10px;">Không có bạn bè nào để thêm.</p>'; }
+            document.getElementById('modal-add-group-members').style.display = 'flex';
+        };
+
+        window.submitAddGroupMembers = async () => {
+            const checkboxes = document.querySelectorAll('.add-member-checkbox:checked');
+            const uidsToAdd = Array.from(checkboxes).map(cb => cb.value);
+            if (uidsToAdd.length === 0) return showToast("Vui lòng chọn ít nhất 1 người!");
+            showLoading("Đang thêm...");
+            try {
+                const groupRef = doc(db, "groups", activeChatTargetId);
+                for(let uid of uidsToAdd) {
+                    await updateDoc(groupRef, { members: arrayUnion(uid) });
+                }
+                document.getElementById('modal-add-group-members').style.display = 'none';
+                showToast("Đã thêm thành viên!");
+            } catch(e) { showToast("Lỗi: " + e.message); }
+            hideLoading();
+        };
+
+        window.deleteGroupChat = async () => {
+            window.showConfirmModal("Giải tán nhóm", "Bạn có chắc chắn muốn xóa nhóm này vĩnh viễn? Mọi tin nhắn sẽ không thể khôi phục.", async () => {
+                showLoading("Đang giải tán nhóm...");
+                try {
+                    await deleteDoc(doc(db, "groups", activeChatTargetId));
+                    showToast("Đã xóa nhóm!");
+                    closeGroupSettings();
+                    closeChatRoom();
+                } catch(e) { showToast("Lỗi: " + e.message); }
+                hideLoading();
+            });
+        };
+
         window.closeChatRoom = () => { if (mediaRecorder && mediaRecorder.state !== 'inactive') cancelVoiceRecording(); document.getElementById('chat-room').style.display = 'none'; document.getElementById('chat-list').style.display = 'block'; document.getElementById('chat-top-actions').style.display = 'flex'; activeChatTargetId = null; if(unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; } if(unsubscribeTyping) { unsubscribeTyping(); unsubscribeTyping = null; } };
         window.handleTyping = () => { if (!currentUserDoc || !activeChatTargetId) return; const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); const typingRef = doc(db, "typing_status", chatId); setDoc(typingRef, { [currentUserDoc.uid]: true }, { merge: true }); clearTimeout(typingTimeout); typingTimeout = setTimeout(() => { setDoc(typingRef, { [currentUserDoc.uid]: false }, { merge: true }); }, 1500); };
-        window.editMessage = async (msgId, oldText) => { window.showPromptModal("Sửa tin nhắn:", unescapeHtml(oldText), async (newText) => { if (newText !== null && newText.trim() !== "" && newText !== unescapeHtml(oldText)) { try { await updateDoc(doc(db, "messages", msgId), { text: newText.trim(), isEdited: true }); showToast("Đã sửa tin nhắn"); } catch(e) { showToast("Lỗi sửa tin: " + e.message); } } }); };
-        window.deleteMessage = async (msgId) => { window.showConfirmModal("Xóa tin nhắn", "Bạn có chắc chắn muốn xóa tin nhắn này? (Chỉ xóa ở phía mọi người)", async () => { try { await deleteDoc(doc(db, "messages", msgId)); showToast("Đã xóa tin nhắn"); } catch(e) { showToast("Lỗi xóa tin: " + e.message); } }); };
+        
+        window.editMessage = async (msgId, oldText) => { 
+            window.showPromptModal("Sửa tin nhắn:", unescapeHtml(oldText), async (newText) => { 
+                if (newText !== null && newText.trim() !== "" && newText !== unescapeHtml(oldText)) { 
+                    try { 
+                        await updateDoc(doc(db, "messages", msgId), { text: newText.trim(), isEdited: true }); 
+                        showToast("Đã sửa tin nhắn"); 
+                    } catch(e) { showToast("Lỗi sửa tin: " + e.message); } 
+                } 
+            }); 
+        };
+        
+        window.deleteMessage = async (msgId) => { 
+            window.showConfirmModal("Xóa tin nhắn", "Bạn có chắc chắn muốn xóa tin nhắn này? (Chỉ xóa ở phía mọi người)", async () => { 
+                try { 
+                    await deleteDoc(doc(db, "messages", msgId)); 
+                    showToast("Đã xóa tin nhắn"); 
+                } catch(e) { showToast("Lỗi xóa tin: " + e.message); } 
+            }); 
+        };
+        
         async function sendMessageData(text = "", mediaUrl = "", mediaType = "text") { if (!currentUserDoc || !activeChatTargetId) return; const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); await addDoc(collection(db, "messages"), { chatId: chatId, senderId: currentUserDoc.uid, senderName: currentUserDoc.displayName || currentUserDoc.username, receiverId: activeChatTargetId, text: text, mediaUrl: mediaUrl, mediaType: mediaType, createdAt: serverTimestamp() }); }
         window.sendChatText = async () => { if (!currentUserDoc || !activeChatTargetId) return; const input = document.getElementById('chat-text'); const text = input.value.trim(); if(!text) return; input.value = ''; const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); setDoc(doc(db, "typing_status", chatId), { [currentUserDoc.uid]: false }, { merge: true }); const box = document.getElementById('chat-messages-box'); const tempBubble = document.createElement('div'); tempBubble.className = 'msg-bubble sent sending'; tempBubble.innerHTML = `<div>${escapeHtml(text)}</div>`; box.appendChild(tempBubble); box.scrollTop = box.scrollHeight; try { await sendMessageData(text, "", "text"); } catch(e) { tempBubble.style.background = '#aa0000'; showToast("Không thể gửi: " + e.message); } };
         window.sendChatFile = async (inputEl) => { if (!currentUserDoc || !activeChatTargetId) return; const file = inputEl.files[0]; if(!file) return; showLoading("Đang nén & gửi tập tin..."); try { let uploadFile = file; if(file.type.startsWith('image/')) uploadFile = await compressImage(file, 800, 0.7); const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia"); const mediaType = file.type.startsWith('video/') ? 'video' : 'image'; await sendMessageData("", mediaUrl, mediaType); } catch(e) { showToast("Lỗi gửi tập tin: " + e.message); } inputEl.value = ''; hideLoading(); };
@@ -1731,6 +2087,380 @@
         window.endCall = async () => { stopRingtone(); if (currentCallId) { try { await updateDoc(doc(db, "calls", currentCallId), { status: 'ended' }); } catch (e) {} } cleanupCall(); };
         function setupCallUI(type, partnerName, partnerAvatar) { document.getElementById('active-call-modal').style.display = 'flex'; document.getElementById('active-call-user-name').innerText = partnerName || 'Người dùng'; document.getElementById('active-call-user-avatar').src = partnerAvatar || 'https://ui-avatars.com/api/?name=User'; const placeholder = document.getElementById('audio-call-avatar-placeholder'); const remoteVideo = document.getElementById('remote-video'); const localVideo = document.getElementById('local-video'); if (type === 'audio') { placeholder.style.display = 'flex'; remoteVideo.style.display = 'none'; localVideo.style.display = 'none'; } else { placeholder.style.display = 'none'; remoteVideo.style.display = 'block'; localVideo.style.display = 'block'; } }
         function cleanupCall() { stopRingtone(); if (unsubscribeCallDoc) { unsubscribeCallDoc(); unsubscribeCallDoc = null; } if (localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; } if (peerConnection) { peerConnection.close(); peerConnection = null; } currentCallId = null; pendingIncomingCallDoc = null; isAudioMuted = false; isVideoMuted = false; document.getElementById('active-call-modal').style.display = 'none'; document.getElementById('incoming-call-modal').style.display = 'none'; }
+
+        /* ========================================================
+           CODE JS CHO TÍNH NĂNG POCKET (STYLE LOCKET)
+           ======================================================== */
+        let pocketStream = null;
+        let pocketFacingMode = 'user';
+        let pocketZoom = 1;
+        let pocketMediaRecorder = null;
+        let pocketChunks = [];
+        let pocketHoldTimer = null;
+        let isPocketRecording = false;
+        
+        let pocketCapturedFile = null;
+        let pocketCapturedType = 'image'; // 'image' hoặc 'video'
+        let pocketHistoryActive = false;
+        let unsubscribePocketFeed = null;
+
+        window.initPocketCamera = async () => {
+            if (pocketHistoryActive) return;
+            const videoEl = document.getElementById('pocket-video-preview');
+            const imgEl = document.getElementById('pocket-image-preview');
+            videoEl.style.display = 'block';
+            imgEl.style.display = 'none';
+            document.getElementById('pocket-controls-main').style.display = 'flex';
+            document.getElementById('pocket-send-area').style.display = 'none';
+            document.getElementById('pocket-overlay').style.display = 'none';
+            
+            pocketCapturedFile = null;
+
+            if (pocketStream) {
+                pocketStream.getTracks().forEach(track => track.stop());
+            }
+            try {
+                pocketStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: pocketFacingMode, width: { ideal: 1080 }, height: { ideal: 1080 } },
+                    audio: true
+                });
+                videoEl.srcObject = pocketStream;
+                videoEl.style.transform = `scale(${pocketZoom})`;
+            } catch (err) {
+                console.warn("Pocket Camera Error:", err);
+                showToast("Không thể kết nối Camera!");
+            }
+        };
+
+        window.stopPocketCamera = () => {
+            if (pocketStream) {
+                pocketStream.getTracks().forEach(track => track.stop());
+                pocketStream = null;
+            }
+        };
+
+        window.switchPocketCamera = () => {
+            pocketFacingMode = pocketFacingMode === 'user' ? 'environment' : 'user';
+            initPocketCamera();
+        };
+
+        window.togglePocketZoom = () => {
+            pocketZoom = pocketZoom === 1 ? 2 : 1;
+            document.getElementById('pocket-video-preview').style.transform = `scale(${pocketZoom})`;
+            document.getElementById('pocket-zoom-btn').innerText = `${pocketZoom}x`;
+        };
+
+        window.startPocketHold = (e) => {
+            if (e && e.type === 'touchstart') e.preventDefault();
+            pocketHoldTimer = setTimeout(() => {
+                startPocketVideoRecord();
+            }, 400); // Giữ 400ms thì quay video
+        };
+
+        window.endPocketHold = (e) => {
+            if (e && e.type === 'touchend') e.preventDefault();
+            if (isPocketRecording) {
+                stopPocketVideoRecord();
+            } else {
+                clearTimeout(pocketHoldTimer);
+                capturePocketPhoto();
+            }
+        };
+
+        window.cancelPocketHold = () => {
+            clearTimeout(pocketHoldTimer);
+            if (isPocketRecording) stopPocketVideoRecord();
+        };
+
+        function capturePocketPhoto() {
+            if (!pocketStream) return;
+            document.getElementById('pocket-overlay').style.display = 'flex';
+            setTimeout(() => { document.getElementById('pocket-overlay').style.display = 'none'; }, 100);
+
+            const videoEl = document.getElementById('pocket-video-preview');
+            const canvas = document.createElement('canvas');
+            const size = Math.min(videoEl.videoWidth, videoEl.videoHeight);
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Xử lý lật ảnh nếu dùng cam trước
+            if (pocketFacingMode === 'user') {
+                ctx.translate(size, 0);
+                ctx.scale(-1, 1);
+            }
+            
+            // Cắt giữa khung hình, kết hợp zoom
+            const sWidth = size / pocketZoom;
+            const sHeight = size / pocketZoom;
+            const sx = (videoEl.videoWidth - sWidth) / 2;
+            const sy = (videoEl.videoHeight - sHeight) / 2;
+
+            ctx.drawImage(videoEl, sx, sy, sWidth, sHeight, 0, 0, size, size);
+
+            canvas.toBlob((blob) => {
+                pocketCapturedFile = new File([blob], `pocket_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                pocketCapturedType = 'image';
+                showPocketPreviewMode(URL.createObjectURL(blob), 'image');
+            }, 'image/jpeg', 0.85);
+        }
+
+        function startPocketVideoRecord() {
+            if (!pocketStream) return;
+            isPocketRecording = true;
+            document.getElementById('pocket-capture-btn').classList.add('recording');
+            document.getElementById('pocket-rec-indicator').style.display = 'flex';
+            pocketChunks = [];
+            
+            try {
+                pocketMediaRecorder = new MediaRecorder(pocketStream, { mimeType: 'video/webm' });
+            } catch (e) {
+                pocketMediaRecorder = new MediaRecorder(pocketStream); // Fallback
+            }
+
+            pocketMediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) pocketChunks.push(e.data);
+            };
+            pocketMediaRecorder.start();
+        }
+
+        function stopPocketVideoRecord() {
+            if (!pocketMediaRecorder || pocketMediaRecorder.state === 'inactive') return;
+            isPocketRecording = false;
+            document.getElementById('pocket-capture-btn').classList.remove('recording');
+            document.getElementById('pocket-rec-indicator').style.display = 'none';
+            
+            pocketMediaRecorder.onstop = () => {
+                const blob = new Blob(pocketChunks, { type: pocketMediaRecorder.mimeType });
+                pocketCapturedFile = new File([blob], `pocket_${Date.now()}.webm`, { type: blob.type });
+                pocketCapturedType = 'video';
+                showPocketPreviewMode(URL.createObjectURL(blob), 'video');
+            };
+            pocketMediaRecorder.stop();
+        }
+
+        window.handlePocketUpload = (inputEl) => {
+            const file = inputEl.files[0];
+            if (!file) return;
+            pocketCapturedFile = file;
+            pocketCapturedType = file.type.startsWith('video/') ? 'video' : 'image';
+            showPocketPreviewMode(URL.createObjectURL(file), pocketCapturedType);
+            inputEl.value = '';
+        };
+
+        function showPocketPreviewMode(url, type) {
+            stopPocketCamera(); // Tạm tắt cam để tiết kiệm tài nguyên
+            document.getElementById('pocket-controls-main').style.display = 'none';
+            document.getElementById('pocket-send-area').style.display = 'flex';
+            
+            const videoEl = document.getElementById('pocket-video-preview');
+            const imgEl = document.getElementById('pocket-image-preview');
+            
+            videoEl.style.transform = 'scale(1)'; // Reset zoom preview
+
+            if (type === 'video') {
+                imgEl.style.display = 'none';
+                videoEl.style.display = 'block';
+                videoEl.srcObject = null;
+                videoEl.src = url;
+                videoEl.loop = true;
+                videoEl.play();
+            } else {
+                videoEl.style.display = 'none';
+                imgEl.style.display = 'block';
+                imgEl.src = url;
+            }
+        }
+
+        window.resetPocketCamera = () => {
+            document.getElementById('pocket-caption').value = '';
+            initPocketCamera();
+        };
+
+        window.openPocketFriendsModal = () => {
+            window.populateFriendsSelector('pocket-friends-selector');
+            document.getElementById('modal-pocket-friends').style.display = 'flex';
+        };
+
+        window.sendPocket = async (target) => {
+            if (!currentUserDoc || !pocketCapturedFile) return;
+            
+            let allowedFriends = [];
+            if (target === 'selected') {
+                const checkedBoxes = document.querySelectorAll('.pocket-friends-selector-checkbox:checked');
+                allowedFriends = Array.from(checkedBoxes).map(cb => cb.value);
+                if (allowedFriends.length === 0) {
+                    showToast("Vui lòng chọn ít nhất 1 người bạn!");
+                    return;
+                }
+                document.getElementById('modal-pocket-friends').style.display = 'none';
+            } else {
+                // Gửi tất cả bạn bè đang có
+                const myFriends = (currentUserDoc.followers || []).filter(uid => (currentUserDoc.following || []).includes(uid));
+                allowedFriends = myFriends;
+                if(allowedFriends.length === 0) {
+                    showToast("Bạn chưa có bạn bè nào!");
+                    return;
+                }
+            }
+
+            const caption = document.getElementById('pocket-caption').value.trim();
+            showLoading("Đang gửi Pocket...");
+
+            try {
+                let mediaUrl = "";
+                if (pocketCapturedType === 'image') {
+                    let uploadFile = await compressImage(pocketCapturedFile, 1080, 0.8);
+                    mediaUrl = await uploadFileToStorage(uploadFile, "pockets");
+                } else {
+                    mediaUrl = await uploadFileToStorage(pocketCapturedFile, "pockets");
+                }
+
+                await addDoc(collection(db, "pockets"), {
+                    authorUid: currentUserDoc.uid,
+                    authorName: currentUserDoc.displayName || currentUserDoc.username,
+                    authorAvatar: currentUserDoc.avatar,
+                    mediaUrl: mediaUrl,
+                    mediaType: pocketCapturedType,
+                    caption: caption,
+                    allowedFriends: allowedFriends,
+                    comments: [],
+                    createdAt: serverTimestamp()
+                });
+
+                showToast("Đã gửi Pocket thành công!");
+                resetPocketCamera();
+                togglePocketView(); // Tự động chuyển qua xem lịch sử sau khi gửi
+            } catch (err) {
+                showToast("Lỗi gửi Pocket: " + err.message);
+            }
+            hideLoading();
+        };
+
+        window.togglePocketView = () => {
+            pocketHistoryActive = !pocketHistoryActive;
+            const camView = document.getElementById('pocket-camera-view');
+            const histView = document.getElementById('pocket-history-view');
+            const toggleBtn = document.getElementById('pocket-view-toggle');
+
+            if (pocketHistoryActive) {
+                stopPocketCamera();
+                camView.style.display = 'none';
+                histView.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="fa-solid fa-camera"></i> Camera';
+            } else {
+                camView.style.display = 'block';
+                histView.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="fa-solid fa-clock-rotate-left"></i> Lịch sử';
+                initPocketCamera();
+            }
+        };
+
+        function listenPocketFeed() {
+            const q = query(collection(db, "pockets"));
+            unsubscribePocketFeed = onSnapshot(q, (snapshot) => {
+                const list = document.getElementById('pocket-feed-list');
+                if(!list) return;
+                let pockets = [];
+                const currentUid = currentUserDoc ? currentUserDoc.uid : null;
+                
+                snapshot.forEach(docSnap => {
+                    const p = docSnap.data();
+                    const isAuthor = p.authorUid === currentUid;
+                    let canView = false;
+                    
+                    if (isAuthor || (p.allowedFriends && p.allowedFriends.includes(currentUid))) {
+                        canView = true;
+                    }
+
+                    if (canView) { pockets.push({ id: docSnap.id, ...p }); }
+                });
+
+                pockets.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt || 0);
+                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt || 0);
+                    return timeB - timeA;
+                });
+
+                list.innerHTML = '';
+                if(pockets.length === 0) {
+                    list.innerHTML = '<div style="text-align:center; margin-top:50px; color:var(--text-secondary);">Chưa có Pocket nào. Gửi ngay cho bạn bè!</div>';
+                    return;
+                }
+
+                pockets.forEach(p => {
+                    const isAuthor = p.authorUid === currentUid;
+                    let mediaHtml = p.mediaType === 'video' 
+                        ? `<video src="${p.mediaUrl}" autoplay loop muted playsinline class="pocket-feed-media" onclick="this.muted = !this.muted"></video>`
+                        : `<img src="${p.mediaUrl}" class="pocket-feed-media" loading="lazy">`;
+                    
+                    let commentsHtml = (p.comments || []).map(c => `
+                        <div class="pocket-comment-row">
+                            <strong style="cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}:</strong>
+                            <span>${escapeHtml(c.text)}</span>
+                        </div>
+                    `).join('');
+
+                    list.innerHTML += `
+                        <div class="pocket-feed-item">
+                            <div class="pocket-feed-header">
+                                <div class="pocket-feed-user" onclick="viewUserProfile('${p.authorUid}')">
+                                    <img src="${p.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="pocket-feed-avatar">
+                                    <div style="display:flex; flex-direction:column;">
+                                        <strong style="font-size:0.95rem;">${escapeHtml(p.authorName)}</strong>
+                                        <span style="font-size:0.75rem; color:var(--text-secondary);">${timeAgo(p.createdAt)}</span>
+                                    </div>
+                                </div>
+                                ${isAuthor ? `<button onclick="deletePocket('${p.id}')" style="background:none; border:none; color:var(--danger-red); font-size:1.1rem;"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            </div>
+                            
+                            ${mediaHtml}
+                            
+                            ${p.caption ? `<div class="pocket-feed-caption">${escapeHtml(p.caption)}</div>` : ''}
+                            
+                            <div class="pocket-comments">
+                                <div id="pocket-comments-list-${p.id}">
+                                    ${commentsHtml}
+                                </div>
+                                <div class="pocket-comment-input-area">
+                                    <input type="text" class="pocket-comment-input" placeholder="Trả lời Pocket..." onkeypress="if(event.key==='Enter') addPocketComment('${p.id}', this)">
+                                    <button onclick="addPocketComment('${p.id}', this)" style="background:transparent; border:none; color:var(--text-primary); font-size:1.2rem;"><i class="fa-solid fa-paper-plane"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.deletePocket = async (id) => {
+            window.showConfirmModal("Xóa Pocket", "Bạn chắc chắn muốn xóa Pocket này?", async () => {
+                showLoading("Đang xóa...");
+                try {
+                    await deleteDoc(doc(db, "pockets", id));
+                    showToast("Đã xóa Pocket!");
+                } catch(e) { showToast("Lỗi: " + e.message); }
+                hideLoading();
+            });
+        };
+
+        window.addPocketComment = async (id, el) => {
+            if (!currentUserDoc) return;
+            const input = el.tagName === 'INPUT' ? el : el.parentElement.querySelector('input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            
+            const commentObj = {
+                uid: currentUserDoc.uid,
+                name: currentUserDoc.displayName || currentUserDoc.username,
+                text: text,
+                createdAt: Date.now()
+            };
+            try {
+                await updateDoc(doc(db, "pockets", id), { comments: arrayUnion(commentObj) });
+            } catch (e) { showToast("Lỗi gửi bình luận: " + e.message); }
+        };
 
     </script>
 </body>
