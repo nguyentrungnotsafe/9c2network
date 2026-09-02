@@ -286,27 +286,66 @@
         .pocket-send-btn:hover { background: #fbc02d; color: #000; }
 
         /* Giao diện Lịch sử Pocket (Feed) */
-        #pocket-history-view { display: none; }
+        #pocket-history-view { 
+            display: none; 
+            height: calc(100vh - 160px); 
+            overflow-y: scroll; 
+            scroll-snap-type: y mandatory; 
+            scrollbar-width: none; 
+        }
+        #pocket-history-view::-webkit-scrollbar { display: none; }
+        
         .pocket-feed-item {
-            margin-bottom: 30px;
+            height: 100%;
+            scroll-snap-align: center;
+            scroll-snap-stop: always;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            margin-bottom: 0;
         }
         .pocket-feed-header {
+            flex-shrink: 0;
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
         }
         .pocket-feed-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .pocket-feed-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--border-color); object-fit: cover; }
         .pocket-feed-media {
-            width: 100%; aspect-ratio: 1/1; border-radius: 24px; object-fit: cover; border: 1px solid var(--border-color);
+            width: 100%; aspect-ratio: 1/1; max-height: 55vh; border-radius: 24px; object-fit: cover; border: 1px solid var(--border-color); margin: 0 auto; flex-shrink: 0;
         }
         .pocket-feed-caption {
+            flex-shrink: 0;
             text-align: center; font-weight: 600; font-size: 1.1rem; margin-top: 12px; margin-bottom: 10px;
         }
         .pocket-comments {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             background: var(--bg-card); border-radius: 16px; padding: 12px; border: 1px solid var(--border-color);
         }
+        .pocket-comments-list {
+            flex: 1;
+            overflow-y: auto;
+        }
         .pocket-comment-row { display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; align-items: flex-start; }
-        .pocket-comment-input-area { display: flex; gap: 8px; margin-top: 10px; }
+        .pocket-comment-input-area { flex-shrink: 0; display: flex; gap: 8px; margin-top: 10px; }
         .pocket-comment-input { flex: 1; background: var(--bg-input); border: none; padding: 8px 12px; border-radius: 20px; color: white; outline: none; font-size: 0.9rem; }
+        
+        .pocket-progress-ring {
+            position: absolute;
+            top: -4px; left: -4px;
+            width: calc(100% + 8px); height: calc(100% + 8px);
+            transform: rotate(-90deg);
+            pointer-events: none;
+            display: none;
+        }
+        .pocket-progress-ring__circle {
+            fill: transparent;
+            stroke: #ff4444;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
     </style>
 </head>
 <body>
@@ -481,6 +520,9 @@
 
                         <!-- Nút bấm giữ để quay, nhấn để chụp -->
                         <div class="pocket-capture-btn" id="pocket-capture-btn" onmousedown="startPocketHold()" onmouseup="endPocketHold()" onmouseleave="cancelPocketHold()" ontouchstart="startPocketHold(event)" ontouchend="endPocketHold(event)" ontouchcancel="cancelPocketHold()">
+                            <svg class="pocket-progress-ring" viewBox="0 0 83 83">
+                                <circle class="pocket-progress-ring__circle" cx="41.5" cy="41.5" r="39.5" style="stroke-dasharray: 248.18; stroke-dashoffset: 248.18;"></circle>
+                            </svg>
                             <div class="pocket-capture-inner"></div>
                         </div>
 
@@ -2103,6 +2145,10 @@
         let pocketCapturedType = 'image'; // 'image' hoặc 'video'
         let pocketHistoryActive = false;
         let unsubscribePocketFeed = null;
+        
+        let pocketRecordInterval = null;
+        let pocketRecordStartTime = 0;
+        const POCKET_MAX_RECORD_TIME = 30000;
 
         window.initPocketCamera = async () => {
             if (pocketHistoryActive) return;
@@ -2115,6 +2161,7 @@
             document.getElementById('pocket-overlay').style.display = 'none';
             
             pocketCapturedFile = null;
+            videoEl.muted = true;
 
             if (pocketStream) {
                 pocketStream.getTracks().forEach(track => track.stop());
@@ -2212,6 +2259,22 @@
             document.getElementById('pocket-rec-indicator').style.display = 'flex';
             pocketChunks = [];
             
+            const ring = document.querySelector('.pocket-progress-ring');
+            const circle = document.querySelector('.pocket-progress-ring__circle');
+            ring.style.display = 'block';
+            circle.style.strokeDashoffset = '248.18';
+            pocketRecordStartTime = Date.now();
+            
+            pocketRecordInterval = setInterval(() => {
+                const elapsed = Date.now() - pocketRecordStartTime;
+                let percent = elapsed / POCKET_MAX_RECORD_TIME;
+                if (percent >= 1) {
+                    percent = 1;
+                    endPocketHold();
+                }
+                circle.style.strokeDashoffset = 248.18 - (248.18 * percent);
+            }, 50);
+
             try {
                 pocketMediaRecorder = new MediaRecorder(pocketStream, { mimeType: 'video/webm' });
             } catch (e) {
@@ -2229,6 +2292,9 @@
             isPocketRecording = false;
             document.getElementById('pocket-capture-btn').classList.remove('recording');
             document.getElementById('pocket-rec-indicator').style.display = 'none';
+            
+            clearInterval(pocketRecordInterval);
+            document.querySelector('.pocket-progress-ring').style.display = 'none';
             
             pocketMediaRecorder.onstop = () => {
                 const blob = new Blob(pocketChunks, { type: pocketMediaRecorder.mimeType });
@@ -2263,6 +2329,7 @@
                 videoEl.style.display = 'block';
                 videoEl.srcObject = null;
                 videoEl.src = url;
+                videoEl.muted = false;
                 videoEl.loop = true;
                 videoEl.play();
             } else {
@@ -2419,7 +2486,7 @@
                             ${p.caption ? `<div class="pocket-feed-caption">${escapeHtml(p.caption)}</div>` : ''}
                             
                             <div class="pocket-comments">
-                                <div id="pocket-comments-list-${p.id}">
+                                <div class="pocket-comments-list" id="pocket-comments-list-${p.id}">
                                     ${commentsHtml}
                                 </div>
                                 <div class="pocket-comment-input-area">
