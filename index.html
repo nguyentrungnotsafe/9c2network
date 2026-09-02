@@ -40,7 +40,7 @@
         .page { display: none; animation: fadeIn 0.2s ease-in-out; } .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; gap: 10px; padding: 10px 0; z-index: 100; }
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; background: var(--bg-main); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; gap: 10px; padding: 10px 0; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 0.75rem; border: none; background: none; padding: 5px 10px; }
         .nav-item.active { color: var(--text-primary); }
         .nav-item i { font-size: 1.2rem; }
@@ -239,9 +239,10 @@
         /* Các nút điều khiển nằm ngoài Camera */
         .pocket-controls-row {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             padding: 10px 0 20px;
+            gap: 20px;
         }
         .pocket-btn-circle {
             width: 45px; height: 45px;
@@ -525,7 +526,7 @@
 
                         <button class="pocket-btn-circle" onclick="switchPocketCamera()" title="Đổi Camera"><i class="fa-solid fa-rotate"></i></button>
                         
-                        <div style="width: 45px;"></div> <!-- Spacer -->
+                        <div style="width: 45px; height: 45px;"></div> <!-- Spacer để cân bằng với nút Zoom và Upload bên trái, giữ nút chụp ở chính giữa -->
                     </div>
 
                     <div class="pocket-send-area" id="pocket-send-area">
