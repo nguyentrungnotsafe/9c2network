@@ -2462,12 +2462,19 @@
                         ? `<video src="${p.mediaUrl}" autoplay loop muted playsinline class="pocket-feed-media" onclick="this.muted = !this.muted"></video>`
                         : `<img src="${p.mediaUrl}" class="pocket-feed-media" loading="lazy">`;
                     
-                    let commentsHtml = (p.comments || []).map(c => `
-                        <div class="pocket-comment-row">
-                            <strong style="cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}:</strong>
-                            <span>${escapeHtml(c.text)}</span>
+                    let commentsHtml = (p.comments || []).map(c => {
+                        const isCommentAuthor = currentUid && c.uid === currentUid;
+                        const canDelete = isCommentAuthor || isAuthor;
+                        return `
+                        <div class="pocket-comment-row" style="justify-content: space-between;">
+                            <div>
+                                <strong style="cursor:pointer;" onclick="viewUserProfile('${c.uid}')">${escapeHtml(c.name)}:</strong>
+                                <span>${escapeHtml(c.text)}</span>
+                            </div>
+                            ${canDelete ? `<button onclick="deletePocketComment('${p.id}', '${c.uid}', ${c.createdAt})" style="background:none; border:none; color:var(--danger-red); font-size:0.8rem; padding:0 5px;" title="Xóa bình luận"><i class="fa-solid fa-trash"></i></button>` : ''}
                         </div>
-                    `).join('');
+                        `;
+                    }).join('');
 
                     list.innerHTML += `
                         <div class="pocket-feed-item">
@@ -2558,6 +2565,28 @@
             try {
                 await updateDoc(doc(db, "pockets", id), { comments: arrayUnion(commentObj) });
             } catch (e) { showToast("Lỗi gửi bình luận: " + e.message); }
+        };
+
+        window.deletePocketComment = async (pocketId, uid, createdAt) => {
+            if (!currentUserDoc) return;
+            window.showConfirmModal("Xóa bình luận", "Bạn có chắc chắn muốn xóa bình luận này không?", async () => {
+                showLoading("Đang xóa...");
+                try {
+                    const pocketRef = doc(db, "pockets", pocketId);
+                    const pocketSnap = await getDoc(pocketRef);
+                    if (pocketSnap.exists()) {
+                        const pocketData = pocketSnap.data();
+                        const commentToDelete = (pocketData.comments || []).find(c => c.uid === uid && c.createdAt === Number(createdAt));
+                        if (commentToDelete) {
+                            await updateDoc(pocketRef, { comments: arrayRemove(commentToDelete) });
+                            showToast("Đã xóa bình luận!");
+                        } else {
+                            showToast("Không tìm thấy bình luận cần xóa.");
+                        }
+                    }
+                } catch(e) { showToast("Lỗi xóa bình luận: " + e.message); }
+                hideLoading();
+            });
         };
 
     </script>
