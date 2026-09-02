@@ -1663,15 +1663,30 @@
                         else { mediaHtml = `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`; } 
                     } 
                     
-                    const senderNameHtml = (activeChatType === 'group' && !isMe) ? `<div class="msg-sender-name" style="cursor:pointer;" onclick="viewUserProfile('${m.senderId}')">${escapeHtml(m.senderName || 'Thành viên')}</div>` : ''; 
-                    
                     let optionsHtml = ''; 
                     if (canEditDelete) { 
                         optionsHtml = ` <div class="msg-options"> ${!m.mediaUrl ? `<button class="msg-btn" onclick="editMessage('${m.id}', '${escapeHtml(m.text || '')}')" title="Sửa"><i class="fa-solid fa-pen"></i></button>` : ''} <button class="msg-btn" style="color: #ff4444;" onclick="deleteMessage('${m.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button> </div> `; 
                     } 
                     
                     const editedMark = m.isEdited ? `<span style="font-size:0.7rem; opacity:0.6; margin-left:5px;">(đã sửa)</span>` : ''; 
-                    box.innerHTML += ` <div class="msg-bubble ${isMe ? 'sent' : 'received'}"> ${optionsHtml} ${senderNameHtml} ${m.text ? `<div>${escapeHtml(m.text)} ${editedMark}</div>` : ''} ${mediaHtml} </div> `; 
+                    
+                    if (!isMe && activeChatType === 'group') {
+                        const senderAvatar = usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User';
+                        box.innerHTML += `
+                            <div style="align-self: flex-start; max-width: 85%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px;">
+                                <img src="${senderAvatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; cursor:pointer; border: 1px solid var(--border-color);" onclick="viewUserProfile('${m.senderId}')" loading="lazy">
+                                <div style="display: flex; flex-direction: column; align-items: flex-start; max-width: calc(100% - 36px);">
+                                    <span style="font-size: 0.75rem; color: var(--text-secondary); margin-left: 5px; margin-bottom: 3px; cursor:pointer;" onclick="viewUserProfile('${m.senderId}')">${escapeHtml(m.senderName || 'Thành viên')}</span>
+                                    <div class="msg-bubble received" style="max-width: 100%; margin: 0;"> 
+                                        ${m.text ? `<div>${escapeHtml(m.text)} ${editedMark}</div>` : ''} 
+                                        ${mediaHtml} 
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        box.innerHTML += ` <div class="msg-bubble ${isMe ? 'sent' : 'received'}"> ${optionsHtml} ${m.text ? `<div>${escapeHtml(m.text)} ${editedMark}</div>` : ''} ${mediaHtml} </div> `; 
+                    }
                 }); 
                 setTimeout(() => { box.scrollTop = box.scrollHeight; }, 30); 
             }, (err) => console.error("Message room error:", err)); 
