@@ -46,11 +46,11 @@
         .nav-item i { font-size: 1.2rem; }
         .nav-badge { background: var(--danger-red); color: white; border-radius: 50%; font-size: 0.6rem; font-weight: bold; padding: 2px 5px; position: absolute; top: -2px; right: 5px; display: none; }
 
-        /* Styles cho Avatar và Online Indicator */
-        .avatar-wrapper { position: relative; display: inline-block; flex-shrink: 0; }
-        .online-dot { position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px; background-color: #25d366; border: 2px solid var(--bg-card); border-radius: 50%; z-index: 2; display: none; }
+        /* Styles cho Avatar và Online Indicator (Đã tối ưu cho Điện thoại) */
+        .avatar-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .online-dot { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background-color: #25d366; border: 2px solid var(--bg-card); border-radius: 50%; z-index: 10; display: none; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
         .online-dot.active { display: block; }
-        .online-dot-large { bottom: 5px; right: 10px; width: 14px; height: 14px; border-width: 3px; }
+        .online-dot-large { bottom: 4px; right: 4px; width: 18px; height: 18px; border-width: 3px; }
 
         .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -697,7 +697,7 @@
             `;
         };
 
-        // --- CẬP NHẬT TRẠNG THÁI HOẠT ĐỘNG (ONLINE STATUS) ---
+        // --- CẬP NHẬT TRẠNG THÁI HOẠT ĐỘNG (ONLINE STATUS) ĐÃ TỐI ƯU ---
         async function setOnlineStatus(isOnline) {
             if (auth.currentUser) {
                 try {
@@ -705,11 +705,18 @@
                 } catch(e) { console.warn("Lỗi cập nhật trạng thái hoạt động:", e); }
             }
         }
+        
+        // Theo dõi trên PC
         window.addEventListener('beforeunload', () => setOnlineStatus(false));
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') setOnlineStatus(true);
             else setOnlineStatus(false);
         });
+
+        // Tối ưu để bắt trạng thái chuẩn hơn cho các trình duyệt trên Điện Thoại
+        window.addEventListener('pagehide', () => setOnlineStatus(false));
+        window.addEventListener('focus', () => setOnlineStatus(true));
+        window.addEventListener('blur', () => setOnlineStatus(false));
 
         // --- CÁC HÀM XỬ LÝ MODAL GENERIC ---
         window.genericConfirmCallback = null;
@@ -912,7 +919,7 @@
                     <div class="story-item ${allViewed ? 'viewed' : ''}" onclick="openStoryViewer('${uid}')">
                         <div class="story-avatar-container">
                             <img src="${author.authorAvatar || 'https://ui-avatars.com/api/?name=User'}" class="story-avatar">
-                            ${isOnline ? '<div class="online-dot active" style="right: 5px; bottom: 5px;"></div>' : ''}
+                            ${isOnline ? '<div class="online-dot active" style="right: 2px; bottom: 2px;"></div>' : ''}
                         </div>
                         <span class="story-name">${escapeHtml(author.authorName)}</span>
                     </div>
