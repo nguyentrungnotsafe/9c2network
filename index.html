@@ -2149,6 +2149,7 @@
         let pocketRecordInterval = null;
         let pocketRecordStartTime = 0;
         const POCKET_MAX_RECORD_TIME = 30000;
+        let pocketVideoObserver = null;
 
         window.initPocketCamera = async () => {
             if (pocketHistoryActive) return;
@@ -2497,7 +2498,37 @@
                         </div>
                     `;
                 });
+                
+                // Cập nhật Observer để dừng video khi lướt qua
+                setTimeout(setupPocketVideoObserver, 50);
             });
+        }
+
+        function setupPocketVideoObserver() {
+            if (pocketVideoObserver) {
+                pocketVideoObserver.disconnect();
+            }
+
+            // Theo dõi vị trí của video trong vùng cuộn
+            pocketVideoObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target;
+                    if (entry.isIntersecting) {
+                        // Nếu video hiển thị > 60% trên màn hình -> Phát
+                        video.play().catch(e => console.warn("Autoplay bị chặn", e));
+                    } else {
+                        // Nếu video bị lướt qua -> Tạm dừng
+                        video.pause();
+                    }
+                });
+            }, {
+                root: document.getElementById('pocket-history-view'),
+                threshold: 0.6 // Tỉ lệ 60%
+            });
+
+            // Gắn Observer vào tất cả các video trong luồng Pocket
+            const videos = document.querySelectorAll('#pocket-history-view video.pocket-feed-media');
+            videos.forEach(vid => pocketVideoObserver.observe(vid));
         }
 
         window.deletePocket = async (id) => {
