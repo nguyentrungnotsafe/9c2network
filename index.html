@@ -332,19 +332,18 @@
         .pocket-comment-input-area { flex-shrink: 0; display: flex; gap: 8px; margin-top: 10px; }
         .pocket-comment-input { flex: 1; background: var(--bg-input); border: none; padding: 8px 12px; border-radius: 20px; color: white; outline: none; font-size: 0.9rem; }
         
-        .pocket-progress-ring {
+        .pocket-frame-progress-overlay {
             position: absolute;
-            top: -4px; left: -4px;
-            width: calc(100% + 8px); height: calc(100% + 8px);
-            transform: rotate(-90deg);
+            inset: 0;
+            border-radius: 22px;
+            padding: 5px; /* Độ dày của viền tiến trình */
+            background: conic-gradient(#ff4444 var(--pocket-progress, 0%), transparent 0);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: 10;
             pointer-events: none;
             display: none;
-        }
-        .pocket-progress-ring__circle {
-            fill: transparent;
-            stroke: #ff4444;
-            stroke-width: 4;
-            stroke-linecap: round;
         }
     </style>
 </head>
@@ -508,6 +507,7 @@
                         <img id="pocket-image-preview" style="display: none;">
                         <div class="pocket-recording-indicator" id="pocket-rec-indicator"><div class="dot"></div> REC</div>
                         <div class="pocket-overlay" id="pocket-overlay"><i class="fa-solid fa-check" style="font-size:3rem; color:var(--accent-white);"></i></div>
+                        <div class="pocket-frame-progress-overlay" id="pocket-frame-progress"></div>
                     </div>
 
                     <div class="pocket-controls-row" id="pocket-controls-main">
@@ -520,9 +520,6 @@
 
                         <!-- Nút bấm giữ để quay, nhấn để chụp -->
                         <div class="pocket-capture-btn" id="pocket-capture-btn" onmousedown="startPocketHold()" onmouseup="endPocketHold()" onmouseleave="cancelPocketHold()" ontouchstart="startPocketHold(event)" ontouchend="endPocketHold(event)" ontouchcancel="cancelPocketHold()">
-                            <svg class="pocket-progress-ring" viewBox="0 0 83 83">
-                                <circle class="pocket-progress-ring__circle" cx="41.5" cy="41.5" r="39.5" style="stroke-dasharray: 248.18; stroke-dashoffset: 248.18;"></circle>
-                            </svg>
                             <div class="pocket-capture-inner"></div>
                         </div>
 
@@ -2260,10 +2257,9 @@
             document.getElementById('pocket-rec-indicator').style.display = 'flex';
             pocketChunks = [];
             
-            const ring = document.querySelector('.pocket-progress-ring');
-            const circle = document.querySelector('.pocket-progress-ring__circle');
-            ring.style.display = 'block';
-            circle.style.strokeDashoffset = '248.18';
+            const frameProgress = document.getElementById('pocket-frame-progress');
+            frameProgress.style.display = 'block';
+            frameProgress.style.setProperty('--pocket-progress', '0%');
             pocketRecordStartTime = Date.now();
             
             pocketRecordInterval = setInterval(() => {
@@ -2273,8 +2269,8 @@
                     percent = 1;
                     endPocketHold();
                 }
-                circle.style.strokeDashoffset = 248.18 - (248.18 * percent);
-            }, 50);
+                frameProgress.style.setProperty('--pocket-progress', (percent * 100) + '%');
+            }, 30);
 
             try {
                 pocketMediaRecorder = new MediaRecorder(pocketStream, { mimeType: 'video/webm' });
@@ -2295,7 +2291,7 @@
             document.getElementById('pocket-rec-indicator').style.display = 'none';
             
             clearInterval(pocketRecordInterval);
-            document.querySelector('.pocket-progress-ring').style.display = 'none';
+            document.getElementById('pocket-frame-progress').style.display = 'none';
             
             pocketMediaRecorder.onstop = () => {
                 const blob = new Blob(pocketChunks, { type: pocketMediaRecorder.mimeType });
