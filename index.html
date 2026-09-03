@@ -529,7 +529,7 @@
 
                             <div id="normal-chat-controls" style="display: flex; width: 100%; gap: 8px; align-items: center;">
                                 <label for="chat-file" style="cursor: pointer; font-size: 1.2rem; padding: 5px;"><i class="fa-solid fa-paperclip"></i></label>
-                                <input type="file" id="chat-file" style="display: none;" onchange="sendChatFile(this)">
+                                <input type="file" id="chat-file" multiple style="display: none;" onchange="sendChatFile(this)">
                                 
                                 <button onclick="startVoiceRecording()" style="border: none; background: none; font-size: 1.2rem; padding: 5px; color: var(--text-primary);" title="Gửi bản ghi âm">
                                     <i class="fa-solid fa-microphone"></i>
@@ -2342,25 +2342,30 @@
         
         window.sendChatFile = async (inputEl) => { 
             if (!currentUserDoc || !activeChatTargetId) return; 
-            const file = inputEl.files[0]; if(!file) return; 
-            showLoading("Đang tải lên..."); 
+            const files = inputEl.files; 
+            if(files.length === 0) return; 
+            
+            showLoading(`Đang xử lý ${files.length} tệp...`); 
             try { 
-                let uploadFile = file; 
-                let mediaType = 'file';
-                
-                if (file.type.startsWith('image/')) {
-                    uploadFile = await compressImage(file, 800, 0.7); 
-                    mediaType = 'image';
-                } else if (file.type.startsWith('video/')) {
-                    mediaType = 'video';
-                } else if (file.type.startsWith('audio/')) {
-                    mediaType = 'audio';
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    let uploadFile = file; 
+                    let mediaType = 'file';
+                    
+                    if (file.type.startsWith('image/')) {
+                        uploadFile = await compressImage(file, 800, 0.7); 
+                        mediaType = 'image';
+                    } else if (file.type.startsWith('video/')) {
+                        mediaType = 'video';
+                    } else if (file.type.startsWith('audio/')) {
+                        mediaType = 'audio';
+                    }
+                    
+                    const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia"); 
+                    const textMsg = mediaType === 'file' ? file.name : "";
+                    await sendMessageData(textMsg, mediaUrl, mediaType); 
                 }
-                
-                const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia"); 
-                
-                const textMsg = mediaType === 'file' ? file.name : "";
-                await sendMessageData(textMsg, mediaUrl, mediaType); 
+                showToast(`Đã tải lên ${files.length} tệp thành công!`);
             } catch(e) { showToast("Lỗi tải lên: " + e.message); } 
             inputEl.value = ''; hideLoading(); 
         };
