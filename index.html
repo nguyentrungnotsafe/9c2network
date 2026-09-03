@@ -2048,7 +2048,7 @@
                         const senderAvatar = usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User';
                         const senderName = escapeHtml(m.senderName || 'Thành viên');
                         box.innerHTML += `
-                            <div style="align-self: flex-start; max-width: 85%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px;">
+                            <div style="align-self: flex-start; max-width: 85%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px; align-items: flex-start;">
                                 <img src="${senderAvatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; cursor:pointer; border: 1px solid var(--border-color);" onclick="viewUserProfile('${m.senderId}')" loading="lazy">
                                 <div style="display: flex; flex-direction: column; align-items: flex-start; max-width: calc(100% - 36px);">
                                     <span style="font-size: 0.75rem; color: var(--text-secondary); margin-left: 5px; margin-bottom: 3px; cursor:pointer;" onclick="viewUserProfile('${m.senderId}')">${senderName}</span>
@@ -2061,7 +2061,7 @@
                         `;
                     } else {
                         box.innerHTML += `
-                            <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 85%; display: flex; flex-direction: column; margin-bottom: 5px;">
+                            <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 85%; display: flex; flex-direction: column; margin-bottom: 5px; align-items: ${isMe ? 'flex-end' : 'flex-start'};">
                                 <div class="msg-bubble ${isMe ? 'sent' : 'received'}"> 
                                     ${optionsHtml} 
                                     ${m.text ? `${escapeHtml(m.text)} ${editedMark}` : ''} 
@@ -2263,9 +2263,8 @@
             setDoc(doc(db, "typing_status", chatId), { [currentUserDoc.uid]: false }, { merge: true }); 
             const box = document.getElementById('chat-messages-box'); 
             
-            // Sửa phần tạo bong bóng tin nhắn tạm (xoá thẻ div bọc bên trong)
             const tempWrapper = document.createElement('div');
-            tempWrapper.style.cssText = 'align-self: flex-end; max-width: 85%; display: flex; flex-direction: column; margin-bottom: 5px;';
+            tempWrapper.style.cssText = 'align-self: flex-end; max-width: 85%; display: flex; flex-direction: column; margin-bottom: 5px; align-items: flex-end;';
             const tempBubble = document.createElement('div'); 
             tempBubble.className = 'msg-bubble sent sending'; 
             tempBubble.innerHTML = `${escapeHtml(text)}`; 
