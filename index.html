@@ -2022,19 +2022,27 @@
                     
                     let mediaHtml = ''; 
                     if (m.mediaUrl) { 
+                        // Determine if download is allowed (only for cloud storage)
+                        const allowDownload = activeChatTargetId === 'cloud_storage';
+                        const controlsListAttr = allowDownload ? '' : 'controlsList="nodownload"';
+
                         if (m.mediaType === 'audio') { 
-                            mediaHtml = `<div style="margin-top:5px;"><audio src="${m.mediaUrl}" controls></audio></div>`; 
+                            mediaHtml = `<audio src="${m.mediaUrl}" controls ${controlsListAttr} style="margin-top:5px; max-width: 100%;"></audio>`; 
                         } else if (m.mediaType === 'video') { 
-                            mediaHtml = `<div style="margin-top:5px;"><video src="${m.mediaUrl}" controls style="max-width:100%; border-radius:8px;"></video></div>`; 
+                            mediaHtml = `<video src="${m.mediaUrl}" controls ${controlsListAttr} style="width:100%; border-radius:8px; margin-top:5px;"></video>`; 
                         } else if (m.mediaType === 'image') { 
-                            mediaHtml = `<div style="margin-top:5px;"><img src="${m.mediaUrl}" loading="lazy" style="max-width:100%; border-radius:8px;"></div>`; 
+                            mediaHtml = `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`; 
                         } else {
                             mediaHtml = `<div style="margin-top:5px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; gap: 10px;">
                                 <i class="fa-solid fa-file-lines" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
                                 <span style="flex:1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; color: var(--text-secondary);">Tệp đính kèm</span>
                             </div>`;
                         }
-                        mediaHtml += `<div style="margin-top: 5px; text-align: right;"><a href="${m.mediaUrl}" target="_blank" download style="display: inline-block; color: var(--text-primary); font-size: 0.75rem; text-decoration: none; padding: 5px 10px; background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color);"><i class="fa-solid fa-download"></i> Tải về</a></div>`;
+                        
+                        // Thêm nút tải về thủ công nếu đang ở Cloud Storage
+                        if (allowDownload) {
+                            mediaHtml += `<div style="margin-top: 5px; text-align: right;"><a href="${m.mediaUrl}" target="_blank" download style="display: inline-block; color: var(--text-primary); font-size: 0.75rem; text-decoration: none; padding: 5px 10px; background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color);"><i class="fa-solid fa-download"></i> Tải về</a></div>`;
+                        }
                     } 
                     
                     let optionsHtml = ''; 
