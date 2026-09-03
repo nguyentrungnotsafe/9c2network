@@ -6,6 +6,7 @@
     <title>9c2network - Mạng Xã Hội Tối Giản</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
         :root {
             --bg-main: #000000; --bg-card: #0f0f0f; --bg-input: #1a1a1a;
@@ -152,6 +153,17 @@
 
         .member-checkbox-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-bottom: 1px solid var(--border-color); cursor: pointer; }
         .member-checkbox-item input[type="checkbox"] { width: auto; margin-bottom: 0; cursor: pointer; }
+
+        .verified-badge { color: #888888; font-size: 0.85em; margin-left: 4px; }
+        
+        #face-verify-container { display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; max-width: 350px; margin: 0 auto; }
+        #face-video { width: 100%; border-radius: 50%; aspect-ratio: 1/1; object-fit: cover; background: #222; transform: scaleX(-1); border: 4px solid var(--border-color); transition: border-color 0.3s; }
+        #face-video.active-step { border-color: #25d366; }
+        #face-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+        .verify-instruction { font-size: 1.1rem; font-weight: bold; margin-top: 15px; text-align: center; height: 50px; }
+        .verify-progress { display: flex; gap: 10px; margin-top: 10px; }
+        .verify-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--bg-input); border: 1px solid var(--border-color); }
+        .verify-dot.done { background: #25d366; border-color: #25d366; }
 
         #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
         .spinner { border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff; border-radius: 50%; width: 36px; height: 36px; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
@@ -686,6 +698,15 @@
             <input type="text" id="edit-name">
             <label>Tiểu sử:</label>
             <textarea id="edit-bio" rows="2"></textarea>
+            
+            <div style="margin-top: 10px; margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="display: block;">Xác minh danh tính</strong>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);" id="verify-status-text">Chưa xác minh</span>
+                </div>
+                <button id="btn-start-verify" onclick="startFaceVerification()" style="background: var(--bg-input); font-size: 0.85rem;"><i class="fa-solid fa-expand"></i> Xác minh</button>
+            </div>
+
             <label>Đổi Ảnh đại diện:</label>
             <input type="file" id="edit-avatar-file" accept="image/*">
             <label>Đổi Ảnh bìa:</label>
@@ -754,6 +775,28 @@
         </div>
     </div>
 
+    <div id="modal-face-verify" class="modal" style="z-index: 1006;">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px; text-align: center;"><i class="fa-solid fa-face-smile"></i> Xác minh khuôn mặt</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-bottom: 20px;">Hệ thống sẽ quét khuôn mặt của bạn. Một khuôn mặt chỉ được dùng tối đa 2 tài khoản.</p>
+            
+            <div id="face-verify-container">
+                <video id="face-video" autoplay playsinline muted></video>
+                <canvas id="face-canvas"></canvas>
+                <div class="verify-instruction" id="verify-instruction">Đang tải mô hình AI...</div>
+                <div class="verify-progress">
+                    <div class="verify-dot" id="dot-straight"></div>
+                    <div class="verify-dot" id="dot-left"></div>
+                    <div class="verify-dot" id="dot-right"></div>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <button onclick="stopFaceVerification()" style="background: var(--bg-input); border-color: var(--border-color);">Hủy</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, deleteUser, updatePassword, updateEmail, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -806,6 +849,11 @@
         const unescapeHtml = (str) => { const doc = new DOMParser().parseFromString(str, "text/html"); return doc.documentElement.textContent; };
         const formatEmail = (user) => `${user.toLowerCase().trim()}@9c2network.io.vn`;
         
+        window.renderNameWithBadge = (name, isVerified) => {
+            const cleanName = escapeHtml(name || 'Người dùng');
+            return isVerified ? `${cleanName} <i class="fa-solid fa-circle-check verified-badge" title="Đã xác minh"></i>` : cleanName;
+        };
+
         const timeAgo = (timestamp) => {
             if (!timestamp) return 'Vừa xong';
             const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -1335,7 +1383,7 @@
                         <div class="user-info-sm">
                             ${window.getAvatarHtml(p.authorUid, p.authorAvatar, 'avatar-sm', 'cursor:pointer;', `viewUserProfile('${p.authorUid}')`)}
                             <div>
-                                <strong style="display:block; cursor:pointer;" onclick="viewUserProfile('${p.authorUid}')">${escapeHtml(p.authorName || 'Ẩn danh')}</strong>
+                                <strong style="display:block; cursor:pointer;" onclick="viewUserProfile('${p.authorUid}')">${window.renderNameWithBadge(p.authorName, p.authorVerified)}</strong>
                                 <span style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(p.authorUsername || 'user')} • ${timeAgo(p.createdAt)}</span>
                                 ${privacyBtnHtml}
                             </div>
@@ -1786,7 +1834,7 @@
             if (targetUser.isOnline) { onlineDot.classList.add('active'); }
             else { onlineDot.classList.remove('active'); }
 
-            document.getElementById('profile-name').innerText = targetUser.displayName || "--";
+            document.getElementById('profile-name').innerHTML = window.renderNameWithBadge(targetUser.displayName, targetUser.verified);
             document.getElementById('profile-handle').innerText = `@${targetUser.username || "--"}`;
             document.getElementById('profile-bio').innerText = targetUser.bio || "";
             
@@ -1797,6 +1845,18 @@
                 document.getElementById('edit-username').value = targetUser.username || "";
                 document.getElementById('edit-current-password').value = "";
                 document.getElementById('edit-new-password').value = "";
+                
+                // Cập nhật trạng thái nút xác minh
+                const verifyStatus = document.getElementById('verify-status-text');
+                const verifyBtn = document.getElementById('btn-start-verify');
+                if (targetUser.verified) {
+                    verifyStatus.innerHTML = '<span style="color: #25d366;"><i class="fa-solid fa-circle-check"></i> Đã xác minh</span>';
+                    verifyBtn.style.display = 'none';
+                } else {
+                    verifyStatus.innerHTML = 'Chưa xác minh';
+                    verifyBtn.style.display = 'block';
+                }
+
                 actionsContainer.innerHTML = `<button onclick="document.getElementById('modal-edit-profile').style.display='flex'"><i class="fa-solid fa-pen"></i> Chỉnh sửa</button>`;
             } else {
                 let relationHtml = '';
@@ -1902,7 +1962,8 @@
                 snap.forEach(d => updateDoc(doc(db, "posts", d.id), { 
                     authorName: name, 
                     authorAvatar: updates.avatar || currentUserDoc.avatar,
-                    authorUsername: updates.username || currentUserDoc.username
+                    authorUsername: updates.username || currentUserDoc.username,
+                    authorVerified: currentUserDoc.verified || false
                 })); 
                 
                 if (updates.username) currentUserDoc.username = updates.username;
@@ -2957,6 +3018,189 @@
                 hideLoading();
             });
         };
+
+        /* ========================================================
+           CODE JS CHO TÍNH NĂNG XÁC MINH KHUÔN MẶT
+           ======================================================== */
+        let faceStream = null;
+        let faceDetectionInterval = null;
+        let faceModelsLoaded = false;
+        let currentVerifyStep = 'init'; // init, straight, left, right, processing
+        let finalFaceDescriptor = null;
+
+        window.startFaceVerification = async () => {
+            if (currentUserDoc?.verified) return showToast("Tài khoản của bạn đã được xác minh!");
+            
+            document.getElementById('modal-edit-profile').style.display = 'none';
+            document.getElementById('modal-face-verify').style.display = 'flex';
+            
+            const instruction = document.getElementById('verify-instruction');
+            const video = document.getElementById('face-video');
+            
+            // Reset UI
+            document.querySelectorAll('.verify-dot').forEach(d => d.classList.remove('done'));
+            video.classList.remove('active-step');
+            currentVerifyStep = 'init';
+            finalFaceDescriptor = null;
+
+            try {
+                if (!faceModelsLoaded) {
+                    instruction.innerText = "Đang tải mô hình AI (Lần đầu có thể hơi lâu)...";
+                    // Tải model từ raw githubusercontent hoặc unpkg để đảm bảo hoạt động
+                    const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
+                    await Promise.all([
+                        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+                    ]);
+                    faceModelsLoaded = true;
+                }
+
+                instruction.innerText = "Đang mở Camera...";
+                faceStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                video.srcObject = faceStream;
+                
+                video.onloadedmetadata = () => {
+                    video.play();
+                    currentVerifyStep = 'straight';
+                    instruction.innerHTML = "Hãy nhìn <span style='color:#25d366;'>THẲNG</span> vào màn hình";
+                    startFaceDetectionLoop();
+                };
+
+            } catch (err) {
+                console.error(err);
+                instruction.innerText = "Lỗi: Không thể mở Camera hoặc tải AI.";
+            }
+        };
+
+        window.stopFaceVerification = () => {
+            document.getElementById('modal-face-verify').style.display = 'none';
+            if (faceStream) {
+                faceStream.getTracks().forEach(t => t.stop());
+                faceStream = null;
+            }
+            if (faceDetectionInterval) {
+                cancelAnimationFrame(faceDetectionInterval);
+                faceDetectionInterval = null;
+            }
+        };
+
+        async function startFaceDetectionLoop() {
+            const video = document.getElementById('face-video');
+            if (video.paused || video.ended || !faceStream) return;
+
+            // Chạy detection
+            const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+
+            if (detection && currentVerifyStep !== 'processing') {
+                const landmarks = detection.landmarks;
+                const nose = landmarks.getNose()[3]; // Đỉnh mũi
+                const jawOutline = landmarks.getJawOutline();
+                const leftEdge = jawOutline[0].x;
+                const rightEdge = jawOutline[16].x;
+                const faceWidth = rightEdge - leftEdge;
+                
+                // Tính toán tương đối vị trí mũi so với 2 bên mặt để biết góc quay
+                const noseRatio = (nose.x - leftEdge) / faceWidth; 
+
+                // Lưu ý: Do video bị scaleX(-1) lật gương qua CSS, nhưng face-api phân tích trên bản gốc
+                // Ảnh gốc: quay trái -> mũi lùi về bên trái (ratio < 0.4), quay phải -> mũi lùi về bên phải (ratio > 0.6)
+                
+                if (currentVerifyStep === 'straight' && noseRatio > 0.4 && noseRatio < 0.6) {
+                    document.getElementById('dot-straight').classList.add('done');
+                    video.classList.add('active-step');
+                    currentVerifyStep = 'delay_left';
+                    setTimeout(() => { 
+                        currentVerifyStep = 'left'; 
+                        video.classList.remove('active-step');
+                        document.getElementById('verify-instruction').innerHTML = "Hãy quay mặt từ từ sang <span style='color:#25d366;'>TRÁI</span>";
+                    }, 1000);
+                } 
+                else if (currentVerifyStep === 'left' && noseRatio < 0.35) { // Quay trái bản gốc (nhìn gương là phải)
+                    document.getElementById('dot-left').classList.add('done');
+                    video.classList.add('active-step');
+                    currentVerifyStep = 'delay_right';
+                    setTimeout(() => { 
+                        currentVerifyStep = 'right'; 
+                        video.classList.remove('active-step');
+                        document.getElementById('verify-instruction').innerHTML = "Hãy quay mặt từ từ sang <span style='color:#25d366;'>PHẢI</span>";
+                    }, 1000);
+                }
+                else if (currentVerifyStep === 'right' && noseRatio > 0.65) {
+                    document.getElementById('dot-right').classList.add('done');
+                    video.classList.add('active-step');
+                    currentVerifyStep = 'processing';
+                    finalFaceDescriptor = detection.descriptor; // Lưu lại đặc trưng khuôn mặt (128d array)
+                    
+                    document.getElementById('verify-instruction').innerHTML = "Đang xử lý dữ liệu sinh trắc học...";
+                    setTimeout(processFaceMatching, 1000);
+                }
+            }
+
+            if (currentVerifyStep !== 'processing') {
+                faceDetectionInterval = requestAnimationFrame(startFaceDetectionLoop);
+            }
+        }
+
+        async function processFaceMatching() {
+            if (!finalFaceDescriptor || !currentUserDoc) {
+                alert("Lỗi xử lý khuôn mặt. Vui lòng thử lại.");
+                stopFaceVerification();
+                return;
+            }
+
+            try {
+                // Tải tất cả user đã verify về để so sánh 
+                // Lưu ý: Ở môi trường Production thực tế, việc so sánh này phải làm ở Backend (Cloud Functions)
+                // để bảo mật và giảm tải mạng. Ở đây làm Frontend theo cấu trúc Firebase hiện tại.
+                const usersSnap = await getDocs(query(collection(db, "users"), where("verified", "==", true)));
+                
+                let matchCount = 0;
+                
+                usersSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.uid !== currentUserDoc.uid && data.faceDescriptor) {
+                        // Khôi phục Float32Array từ mảng thường lưu trên Firestore
+                        const dbDesc = new Float32Array(data.faceDescriptor);
+                        const distance = faceapi.euclideanDistance(finalFaceDescriptor, dbDesc);
+                        
+                        // Ngưỡng 0.5 là khá nghiêm ngặt để nhận diện cùng một người
+                        if (distance < 0.5) {
+                            matchCount++;
+                        }
+                    }
+                });
+
+                if (matchCount >= 2) {
+                    alert("Khuôn mặt này đã được sử dụng để xác minh cho 2 tài khoản khác. Yêu cầu bị từ chối.");
+                } else {
+                    // Cập nhật lên DB
+                    // Chuyển Float32Array thành mảng thường để lưu vào Firestore
+                    const descriptorArray = Array.from(finalFaceDescriptor);
+                    
+                    await updateDoc(doc(db, "users", currentUserDoc.uid), {
+                        verified: true,
+                        faceDescriptor: descriptorArray
+                    });
+                    
+                    // Cập nhật các post của user thành verified
+                    const postsQ = query(collection(db, "posts"), where("authorUid", "==", currentUserDoc.uid)); 
+                    const postsSnap = await getDocs(postsQ); 
+                    postsSnap.forEach(d => updateDoc(doc(db, "posts", d.id), { authorVerified: true })); 
+                    
+                    currentUserDoc.verified = true;
+                    showToast("Xác minh khuôn mặt thành công!");
+                }
+            } catch (err) {
+                console.error("Verification Error:", err);
+                alert("Đã xảy ra lỗi trong quá trình xác minh: " + err.message);
+            }
+
+            stopFaceVerification();
+            if (document.getElementById('page-profile').classList.contains('active')) {
+                renderProfilePage(currentUserDoc.uid);
+            }
+        }
 
     </script>
 </body>
