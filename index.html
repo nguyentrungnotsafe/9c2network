@@ -127,12 +127,11 @@
         .btn-end-call { background: #c62828; color: #fff; border: none; }
         .btn-end-call:hover { background: #b71c1c; color: #fff; }
 
-        .msg-bubble { position: relative; max-width: 80%; width: fit-content; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; }
+        .msg-bubble { position: relative; max-width: 80%; width: fit-content; padding: 8px 12px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; white-space: pre-wrap; }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .msg-bubble.sent { align-self: flex-end; background: var(--accent-white); color: var(--accent-black); border-bottom-right-radius: 4px; }
         .msg-bubble.received { align-self: flex-start; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
         .msg-bubble.sending { opacity: 0.7; }
-        .msg-bubble { position: relative; max-width: 80%; width: fit-content; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; white-space: pre-wrap; }
         
         .typing-dots { display: flex; align-items: center; justify-content: center; gap: 4px; height: 12px; padding: 0 4px; }
         .typing-dots span { animation: blink 1.4s infinite both; width: 6px; height: 6px; background-color: var(--text-primary); border-radius: 50%; display: inline-block; }
