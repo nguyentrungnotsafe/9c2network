@@ -2123,11 +2123,11 @@
                         const senderAvatar = usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User';
                         const senderName = escapeHtml(m.senderName || 'Thành viên');
                         box.innerHTML += `
-                            <div style="align-self: flex-start; max-width: 85%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px; align-items: flex-end;">
+                            <div style="align-self: flex-start; max-width: 90%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px; align-items: flex-end;">
                                 <img src="${senderAvatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; cursor:pointer; border: 1px solid var(--border-color);" onclick="viewUserProfile('${m.senderId}')" loading="lazy">
-                                <div style="display: flex; flex-direction: column; align-items: flex-start; max-width: calc(100% - 36px);">
+                                <div style="display: flex; flex-direction: column; align-items: flex-start; flex: 1;">
                                     <span style="font-size: 0.75rem; color: var(--text-secondary); margin-left: 5px; margin-bottom: 3px; cursor:pointer;" onclick="viewUserProfile('${m.senderId}')">${senderName}</span>
-                                    <div class="msg-bubble received" style="margin: 0;">${m.text ? escapeHtml(m.text) + editedMark : ''}${mediaHtml}</div>
+                                    <div class="msg-bubble received" style="margin: 0; max-width: 100%;">${m.text ? escapeHtml(m.text) + editedMark : ''}${mediaHtml}</div>
                                 </div>
                             </div>
                         `;
