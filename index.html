@@ -11,7 +11,7 @@
             --bg-main: #000000; --bg-card: #0f0f0f; --bg-input: #1a1a1a;
             --border-color: #333333; --text-primary: #ffffff; --text-secondary: #aaaaaa;
             --accent-white: #ffffff; --accent-black: #000000;
-            --danger-red: #e53935;
+            --danger-red: #e53935; --highlight-blue: #00bcd4;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
@@ -51,7 +51,7 @@
         .online-dot.active { display: block; }
         .online-dot-large { bottom: 4px; right: 4px; width: 18px; height: 18px; border-width: 3px; }
 
-        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; transition: box-shadow 0.3s ease; }
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .user-info-sm { display: flex; align-items: center; gap: 10px; }
         .avatar-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); background: #222; flex-shrink: 0; }
@@ -167,7 +167,8 @@
         .stat-box strong { display: block; font-size: 1.1rem; }
         .stat-box span { font-size: 0.75rem; color: var(--text-secondary); }
 
-        .notif-item { display: flex; gap: 10px; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); }
+        .notif-item { display: flex; gap: 10px; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 5px; transition: 0.2s; }
+        .notif-item:hover { background: rgba(255,255,255,0.05); }
         .notif-item img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
         .notif-actions { display: flex; gap: 5px; margin-left: auto; }
         .notif-actions button { padding: 6px 10px; font-size: 0.8rem; }
@@ -243,158 +244,44 @@
         .pocket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .pocket-title { font-size: 1.5rem; font-weight: 700; color: var(--accent-white); }
         
-        /* Khung Camera / Hình ảnh 1:1 */
         .pocket-frame {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            border-radius: 24px;
-            background: #111;
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 15px;
-            border: 2px solid var(--border-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100%; aspect-ratio: 1 / 1; border-radius: 24px; background: #111; overflow: hidden; position: relative; margin-bottom: 15px; border: 2px solid var(--border-color); display: flex; justify-content: center; align-items: center;
         }
-        .pocket-frame video, .pocket-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.2s ease;
-        }
-        /* Hiệu ứng ghi hình */
-        .pocket-recording-indicator {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(0,0,0,0.6);
-            padding: 5px 10px;
-            border-radius: 20px;
-            display: none;
-            align-items: center;
-            gap: 5px;
-            color: #ff4444;
-            font-size: 0.8rem;
-            font-weight: bold;
-            z-index: 10;
-        }
-        .pocket-recording-indicator .dot {
-            width: 8px; height: 8px; border-radius: 50%; background: #ff4444;
-            animation: pulseRecord 1s infinite;
-        }
+        .pocket-frame video, .pocket-frame img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
+        .pocket-recording-indicator { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 20px; display: none; align-items: center; gap: 5px; color: #ff4444; font-size: 0.8rem; font-weight: bold; z-index: 10; }
+        .pocket-recording-indicator .dot { width: 8px; height: 8px; border-radius: 50%; background: #ff4444; animation: pulseRecord 1s infinite; }
         .pocket-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 5; }
 
-        /* Các nút điều khiển nằm ngoài Camera */
-        .pocket-controls-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px 0 20px;
-            gap: 20px;
-        }
-        .pocket-btn-circle {
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            display: flex; justify-content: center; align-items: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .pocket-controls-row { display: flex; justify-content: center; align-items: center; padding: 10px 0 20px; gap: 20px; }
+        .pocket-btn-circle { width: 45px; height: 45px; border-radius: 50%; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .pocket-btn-circle:hover { background: var(--border-color); }
         
-        .pocket-capture-btn {
-            width: 75px; height: 75px;
-            border-radius: 50%;
-            background: transparent;
-            border: 4px solid var(--text-primary);
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer;
-            position: relative;
-        }
-        .pocket-capture-inner {
-            width: 55px; height: 55px;
-            border-radius: 50%;
-            background: var(--text-primary);
-            transition: 0.2s;
-        }
-        .pocket-capture-btn:active .pocket-capture-inner, 
-        .pocket-capture-btn.recording .pocket-capture-inner {
-            transform: scale(0.6); background: #ff4444; border-radius: 10px;
-        }
+        .pocket-capture-btn { width: 75px; height: 75px; border-radius: 50%; background: transparent; border: 4px solid var(--text-primary); display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; }
+        .pocket-capture-inner { width: 55px; height: 55px; border-radius: 50%; background: var(--text-primary); transition: 0.2s; }
+        .pocket-capture-btn:active .pocket-capture-inner, .pocket-capture-btn.recording .pocket-capture-inner { transform: scale(0.6); background: #ff4444; border-radius: 10px; }
 
         .pocket-send-area { display: none; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .pocket-caption-input {
-            width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--border-color);
-            color: var(--text-primary); font-size: 1.1rem; padding: 10px; text-align: center; outline: none; margin-bottom: 10px;
-        }
+        .pocket-caption-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--border-color); color: var(--text-primary); font-size: 1.1rem; padding: 10px; text-align: center; outline: none; margin-bottom: 10px; }
         .pocket-caption-input::placeholder { color: var(--text-secondary); }
         .pocket-send-btn { background: #ffeb3b; color: #000; font-weight: 700; border: none; padding: 12px; border-radius: 30px; font-size: 1rem; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .pocket-send-btn:hover { background: #fbc02d; color: #000; }
 
-        /* Giao diện Lịch sử Pocket (Feed) */
-        #pocket-history-view { 
-            display: none; 
-            height: calc(100vh - 160px); 
-            overflow-y: scroll; 
-            scroll-snap-type: y mandatory; 
-            scrollbar-width: none; 
-        }
+        #pocket-history-view { display: none; height: calc(100vh - 160px); overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
         #pocket-history-view::-webkit-scrollbar { display: none; }
         
-        .pocket-feed-item {
-            height: 100%;
-            scroll-snap-align: center;
-            scroll-snap-stop: always;
-            display: flex;
-            flex-direction: column;
-            padding: 10px 0;
-            margin-bottom: 0;
-        }
-        .pocket-feed-header {
-            flex-shrink: 0;
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
-        }
+        .pocket-feed-item { height: 100%; scroll-snap-align: center; scroll-snap-stop: always; display: flex; flex-direction: column; padding: 10px 0; margin-bottom: 0; }
+        .pocket-feed-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .pocket-feed-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .pocket-feed-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--border-color); object-fit: cover; }
-        .pocket-feed-media {
-            width: 100%; aspect-ratio: 1 / 1; border-radius: 24px; object-fit: cover; border: 1px solid var(--border-color); margin: 0 auto; flex-shrink: 0;
-        }
-        .pocket-feed-caption {
-            flex-shrink: 0;
-            text-align: center; font-weight: 600; font-size: 1.1rem; margin-top: 12px; margin-bottom: 10px;
-        }
-        .pocket-comments {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            background: var(--bg-card); border-radius: 16px; padding: 12px; border: 1px solid var(--border-color);
-        }
-        .pocket-comments-list {
-            flex: 1;
-            overflow-y: auto;
-        }
+        .pocket-feed-media { width: 100%; aspect-ratio: 1 / 1; border-radius: 24px; object-fit: cover; border: 1px solid var(--border-color); margin: 0 auto; flex-shrink: 0; }
+        .pocket-feed-caption { flex-shrink: 0; text-align: center; font-weight: 600; font-size: 1.1rem; margin-top: 12px; margin-bottom: 10px; }
+        .pocket-comments { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-card); border-radius: 16px; padding: 12px; border: 1px solid var(--border-color); }
+        .pocket-comments-list { flex: 1; overflow-y: auto; }
         .pocket-comment-row { display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; align-items: flex-start; }
         .pocket-comment-input-area { flex-shrink: 0; display: flex; gap: 8px; margin-top: 10px; }
         .pocket-comment-input { flex: 1; background: var(--bg-input); border: none; padding: 8px 12px; border-radius: 20px; color: white; outline: none; font-size: 0.9rem; }
         
-        .pocket-frame-progress-overlay {
-            position: absolute;
-            inset: 0;
-            border-radius: 22px;
-            padding: 5px; /* Độ dày của viền tiến trình */
-            background: conic-gradient(#ff4444 var(--pocket-progress, 0%), transparent 0);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            z-index: 10;
-            pointer-events: none;
-            display: none;
-        }
+        .pocket-frame-progress-overlay { position: absolute; inset: 0; border-radius: 22px; padding: 5px; background: conic-gradient(#ff4444 var(--pocket-progress, 0%), transparent 0); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; z-index: 10; pointer-events: none; display: none; }
     </style>
 </head>
 <body>
@@ -446,7 +333,6 @@
         <main class="main-content">
             <div id="page-feed" class="page active">
                 
-                <!-- THANH NHẬT KÝ (STORIES BAR) -->
                 <div class="stories-container" id="stories-bar">
                     <div class="story-item viewed" id="my-story-item">
                         <div class="story-avatar-container">
@@ -461,7 +347,7 @@
                 <div class="card">
                     <h3 style="font-size: 1rem; margin-bottom: 10px;"><i class="fa-solid fa-pen"></i> Tạo bài viết</h3>
                     <input type="text" id="post-title" placeholder="Tiêu đề (không bắt buộc)...">
-                    <textarea id="post-content" rows="3" placeholder="Nội dung bài viết..."></textarea>
+                    <textarea id="post-content" rows="3" placeholder="Nội dung bài viết... (Gõ @tên để tag)"></textarea>
                     
                     <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
                         <label style="font-size: 0.85rem; color: var(--text-secondary);">Quyền xem:</label>
@@ -543,14 +429,13 @@
                 </div>
             </div>
 
-            <!-- TRANG POCKET MỚI -->
+            <!-- TRANG POCKET -->
             <div id="page-pocket" class="page">
                 <div class="pocket-header">
                     <span class="pocket-title">Pocket</span>
                     <button onclick="togglePocketView()" id="pocket-view-toggle" style="background:var(--bg-input); border:none; padding:6px 12px; font-size:0.85rem;"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử</button>
                 </div>
 
-                <!-- Chế độ Camera -->
                 <div id="pocket-camera-view">
                     <div class="pocket-frame">
                         <video id="pocket-video-preview" autoplay playsinline muted></video>
@@ -568,14 +453,13 @@
 
                         <button class="pocket-btn-circle" onclick="togglePocketZoom()" title="Zoom 1x/2x" id="pocket-zoom-btn">1x</button>
 
-                        <!-- Nút bấm giữ để quay, nhấn để chụp -->
                         <div class="pocket-capture-btn" id="pocket-capture-btn" onmousedown="startPocketHold()" onmouseup="endPocketHold()" onmouseleave="cancelPocketHold()" ontouchstart="startPocketHold(event)" ontouchend="endPocketHold(event)" ontouchcancel="cancelPocketHold()">
                             <div class="pocket-capture-inner"></div>
                         </div>
 
                         <button class="pocket-btn-circle" onclick="switchPocketCamera()" title="Đổi Camera"><i class="fa-solid fa-rotate"></i></button>
                         
-                        <div style="width: 45px; height: 45px;"></div> <!-- Spacer để cân bằng với nút Zoom và Upload bên trái, giữ nút chụp ở chính giữa -->
+                        <div style="width: 45px; height: 45px;"></div>
                     </div>
 
                     <div class="pocket-send-area" id="pocket-send-area">
@@ -588,7 +472,6 @@
                     </div>
                 </div>
 
-                <!-- Chế độ Lịch sử -->
                 <div id="pocket-history-view">
                     <div id="pocket-feed-list"></div>
                 </div>
@@ -625,10 +508,7 @@
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchPage('feed', this)"><i class="fa-solid fa-house"></i> Bảng tin</button>
             <button class="nav-item" onclick="switchPage('friends', this)"><i class="fa-solid fa-magnifying-glass"></i> Tìm bạn</button>
-            
-            <!-- Nút Pocket Mới -->
             <button class="nav-item" onclick="switchPage('pocket', this)"><i class="fa-solid fa-camera-retro"></i> Pocket</button>
-
             <button class="nav-item" onclick="switchPage('messages', this)" style="position: relative;">
                 <i class="fa-solid fa-message"></i> Tin nhắn
                 <span id="nav-msg-badge" class="nav-badge">0</span>
@@ -637,25 +517,20 @@
         </nav>
     </div>
 
-    <!-- Modal Quản Lý Nhóm Chat -->
+    <!-- Modals -->
     <div id="modal-group-settings" class="modal">
         <div class="modal-content">
             <h2 style="margin-bottom: 15px;"><i class="fa-solid fa-gear"></i> Cài đặt nhóm</h2>
-            
             <label>Tên Nhóm:</label>
             <div style="display:flex; gap:10px; margin-bottom: 15px;">
                 <input type="text" id="edit-group-name" placeholder="Tên nhóm..." style="margin-bottom:0;">
                 <button onclick="saveGroupName()" style="flex-shrink:0;"><i class="fa-solid fa-save"></i> Lưu</button>
             </div>
-            
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
                 <label style="margin:0;">Thành viên nhóm:</label>
                 <button onclick="openAddGroupMemberModal()" style="font-size:0.75rem; padding: 6px 10px;"><i class="fa-solid fa-plus"></i> Thêm người</button>
             </div>
-            <div id="group-settings-members" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 5px; margin-bottom: 20px;">
-                <!-- Members injected here -->
-            </div>
-            
+            <div id="group-settings-members" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 5px; margin-bottom: 20px;"></div>
             <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; justify-content: space-between;">
                 <button onclick="closeGroupSettings()" style="background: var(--bg-input); border-color: var(--border-color);">Đóng</button>
                 <button id="btn-delete-group" onclick="deleteGroupChat()" style="background: var(--danger-red); border: none; color: white;"><i class="fa-solid fa-trash"></i> Giải tán nhóm</button>
@@ -663,7 +538,6 @@
         </div>
     </div>
 
-    <!-- Modal Thêm thành viên vào nhóm -->
     <div id="modal-add-group-members" class="modal" style="z-index: 1005;">
         <div class="modal-content">
             <h3 style="margin-bottom: 15px;">Thêm thành viên</h3>
@@ -675,15 +549,12 @@
         </div>
     </div>
 
-    <!-- Modal Tạo Nhật Ký (Story) -->
     <div id="modal-create-story" class="modal">
         <div class="modal-content">
             <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-plus"></i> Thêm vào nhật ký</h3>
             <textarea id="story-text" rows="2" placeholder="Nhập văn bản cho tin (tùy chọn)..."></textarea>
-            
             <label style="font-size: 0.8rem; color: var(--text-secondary);">Đính kèm Ảnh/Video:</label>
             <input type="file" id="story-file" accept="image/*,video/*">
-
             <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center; margin-top: 10px;">
                 <label style="font-size: 0.85rem; color: var(--text-secondary);">Quyền xem:</label>
                 <select id="story-privacy" onchange="handlePrivacyChange('story')" style="margin-bottom: 0; width: auto; padding: 8px;">
@@ -691,10 +562,7 @@
                     <option value="friends">👥 Bạn bè</option>
                 </select>
             </div>
-            <div id="story-friends-selector" style="display: none; max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 10px; background: var(--bg-input);">
-                <!-- Bạn bè sẽ render ở đây -->
-            </div>
-
+            <div id="story-friends-selector" style="display: none; max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 10px; background: var(--bg-input);"></div>
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
                 <button onclick="document.getElementById('modal-create-story').style.display='none'" style="background: var(--bg-input); border-color: var(--border-color);">Hủy</button>
                 <button onclick="submitStory()">Đăng Tin</button>
@@ -702,11 +570,9 @@
         </div>
     </div>
 
-    <!-- Modal Xem Nhật Ký (Story Viewer) -->
     <div id="modal-view-story" class="modal" style="padding: 0;">
         <div class="story-viewer-container">
             <div class="story-progress-container" id="story-progress-container"></div>
-            
             <div class="story-header">
                 <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" id="story-viewer-user-area">
                     <img src="" id="story-viewer-avatar" class="avatar-sm" style="width:35px; height:35px; border-color:transparent;">
@@ -720,21 +586,16 @@
                     <button onclick="closeStoryViewer()" style="background:none; border:none; color:white; font-size:1.5rem; padding: 5px;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
-
             <div class="story-content" id="story-viewer-content"></div>
-
             <div class="story-nav-left" onclick="prevStory()"></div>
             <div class="story-nav-right" onclick="nextStory()"></div>
         </div>
     </div>
 
-    <!-- Modal Chọn bạn cho Pocket -->
     <div id="modal-pocket-friends" class="modal">
         <div class="modal-content">
             <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-user-group"></i> Chọn bạn gửi Pocket</h3>
-            <div id="pocket-friends-selector" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 15px; background: var(--bg-input);">
-                <!-- Load danh sách bạn -->
-            </div>
+            <div id="pocket-friends-selector" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 15px; background: var(--bg-input);"></div>
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button onclick="document.getElementById('modal-pocket-friends').style.display='none'" style="background: var(--bg-input); border-color: var(--border-color);">Hủy</button>
                 <button onclick="sendPocket('selected')"><i class="fa-solid fa-paper-plane"></i> Gửi Pocket</button>
@@ -742,7 +603,6 @@
         </div>
     </div>
 
-    <!-- Modal Tạo Nhóm Chat Mới -->
     <div id="modal-create-group" class="modal">
         <div class="modal-content">
             <h2 style="margin-bottom: 15px;"><i class="fa-solid fa-users"></i> Tạo Nhóm Trò Chuyện</h2>
@@ -757,7 +617,6 @@
         </div>
     </div>
 
-    <!-- Modal Chỉnh sửa quyền riêng tư bài viết -->
     <div id="modal-edit-privacy" class="modal">
         <div class="modal-content">
             <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-shield-halved"></i> Chỉnh sửa Quyền riêng tư</h3>
@@ -776,7 +635,6 @@
         </div>
     </div>
 
-    <!-- Các Modal Khác -->
     <div id="incoming-call-modal" class="modal">
         <div class="modal-content call-card">
             <div class="incoming-ring-avatar">
@@ -837,10 +695,8 @@
                 <h3 style="font-size: 1rem; margin-bottom: 10px;">Bảo mật & Đăng nhập</h3>
                 <label>Tên đăng nhập mới (Tùy chọn):</label>
                 <input type="text" id="edit-username" placeholder="Nhập tên đăng nhập mới...">
-                
                 <label>Mật khẩu hiện tại (Bắt buộc nếu đổi tên/mật khẩu):</label>
                 <input type="password" id="edit-current-password" placeholder="Nhập mật khẩu hiện tại...">
-                
                 <label>Mật khẩu mới (Tùy chọn):</label>
                 <input type="password" id="edit-new-password" placeholder="Nhập mật khẩu mới...">
             </div>
@@ -869,14 +725,13 @@
     <div id="modal-notifications" class="modal">
         <div class="modal-content">
             <h2 style="margin-bottom: 15px;"><i class="fa-solid fa-bell"></i> Thông báo</h2>
-            <div id="notif-list" style="max-height: 300px; overflow-y: auto;"></div>
+            <div id="notif-list" style="max-height: 400px; overflow-y: auto;"></div>
             <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
                 <button onclick="closeNotifications()">Đóng</button>
             </div>
         </div>
     </div>
     
-    <!-- Modal Xác nhận chung -->
     <div id="modal-generic-confirm" class="modal" style="z-index: 1005;">
         <div class="modal-content" style="text-align: center; max-width: 350px;">
             <h3 style="margin-bottom: 15px; color: #ff4444;" id="generic-confirm-title"><i class="fa-solid fa-triangle-exclamation"></i> Xác nhận</h3>
@@ -888,7 +743,6 @@
         </div>
     </div>
 
-    <!-- Modal Nhập liệu chung -->
     <div id="modal-generic-prompt" class="modal" style="z-index: 1005;">
         <div class="modal-content" style="max-width: 350px;">
             <h3 style="margin-bottom: 15px;" id="generic-prompt-title">Nhập nội dung</h3>
@@ -936,7 +790,8 @@
         
         window.mySentRequests = [];
         window.myPendingRequests = [];
-        let unsubscribeSentReqs = null, unsubscribePendingReqs = null;
+        window.myNotifications = []; // Mảng chứa các thông báo khác (như tag tên)
+        let unsubscribeSentReqs = null, unsubscribePendingReqs = null, unsubscribeNotifs = null;
         window.currentViewedProfileUid = null;
 
         let mediaRecorder = null, audioChunks = [], recordTimerInterval = null, recordStartTime = 0;
@@ -968,6 +823,16 @@
                     <div class="online-dot ${isOnline ? 'active' : ''}"></div>
                 </div>
             `;
+        };
+        
+        // Helper cho tính năng Click vào tên được Tag
+        window.viewUserProfileByUsername = (username) => {
+            const targetUser = Object.values(usersCache).find(u => u.username.toLowerCase() === username.toLowerCase());
+            if (targetUser) {
+                viewUserProfile(targetUser.uid);
+            } else {
+                showToast("Người dùng này không tồn tại.");
+            }
         };
 
         async function setOnlineStatus(isOnline) {
@@ -1021,7 +886,6 @@
             if (window.genericPromptCallback) window.genericPromptCallback(val);
             window.closeGenericPromptModal();
         };
-
 
         window.populateFriendsSelector = (containerId, selectedIds = []) => {
             const container = document.getElementById(containerId);
@@ -1374,7 +1238,6 @@
             }
 
             let mediaHtml = '';
-            // Ưu tiên render mảng mediaFiles (Tính năng mới)
             if (p.mediaFiles && p.mediaFiles.length > 0) {
                 if (p.mediaFiles.length === 1) {
                     const m = p.mediaFiles[0];
@@ -1392,9 +1255,7 @@
                     }).join('');
                     mediaHtml = `<div class="post-media-carousel">${carouselItems}</div>`;
                 }
-            } 
-            // Giữ lại logic cũ cho các bài viết được đăng trước đây
-            else if (p.mediaUrl) {
+            } else if (p.mediaUrl) {
                 mediaHtml = p.mediaType === 'video' 
                     ? `<div class="post-media-box"><video src="${p.mediaUrl}" controls preload="metadata"></video></div>`
                     : `<div class="post-media-box"><img src="${p.mediaUrl}" loading="lazy"></div>`;
@@ -1461,8 +1322,14 @@
 
             let commentsHtml = topLevel.map(c => renderComment(c, false, null)).join('');
 
+            // Xử lý Mention (Tag Tên)
+            let formattedContent = escapeHtml(p.content || '');
+            formattedContent = formattedContent.replace(/@([a-zA-Z0-9_]+)/g, (match, username) => {
+                return `<span style="color: var(--highlight-blue); cursor: pointer; font-weight: 600;" onclick="event.stopPropagation(); viewUserProfileByUsername('${username}')">@${username}</span>`;
+            });
+
             return `
-                <div class="card">
+                <div class="card" id="post-${p.id}">
                     <div class="post-header">
                         <div class="user-info-sm">
                             ${window.getAvatarHtml(p.authorUid, p.authorAvatar, 'avatar-sm', 'cursor:pointer;', `viewUserProfile('${p.authorUid}')`)}
@@ -1475,7 +1342,7 @@
                         ${isAuthor ? `<button class="delete-btn" onclick="deletePost('${p.id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
                     </div>
                     ${p.title ? `<h4 style="margin-bottom:5px;">${escapeHtml(p.title)}</h4>` : ''}
-                    ${p.content ? `<p style="white-space: pre-wrap; font-size:0.95rem;">${escapeHtml(p.content)}</p>` : ''}
+                    ${p.content ? `<p style="white-space: pre-wrap; font-size:0.95rem;">${formattedContent}</p>` : ''}
                     ${mediaHtml}
                     <div class="post-actions">
                         <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}', ${Boolean(isLiked)})">
@@ -1518,9 +1385,24 @@
             if (uid === 'gemini_bot') return showToast("Không thể xem hồ sơ của Trợ lý AI.");
             switchPage('profile'); renderProfilePage(uid); 
         };
+        
+        // Sửa logic Badge để gộp cả Thông báo Nhắc tên và Kết bạn
+        window.updateNotificationBadge = () => {
+            const badge = document.getElementById('notif-badge');
+            const unreadMentions = window.myNotifications.filter(n => !n.isRead).length;
+            const pendingRequests = window.myPendingRequests.length;
+            const total = unreadMentions + pendingRequests;
+            
+            if (total > 0) {
+                badge.style.display = 'block';
+                badge.innerText = total > 99 ? '99+' : total;
+            } else {
+                badge.style.display = 'none';
+            }
+        };
+
         window.updateNavMsgBadge = () => { const badge = document.getElementById('nav-msg-badge'); if (unreadMsgCount > 0) { badge.style.display = 'block'; badge.innerText = unreadMsgCount; } else { badge.style.display = 'none'; } };
         
-        // Cập nhật lại Switch Page để Hỗ trợ Tính năng Pocket
         const originalSwitchPage = (pageId, btn) => { 
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); 
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
@@ -1573,6 +1455,7 @@
                 });
                 listenFeed(); listenStories(); listenChatList(); listenIncomingCalls(); listenFriendRequests(); listenGlobalMessages();
                 listenPocketFeed();
+                listenGeneralNotifications(); // Lắng nghe thông báo (Mention)
             } else {
                 document.getElementById('auth-container').style.display = 'flex';
                 document.getElementById('app-container').style.display = 'none';
@@ -1580,15 +1463,101 @@
                 if (unsubscribeIncomingCalls) unsubscribeIncomingCalls();
                 if (unsubscribePendingReqs) unsubscribePendingReqs();
                 if (unsubscribeSentReqs) unsubscribeSentReqs();
+                if (unsubscribeNotifs) unsubscribeNotifs();
                 if (globalMsgUnsubscribe) globalMsgUnsubscribe();
             }
         });
 
+        // Lắng nghe thông báo Tag/Mention
+        function listenGeneralNotifications() {
+            if (!auth.currentUser) return;
+            const q = query(collection(db, "notifications"), where("receiverId", "==", auth.currentUser.uid));
+            unsubscribeNotifs = onSnapshot(q, (snap) => {
+                window.myNotifications = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => {
+                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+                    return timeB - timeA;
+                });
+                updateNotificationBadge();
+                if (document.getElementById('modal-notifications').style.display === 'flex') {
+                    renderNotificationsList();
+                }
+            });
+        }
+
         function listenGlobalMessages() { if (!auth.currentUser) return; const globalMsgQ = query(collection(db, "messages")); globalMsgUnsubscribe = onSnapshot(globalMsgQ, (snap) => { snap.docChanges().forEach(change => { if (change.type === 'added') { const msg = change.doc.data(); const msgTime = msg.createdAt?.toMillis ? msg.createdAt.toMillis() : Date.now(); if (msgTime > appStartTime + 2000 && msg.senderId !== auth.currentUser.uid) { const isForMe = msg.receiverId === auth.currentUser.uid; const isMyGroup = groupsCache[msg.chatId] && groupsCache[msg.chatId].members.includes(auth.currentUser.uid); if (isForMe || isMyGroup) { const currentChatId = activeChatType === 'group' ? activeChatTargetId : (activeChatTargetId ? (auth.currentUser.uid < activeChatTargetId ? `${auth.currentUser.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${auth.currentUser.uid}`) : null); if (msg.chatId !== currentChatId) { showToast(`Tin nhắn mới từ ${msg.senderName}`); unreadMsgCount++; updateNavMsgBadge(); } } } } }); }); }
-        function listenFriendRequests() { if (!auth.currentUser) return; const pendingQ = query(collection(db, "friend_requests"), where("receiverId", "==", auth.currentUser.uid), where("status", "==", "pending")); unsubscribePendingReqs = onSnapshot(pendingQ, (snap) => { window.myPendingRequests = snap.docs.map(d => ({id: d.id, ...d.data()})); const badge = document.getElementById('notif-badge'); if(window.myPendingRequests.length > 0) { badge.style.display = 'block'; badge.innerText = window.myPendingRequests.length; } else { badge.style.display = 'none'; } renderNotificationsList(); if (document.getElementById('page-profile').classList.contains('active')) { if (window.currentViewedProfileUid) renderProfilePage(window.currentViewedProfileUid); } }); const sentQ = query(collection(db, "friend_requests"), where("senderId", "==", auth.currentUser.uid), where("status", "==", "pending")); unsubscribeSentReqs = onSnapshot(sentQ, (snap) => { window.mySentRequests = snap.docs.map(d => ({id: d.id, ...d.data()})); if (document.getElementById('page-profile').classList.contains('active')) { if (window.currentViewedProfileUid) renderProfilePage(window.currentViewedProfileUid); } }); }
+        function listenFriendRequests() { if (!auth.currentUser) return; const pendingQ = query(collection(db, "friend_requests"), where("receiverId", "==", auth.currentUser.uid), where("status", "==", "pending")); unsubscribePendingReqs = onSnapshot(pendingQ, (snap) => { window.myPendingRequests = snap.docs.map(d => ({id: d.id, ...d.data()})); updateNotificationBadge(); if (document.getElementById('modal-notifications').style.display === 'flex') { renderNotificationsList(); } if (document.getElementById('page-profile').classList.contains('active')) { if (window.currentViewedProfileUid) renderProfilePage(window.currentViewedProfileUid); } }); const sentQ = query(collection(db, "friend_requests"), where("senderId", "==", auth.currentUser.uid), where("status", "==", "pending")); unsubscribeSentReqs = onSnapshot(sentQ, (snap) => { window.mySentRequests = snap.docs.map(d => ({id: d.id, ...d.data()})); if (document.getElementById('page-profile').classList.contains('active')) { if (window.currentViewedProfileUid) renderProfilePage(window.currentViewedProfileUid); } }); }
+        
         window.openNotifications = () => { renderNotificationsList(); document.getElementById('modal-notifications').style.display = 'flex'; };
         window.closeNotifications = () => { document.getElementById('modal-notifications').style.display = 'none'; };
-        function renderNotificationsList() { const list = document.getElementById('notif-list'); if (window.myPendingRequests.length === 0) { list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding: 10px;">Không có thông báo mới.</p>'; return; } list.innerHTML = window.myPendingRequests.map(req => ` <div class="notif-item"> <img src="${req.senderAvatar || 'https://ui-avatars.com/api/?name=User'}" onclick="viewUserProfile('${req.senderId}'); closeNotifications();" style="cursor:pointer;"> <div style="flex:1; font-size:0.9rem;"> <strong style="cursor:pointer;" onclick="viewUserProfile('${req.senderId}'); closeNotifications();">${escapeHtml(req.senderName)}</strong> đã gửi lời mời kết bạn. </div> <div class="notif-actions"> <button onclick="acceptFriendRequest('${req.id}', '${req.senderId}')" style="background: var(--accent-white); color: #000;"><i class="fa-solid fa-check"></i></button> <button onclick="declineFriendRequest('${req.id}')" style="background: var(--bg-input);"><i class="fa-solid fa-xmark"></i></button> </div> </div> `).join(''); }
+        
+        // Kết hợp hiển thị cả Lời mời kết bạn và Tag tên
+        window.renderNotificationsList = () => { 
+            const list = document.getElementById('notif-list'); 
+            if (window.myPendingRequests.length === 0 && window.myNotifications.length === 0) { 
+                list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding: 10px;">Không có thông báo mới.</p>'; 
+                return; 
+            } 
+            
+            let html = '';
+            // Render Yêu cầu kết bạn trước
+            html += window.myPendingRequests.map(req => ` 
+                <div class="notif-item"> 
+                    <img src="${req.senderAvatar || 'https://ui-avatars.com/api/?name=User'}" onclick="viewUserProfile('${req.senderId}'); closeNotifications();" style="cursor:pointer;"> 
+                    <div style="flex:1; font-size:0.9rem;"> 
+                        <strong style="cursor:pointer;" onclick="viewUserProfile('${req.senderId}'); closeNotifications();">${escapeHtml(req.senderName)}</strong> đã gửi lời mời kết bạn. 
+                    </div> 
+                    <div class="notif-actions"> 
+                        <button onclick="acceptFriendRequest('${req.id}', '${req.senderId}')" style="background: var(--accent-white); color: #000;"><i class="fa-solid fa-check"></i></button> 
+                        <button onclick="declineFriendRequest('${req.id}')" style="background: var(--bg-input);"><i class="fa-solid fa-xmark"></i></button> 
+                    </div> 
+                </div> 
+            `).join('');
+
+            // Render Các thông báo (Tag/Mention)
+            html += window.myNotifications.map(notif => {
+                const bg = notif.isRead ? 'transparent' : 'rgba(0, 188, 212, 0.1)';
+                return `
+                <div class="notif-item" style="background:${bg}; cursor:pointer;" onclick="readAndGoToPost('${notif.id}', '${notif.postId}')">
+                    <img src="${notif.senderAvatar || 'https://ui-avatars.com/api/?name=User'}">
+                    <div style="flex:1; font-size:0.9rem;">
+                        <strong>${escapeHtml(notif.senderName)}</strong> đã nhắc đến bạn trong một bài viết.
+                        <div style="font-size:0.7rem; color:var(--highlight-blue); margin-top:3px;">${timeAgo(notif.createdAt)}</div>
+                    </div>
+                    ${!notif.isRead ? `<div style="width:8px; height:8px; background:var(--highlight-blue); border-radius:50%; flex-shrink:0;"></div>` : ''}
+                </div>
+                `;
+            }).join('');
+
+            list.innerHTML = html;
+        }
+
+        // Đọc thông báo và cuộn đến bài viết
+        window.readAndGoToPost = async (notifId, postId) => {
+            closeNotifications();
+            switchPage('feed');
+            
+            // Đánh dấu đã đọc
+            try {
+                await updateDoc(doc(db, "notifications", notifId), { isRead: true });
+            } catch(e) { console.error("Lỗi đánh dấu đã đọc", e); }
+            
+            // Tìm và cuộn đến bài viết, thêm hiệu ứng sáng
+            setTimeout(() => {
+                const postEl = document.getElementById(`post-${postId}`);
+                if (postEl) {
+                    postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    postEl.style.boxShadow = "0 0 20px rgba(0, 188, 212, 0.5)";
+                    postEl.style.borderColor = "var(--highlight-blue)";
+                    setTimeout(() => {
+                        postEl.style.boxShadow = "none";
+                        postEl.style.borderColor = "var(--border-color)";
+                    }, 2500);
+                } else {
+                    showToast("Không tìm thấy bài viết này trên bảng tin hiện tại.");
+                }
+            }, 300);
+        };
         
         window.sendFriendRequest = async (uid) => { if (!currentUserDoc) return; showLoading("Đang xử lý..."); try { await addDoc(collection(db, "friend_requests"), { senderId: currentUserDoc.uid, senderName: currentUserDoc.displayName || currentUserDoc.username, senderAvatar: currentUserDoc.avatar, receiverId: uid, status: "pending", createdAt: serverTimestamp() }); showToast("Đã gửi lời mời kết bạn!"); if (document.getElementById('page-friends').classList.contains('active')) searchUsers(); } catch(e) { showToast("Lỗi: " + e.message); } hideLoading(); };
         window.acceptFriendRequest = async (reqId, senderUid) => { if (!currentUserDoc) return; showLoading("Đang xử lý..."); try { await updateDoc(doc(db, "friend_requests", reqId), { status: "accepted" }); await updateDoc(doc(db, "users", currentUserDoc.uid), { followers: arrayUnion(senderUid), following: arrayUnion(senderUid) }); await updateDoc(doc(db, "users", senderUid), { followers: arrayUnion(currentUserDoc.uid), following: arrayUnion(currentUserDoc.uid) }); showToast("Đã chấp nhận kết bạn!"); if (document.getElementById('page-friends').classList.contains('active')) searchUsers(); } catch(e) { showToast("Lỗi: " + e.message); } hideLoading(); };
@@ -1600,7 +1569,7 @@
             const title = document.getElementById('post-title').value.trim();
             const content = document.getElementById('post-content').value.trim();
             const fileInput = document.getElementById('post-file');
-            const files = fileInput.files; // Lấy toàn bộ file
+            const files = fileInput.files;
             const privacyMode = document.getElementById('post-privacy').value;
             let allowedFriends = [];
             if (privacyMode === 'friends') {
@@ -1609,11 +1578,22 @@
             }
             if(!content && files.length === 0 && !title) return showToast("Vui lòng nhập nội dung hoặc đính kèm ảnh/video!");
             
+            // Xử lý Mention (Quét @tên)
+            const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+            let mentionedUids = [];
+            let match;
+            while ((match = mentionRegex.exec(content)) !== null) {
+                const uname = match[1].toLowerCase();
+                const taggedUser = Object.values(usersCache).find(u => u.username.toLowerCase() === uname);
+                if (taggedUser && taggedUser.uid !== currentUserDoc.uid && !mentionedUids.includes(taggedUser.uid)) {
+                    mentionedUids.push(taggedUser.uid);
+                }
+            }
+
             showLoading("Đang nén & đăng bài...");
             try {
                 let mediaFiles = [];
                 
-                // Xử lý nhiều file
                 if (files.length > 0) {
                     for (let i = 0; i < files.length; i++) {
                         let file = files[i];
@@ -1627,13 +1607,30 @@
                     }
                 }
 
-                await addDoc(collection(db, "posts"), {
+                const docRef = await addDoc(collection(db, "posts"), {
                     authorUid: currentUserDoc.uid, authorName: currentUserDoc.displayName || currentUserDoc.username,
                     authorUsername: currentUserDoc.username, authorAvatar: currentUserDoc.avatar,
                     title: title, content: content, 
-                    mediaFiles: mediaFiles, // Lưu mảng các file
+                    mediaFiles: mediaFiles, 
+                    mentionedUids: mentionedUids, // Lưu danh sách người bị tag
                     privacyMode: privacyMode, allowedFriends: allowedFriends, likes: [], comments: [], createdAt: serverTimestamp()
                 });
+                
+                // Gửi thông báo cho những người bị Tag
+                for (let targetUid of mentionedUids) {
+                    try {
+                        await addDoc(collection(db, "notifications"), {
+                            receiverId: targetUid,
+                            senderId: currentUserDoc.uid,
+                            senderName: currentUserDoc.displayName || currentUserDoc.username,
+                            senderAvatar: currentUserDoc.avatar,
+                            type: 'mention',
+                            postId: docRef.id,
+                            createdAt: serverTimestamp(),
+                            isRead: false
+                        });
+                    } catch(e) { console.error("Lỗi gửi thông báo tag", e); }
+                }
                 
                 document.getElementById('post-title').value = ''; document.getElementById('post-content').value = '';
                 document.getElementById('post-privacy').value = 'public'; document.getElementById('create-friends-selector').style.display = 'none';
@@ -1969,7 +1966,6 @@
             const list = document.getElementById('chat-list'); 
             list.innerHTML = ''; 
             
-            // Cloud (Lưu trữ cá nhân)
             list.innerHTML += `
                 <div class="chat-user-item" onclick="openChatById('cloud_storage')" style="background: rgba(76, 175, 80, 0.05);">
                     <div class="avatar-wrapper">
@@ -2393,7 +2389,7 @@
         let isPocketRecording = false;
         
         let pocketCapturedFile = null;
-        let pocketCapturedType = 'image'; // 'image' hoặc 'video'
+        let pocketCapturedType = 'image';
         let pocketHistoryActive = false;
         let unsubscribePocketFeed = null;
         
@@ -2453,7 +2449,7 @@
             if (e && e.type === 'touchstart') e.preventDefault();
             pocketHoldTimer = setTimeout(() => {
                 startPocketVideoRecord();
-            }, 400); // Giữ 400ms thì quay video
+            }, 400);
         };
 
         window.endPocketHold = (e) => {
@@ -2483,13 +2479,11 @@
             canvas.height = size;
             const ctx = canvas.getContext('2d');
             
-            // Xử lý lật ảnh nếu dùng cam trước
             if (pocketFacingMode === 'user') {
                 ctx.translate(size, 0);
                 ctx.scale(-1, 1);
             }
             
-            // Cắt giữa khung hình, kết hợp zoom
             const sWidth = size / pocketZoom;
             const sHeight = size / pocketZoom;
             const sx = (videoEl.videoWidth - sWidth) / 2;
@@ -2529,7 +2523,7 @@
             try {
                 pocketMediaRecorder = new MediaRecorder(pocketStream, { mimeType: 'video/webm' });
             } catch (e) {
-                pocketMediaRecorder = new MediaRecorder(pocketStream); // Fallback
+                pocketMediaRecorder = new MediaRecorder(pocketStream);
             }
 
             pocketMediaRecorder.ondataavailable = (e) => {
@@ -2566,14 +2560,14 @@
         };
 
         function showPocketPreviewMode(url, type) {
-            stopPocketCamera(); // Tạm tắt cam để tiết kiệm tài nguyên
+            stopPocketCamera();
             document.getElementById('pocket-controls-main').style.display = 'none';
             document.getElementById('pocket-send-area').style.display = 'flex';
             
             const videoEl = document.getElementById('pocket-video-preview');
             const imgEl = document.getElementById('pocket-image-preview');
             
-            videoEl.style.transform = 'scale(1)'; // Reset zoom preview
+            videoEl.style.transform = 'scale(1)';
 
             if (type === 'video') {
                 imgEl.style.display = 'none';
@@ -2613,7 +2607,6 @@
                 }
                 document.getElementById('modal-pocket-friends').style.display = 'none';
             } else {
-                // Gửi tất cả bạn bè đang có
                 const myFriends = (currentUserDoc.followers || []).filter(uid => (currentUserDoc.following || []).includes(uid));
                 allowedFriends = myFriends;
                 if(allowedFriends.length === 0) {
@@ -2648,7 +2641,7 @@
 
                 showToast("Đã gửi Pocket thành công!");
                 resetPocketCamera();
-                togglePocketView(); // Tự động chuyển qua xem lịch sử sau khi gửi
+                togglePocketView();
             } catch (err) {
                 showToast("Lỗi gửi Pocket: " + err.message);
             }
@@ -2756,7 +2749,6 @@
                     `;
                 });
                 
-                // Cập nhật Observer để dừng video khi lướt qua
                 setTimeout(setupPocketVideoObserver, 50);
             });
         }
@@ -2766,24 +2758,20 @@
                 pocketVideoObserver.disconnect();
             }
 
-            // Theo dõi vị trí của video trong vùng cuộn
             pocketVideoObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     const video = entry.target;
                     if (entry.isIntersecting) {
-                        // Nếu video hiển thị > 60% trên màn hình -> Phát
                         video.play().catch(e => console.warn("Autoplay bị chặn", e));
                     } else {
-                        // Nếu video bị lướt qua -> Tạm dừng
                         video.pause();
                     }
                 });
             }, {
                 root: document.getElementById('pocket-history-view'),
-                threshold: 0.6 // Tỉ lệ 60%
+                threshold: 0.6
             });
 
-            // Gắn Observer vào tất cả các video trong luồng Pocket
             const videos = document.querySelectorAll('#pocket-history-view video.pocket-feed-media');
             videos.forEach(vid => pocketVideoObserver.observe(vid));
         }
