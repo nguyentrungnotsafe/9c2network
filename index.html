@@ -127,7 +127,7 @@
         .btn-end-call { background: #c62828; color: #fff; border: none; }
         .btn-end-call:hover { background: #b71c1c; color: #fff; }
 
-        .msg-bubble { position: relative; max-width: 65%; width: fit-content; display: inline-block; padding: 8px 14px; border-radius: 20px; font-size: 0.95rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; white-space: pre-wrap; }
+        .msg-bubble { position: relative; max-width: 70%; display: inline-block; padding: 8px 14px; border-radius: 20px; font-size: 0.95rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; white-space: pre-wrap; }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .msg-bubble.sent { align-self: flex-end; background: var(--accent-white); color: var(--accent-black); border-bottom-right-radius: 4px; }
         .msg-bubble.received { align-self: flex-start; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
@@ -2062,7 +2062,7 @@
                     } else {
                         box.innerHTML += `
                             <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 85%; display: flex; flex-direction: column; margin-bottom: 5px; align-items: ${isMe ? 'flex-end' : 'flex-start'};">
-                                <div class="msg-bubble ${isMe ? 'sent' : 'received'}"> 
+                                <div class="msg-bubble ${isMe ? 'sent' : 'received'}" style="margin: 0;"> 
                                     ${optionsHtml} 
                                     ${m.text ? `${escapeHtml(m.text)} ${editedMark}` : ''} 
                                     ${mediaHtml} 
@@ -2261,12 +2261,13 @@
             input.value = ''; 
             const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); 
             setDoc(doc(db, "typing_status", chatId), { [currentUserDoc.uid]: false }, { merge: true }); 
-            const box = document.getElementById('chat-messages-box'); 
             
+            const box = document.getElementById('chat-messages-box'); 
             const tempWrapper = document.createElement('div');
             tempWrapper.style.cssText = 'align-self: flex-end; max-width: 85%; display: flex; flex-direction: column; margin-bottom: 5px; align-items: flex-end;';
             const tempBubble = document.createElement('div'); 
             tempBubble.className = 'msg-bubble sent sending'; 
+            tempBubble.style.margin = '0';
             tempBubble.innerHTML = `${escapeHtml(text)}`; 
             
             tempWrapper.appendChild(tempBubble);
