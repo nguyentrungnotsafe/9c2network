@@ -1901,7 +1901,7 @@
             list.innerHTML += `
                 <div class="chat-user-item" onclick="openChatById('gemini_bot')" style="background: rgba(168, 199, 250, 0.05);">
                     <div class="avatar-wrapper">
-                        <img src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_darkmode_2bdb7df2724e450073276.gif" class="avatar-sm" style="border: 1px solid #a8c7fa;">
+                        <img src="https://ui-avatars.com/api/?name=Gemini&background=a8c7fa&color=fff" class="avatar-sm" style="border: 1px solid #a8c7fa;">
                         <div class="online-dot active" style="background-color: #a8c7fa;"></div>
                     </div>
                     <div>
@@ -1951,7 +1951,7 @@
         window.openChatById = (uid) => { 
             if (uid === 'gemini_bot') {
                 activeChatType = 'private';
-                openChat('gemini_bot', 'Google Gemini', 'https://www.gstatic.com/lamda/images/sparkle_resting_v2_darkmode_2bdb7df2724e450073276.gif');
+                openChat('gemini_bot', 'Google Gemini', 'https://ui-avatars.com/api/?name=Gemini&background=a8c7fa&color=fff');
                 return;
             }
             const u = usersCache[uid]; if (u) { activeChatType = 'private'; openChat(u.uid, u.displayName || u.username, u.avatar); } 
@@ -2036,7 +2036,7 @@
                     const editedMark = m.isEdited ? `<span style="font-size:0.7rem; opacity:0.6; margin-left:5px;">(đã sửa)</span>` : ''; 
                     
                     if (m.senderId === 'gemini_bot' || (!isMe && activeChatType === 'group')) {
-                        const senderAvatar = m.senderId === 'gemini_bot' ? 'https://www.gstatic.com/lamda/images/sparkle_resting_v2_darkmode_2bdb7df2724e450073276.gif' : (usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User');
+                        const senderAvatar = m.senderId === 'gemini_bot' ? 'https://ui-avatars.com/api/?name=Gemini&background=a8c7fa&color=fff' : (usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User');
                         const senderName = m.senderId === 'gemini_bot' ? 'Google Gemini' : (escapeHtml(m.senderName || 'Thành viên'));
                         box.innerHTML += `
                             <div style="align-self: flex-start; max-width: 85%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px;">
@@ -2308,7 +2308,7 @@
                     const wrap = document.createElement('div');
                     wrap.id = 'gemini-typing-wrap';
                     wrap.style = 'align-self: flex-start; max-width: 85%; display: flex; flex-direction: column; gap: 4px; margin-bottom: 5px; margin-top: 5px;';
-                    wrap.innerHTML = `<div style="display: flex; gap: 8px;"><img src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_darkmode_2bdb7df2724e450073276.gif" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; border: 1px solid var(--border-color);"></div>`;
+                    wrap.innerHTML = `<div style="display: flex; gap: 8px;"><img src="https://ui-avatars.com/api/?name=Gemini&background=a8c7fa&color=fff" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; border: 1px solid var(--border-color);"></div>`;
                     
                     wrap.querySelector('div').appendChild(typingBubble);
                     box.appendChild(wrap);
