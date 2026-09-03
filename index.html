@@ -256,8 +256,8 @@
         .pocket-btn-circle { width: 45px; height: 45px; border-radius: 50%; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .pocket-btn-circle:hover { background: var(--border-color); }
         
-        .pocket-capture-btn { width: 75px; height: 75px; border-radius: 50%; background: transparent; border: 4px solid var(--text-primary); display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; }
-        .pocket-capture-inner { width: 55px; height: 55px; border-radius: 50%; background: var(--text-primary); transition: 0.2s; }
+        .pocket-capture-btn { width: 75px; height: 75px; border-radius: 50%; background: transparent; border: 4px solid var(--text-primary); display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; user-select: none; touch-action: none; -webkit-user-select: none; }
+        .pocket-capture-inner { width: 55px; height: 55px; border-radius: 50%; background: var(--text-primary); transition: 0.2s; pointer-events: none; }
         .pocket-capture-btn:active .pocket-capture-inner, .pocket-capture-btn.recording .pocket-capture-inner { transform: scale(0.6); background: #ff4444; border-radius: 10px; }
 
         .pocket-send-area { display: none; flex-direction: column; gap: 10px; margin-top: 10px; }
@@ -453,7 +453,7 @@
 
                         <button class="pocket-btn-circle" onclick="togglePocketZoom()" title="Zoom 1x/2x" id="pocket-zoom-btn">1x</button>
 
-                        <div class="pocket-capture-btn" id="pocket-capture-btn" onmousedown="startPocketHold()" onmouseup="endPocketHold()" onmouseleave="cancelPocketHold()" ontouchstart="startPocketHold(event)" ontouchend="endPocketHold(event)" ontouchcancel="cancelPocketHold()">
+                        <div class="pocket-capture-btn" id="pocket-capture-btn" onmousedown="startPocketHold(event)" onmouseup="endPocketHold(event)" onmouseleave="cancelPocketHold(event)" ontouchstart="startPocketHold(event)" ontouchend="endPocketHold(event)" ontouchcancel="cancelPocketHold(event)">
                             <div class="pocket-capture-inner"></div>
                         </div>
 
@@ -2464,19 +2464,33 @@
             if (pocketStream) {
                 pocketStream.getTracks().forEach(track => track.stop());
             }
+            
             try {
+                // Thử yêu cầu cả hình và tiếng
                 pocketStream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: pocketFacingMode, width: { ideal: 1080 }, height: { ideal: 1080 } },
                     audio: true
                 });
-                videoEl.srcObject = pocketStream;
-                
-                const scaleX = pocketFacingMode === 'user' ? -1 : 1;
-                videoEl.style.transform = `scale(${pocketZoom}) scaleX(${scaleX})`;
             } catch (err) {
-                console.warn("Pocket Camera Error:", err);
-                showToast("Không thể kết nối Camera!");
+                console.warn("Lỗi kèm Audio, thử chỉ dùng Video...", err);
+                try {
+                    // Fallback: Thử yêu cầu chỉ có hình nếu người dùng từ chối/không có mic
+                    pocketStream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: pocketFacingMode, width: { ideal: 1080 }, height: { ideal: 1080 } }
+                    });
+                    showToast("Đang quay không có tiếng (Chưa cấp quyền Micro)");
+                } catch (videoErr) {
+                    console.warn("Pocket Camera Error:", videoErr);
+                    showToast("Không thể kết nối Camera!");
+                    return;
+                }
             }
+            
+            videoEl.srcObject = pocketStream;
+            
+            // Fix lỗi lật camera trước (chế độ soi gương)
+            const scaleX = pocketFacingMode === 'user' ? -1 : 1;
+            videoEl.style.transform = `scaleX(${scaleX}) scale(${pocketZoom})`;
         };
 
         window.stopPocketCamera = () => {
@@ -2493,20 +2507,31 @@
 
         window.togglePocketZoom = () => {
             pocketZoom = pocketZoom === 1 ? 2 : 1;
+            // Áp dụng lại zoom kết hợp với lật gương nếu đang dùng cam trước
             const scaleX = pocketFacingMode === 'user' ? -1 : 1;
-            document.getElementById('pocket-video-preview').style.transform = `scale(${pocketZoom}) scaleX(${scaleX})`;
+            document.getElementById('pocket-video-preview').style.transform = `scaleX(${scaleX}) scale(${pocketZoom})`;
             document.getElementById('pocket-zoom-btn').innerText = `${pocketZoom}x`;
         };
 
         window.startPocketHold = (e) => {
-            if (e && e.type === 'touchstart') e.preventDefault();
+            // Ngăn chặn sự kiện cảm ứng kích hoạt mousedown kép
+            if (e && e.cancelable && e.type.startsWith('touch')) {
+                try { e.preventDefault(); } catch(err) {}
+            }
+            
+            clearTimeout(pocketHoldTimer);
+            if (isPocketRecording) return;
+
             pocketHoldTimer = setTimeout(() => {
                 startPocketVideoRecord();
             }, 400);
         };
 
         window.endPocketHold = (e) => {
-            if (e && e.type === 'touchend') e.preventDefault();
+            if (e && e.cancelable && e.type.startsWith('touch')) {
+                try { e.preventDefault(); } catch(err) {}
+            }
+            
             if (isPocketRecording) {
                 stopPocketVideoRecord();
             } else {
@@ -2515,7 +2540,7 @@
             }
         };
 
-        window.cancelPocketHold = () => {
+        window.cancelPocketHold = (e) => {
             clearTimeout(pocketHoldTimer);
             if (isPocketRecording) stopPocketVideoRecord();
         };
@@ -2552,7 +2577,7 @@
         }
 
         function startPocketVideoRecord() {
-            if (!pocketStream) return;
+            if (!pocketStream || isPocketRecording) return;
             isPocketRecording = true;
             document.getElementById('pocket-capture-btn').classList.add('recording');
             document.getElementById('pocket-rec-indicator').style.display = 'flex';
@@ -2574,19 +2599,47 @@
             }, 30);
 
             try {
-                pocketMediaRecorder = new MediaRecorder(pocketStream, { mimeType: 'video/webm' });
+                // Tự động tìm định dạng Media tương thích thay vì bắt cứng WebM (hỗ trợ tốt hơn cho Safari)
+                const types = [
+                    'video/webm;codecs=vp8,opus',
+                    'video/webm',
+                    'video/mp4',
+                    'video/mp4;codecs=avc1'
+                ];
+                let selectedType = '';
+                for (let t of types) {
+                    if (MediaRecorder.isTypeSupported(t)) {
+                        selectedType = t;
+                        break;
+                    }
+                }
+                if (selectedType) {
+                    pocketMediaRecorder = new MediaRecorder(pocketStream, { mimeType: selectedType });
+                } else {
+                    pocketMediaRecorder = new MediaRecorder(pocketStream);
+                }
             } catch (e) {
-                pocketMediaRecorder = new MediaRecorder(pocketStream);
+                try {
+                    pocketMediaRecorder = new MediaRecorder(pocketStream);
+                } catch (err) {
+                    showToast("Trình duyệt không hỗ trợ quay video.");
+                    isPocketRecording = false;
+                    clearInterval(pocketRecordInterval);
+                    document.getElementById('pocket-capture-btn').classList.remove('recording');
+                    document.getElementById('pocket-rec-indicator').style.display = 'none';
+                    return;
+                }
             }
 
             pocketMediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) pocketChunks.push(e.data);
+                if (e.data && e.data.size > 0) pocketChunks.push(e.data);
             };
             pocketMediaRecorder.start();
         }
 
         function stopPocketVideoRecord() {
             if (!pocketMediaRecorder || pocketMediaRecorder.state === 'inactive') return;
+            
             isPocketRecording = false;
             document.getElementById('pocket-capture-btn').classList.remove('recording');
             document.getElementById('pocket-rec-indicator').style.display = 'none';
@@ -2595,12 +2648,24 @@
             document.getElementById('pocket-frame-progress').style.display = 'none';
             
             pocketMediaRecorder.onstop = () => {
-                const blob = new Blob(pocketChunks, { type: pocketMediaRecorder.mimeType });
-                pocketCapturedFile = new File([blob], `pocket_${Date.now()}.webm`, { type: blob.type });
+                if (pocketChunks.length === 0) {
+                    showToast("Lỗi quay video, dữ liệu rỗng. Vui lòng thử lại.");
+                    resetPocketCamera();
+                    return;
+                }
+                const mimeType = pocketMediaRecorder.mimeType || 'video/mp4';
+                const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+                const blob = new Blob(pocketChunks, { type: mimeType });
+                pocketCapturedFile = new File([blob], `pocket_${Date.now()}.${ext}`, { type: mimeType });
                 pocketCapturedType = 'video';
                 showPocketPreviewMode(URL.createObjectURL(blob), 'video');
             };
-            pocketMediaRecorder.stop();
+            
+            try {
+                pocketMediaRecorder.stop();
+            } catch(e) {
+                console.error("Stop record error:", e);
+            }
         }
 
         window.handlePocketUpload = (inputEl) => {
