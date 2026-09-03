@@ -2262,11 +2262,18 @@
             const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); 
             setDoc(doc(db, "typing_status", chatId), { [currentUserDoc.uid]: false }, { merge: true }); 
             const box = document.getElementById('chat-messages-box'); 
+            
+            // Sửa phần tạo bong bóng tin nhắn tạm (xoá thẻ div bọc bên trong)
+            const tempWrapper = document.createElement('div');
+            tempWrapper.style.cssText = 'align-self: flex-end; max-width: 85%; display: flex; flex-direction: column; margin-bottom: 5px;';
             const tempBubble = document.createElement('div'); 
             tempBubble.className = 'msg-bubble sent sending'; 
-            tempBubble.innerHTML = `<div>${escapeHtml(text)}</div>`; 
-            box.appendChild(tempBubble); 
+            tempBubble.innerHTML = `${escapeHtml(text)}`; 
+            
+            tempWrapper.appendChild(tempBubble);
+            box.appendChild(tempWrapper); 
             box.scrollTop = box.scrollHeight; 
+            
             try { 
                 await sendMessageData(text, "", "text"); 
             } catch(e) { tempBubble.style.background = '#aa0000'; showToast("Không thể gửi: " + e.message); } 
