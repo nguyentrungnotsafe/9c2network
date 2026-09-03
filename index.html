@@ -132,7 +132,15 @@
         .msg-bubble.sent { align-self: flex-end; background: var(--accent-white); color: var(--accent-black); border-bottom-right-radius: 4px; }
         .msg-bubble.received { align-self: flex-start; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
         .msg-bubble.sending { opacity: 0.7; }
+        .msg-bubble { position: relative; max-width: 80%; width: fit-content; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; white-space: pre-wrap; }
         
+        .typing-dots { display: flex; align-items: center; justify-content: center; gap: 4px; height: 12px; padding: 0 4px; }
+        .typing-dots span { animation: blink 1.4s infinite both; width: 6px; height: 6px; background-color: var(--text-primary); border-radius: 50%; display: inline-block; }
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0% { opacity: 0.2; transform: scale(0.8); } 20% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.2; transform: scale(0.8); } }
+
         .msg-options { display: none; position: absolute; right: 100%; top: 50%; transform: translateY(-50%); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 4px; gap: 2px; margin-right: 5px; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         .msg-bubble.sent:hover .msg-options { display: flex; }
         .msg-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 6px 10px; font-size: 0.85rem; border-radius: 4px; }
@@ -1445,7 +1453,10 @@
         window.submitCreateGroup = async () => { if (!currentUserDoc) return; const groupName = document.getElementById('group-name-input').value.trim(); if (!groupName) return showToast("Vui lòng nhập tên nhóm!"); const selectedCheckboxes = document.querySelectorAll('.group-member-checkbox:checked'); const selectedMemberUids = Array.from(selectedCheckboxes).map(cb => cb.value); if (selectedMemberUids.length === 0) return showToast("Chọn ít nhất 1 thành viên!"); selectedMemberUids.push(currentUserDoc.uid); showLoading("Đang tạo nhóm..."); try { const groupRef = await addDoc(collection(db, "groups"), { name: groupName, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(groupName)}&background=000&color=fff`, createdBy: currentUserDoc.uid, members: selectedMemberUids, createdAt: serverTimestamp() }); closeCreateGroupModal(); showToast("Đã tạo nhóm!"); openGroupChat(groupRef.id, groupName, `https://ui-avatars.com/api/?name=${encodeURIComponent(groupName)}&background=000&color=fff`); } catch (err) { showToast("Lỗi: " + err.message); } hideLoading(); };
 
         window.toggleAuth = (type) => { document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active')); if(type === 'login') { document.querySelectorAll('.auth-tab')[0].classList.add('active'); document.getElementById('login-form').style.display = 'block'; document.getElementById('register-form').style.display = 'none'; } else { document.querySelectorAll('.auth-tab')[1].classList.add('active'); document.getElementById('login-form').style.display = 'none'; document.getElementById('register-form').style.display = 'block'; } };
-        window.viewUserProfile = (uid) => { switchPage('profile'); renderProfilePage(uid); };
+        window.viewUserProfile = (uid) => { 
+            if (uid === 'gemini_bot') return showToast("Không thể xem hồ sơ của Trợ lý AI.");
+            switchPage('profile'); renderProfilePage(uid); 
+        };
         window.updateNavMsgBadge = () => { const badge = document.getElementById('nav-msg-badge'); if (unreadMsgCount > 0) { badge.style.display = 'block'; badge.innerText = unreadMsgCount; } else { badge.style.display = 'none'; } };
         
         // Cập nhật lại Switch Page để Hỗ trợ Tính năng Pocket
@@ -1885,7 +1896,22 @@
         function renderCombinedChatList() { 
             const list = document.getElementById('chat-list'); 
             list.innerHTML = ''; 
-            let hasChats = false; 
+            
+            // Bot AI Gemini
+            list.innerHTML += `
+                <div class="chat-user-item" onclick="openChatById('gemini_bot')" style="background: rgba(168, 199, 250, 0.05);">
+                    <div class="avatar-wrapper">
+                        <img src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_darkmode_2bdb7df2724e450073276.gif" class="avatar-sm" style="border: 1px solid #a8c7fa;">
+                        <div class="online-dot active" style="background-color: #a8c7fa;"></div>
+                    </div>
+                    <div>
+                        <strong style="font-size:0.95rem; color: #a8c7fa;">Google Gemini <i class="fa-solid fa-wand-magic-sparkles"></i></strong>
+                        <p style="font-size:0.75rem; color:var(--text-secondary);">Trợ lý AI thông minh</p>
+                    </div>
+                </div>
+            `;
+
+            let hasChats = true; 
             Object.values(groupsCache).forEach(g => { 
                 if (currentUserDoc && g.members && g.members.includes(currentUserDoc.uid)) { 
                     hasChats = true; 
@@ -1922,7 +1948,14 @@
         }
 
         let unsubscribeChat = null;
-        window.openChatById = (uid) => { const u = usersCache[uid]; if (u) { activeChatType = 'private'; openChat(u.uid, u.displayName || u.username, u.avatar); } };
+        window.openChatById = (uid) => { 
+            if (uid === 'gemini_bot') {
+                activeChatType = 'private';
+                openChat('gemini_bot', 'Google Gemini', 'https://www.gstatic.com/lamda/images/sparkle_resting_v2_darkmode_2bdb7df2724e450073276.gif');
+                return;
+            }
+            const u = usersCache[uid]; if (u) { activeChatType = 'private'; openChat(u.uid, u.displayName || u.username, u.avatar); } 
+        };
         window.openGroupChat = (groupId, name, avatar) => { activeChatType = 'group'; openChat(groupId, name, avatar); };
         
         window.openChat = (targetId, name, avatar) => { 
@@ -1941,7 +1974,12 @@
             const typeBadge = document.getElementById('chat-type-badge'); 
             const onlineDot = document.getElementById('chat-active-online-dot');
 
-            if (activeChatType === 'group') { 
+            if (activeChatTargetId === 'gemini_bot') {
+                callAudioBtn.style.display = 'none'; 
+                callVideoBtn.style.display = 'none'; 
+                typeBadge.style.display = 'none';
+                onlineDot.classList.add('active'); 
+            } else if (activeChatType === 'group') { 
                 callAudioBtn.style.display = 'none'; 
                 callVideoBtn.style.display = 'none'; 
                 typeBadge.style.display = 'inline-block'; 
@@ -1997,13 +2035,14 @@
                     
                     const editedMark = m.isEdited ? `<span style="font-size:0.7rem; opacity:0.6; margin-left:5px;">(đã sửa)</span>` : ''; 
                     
-                    if (!isMe && activeChatType === 'group') {
-                        const senderAvatar = usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User';
+                    if (m.senderId === 'gemini_bot' || (!isMe && activeChatType === 'group')) {
+                        const senderAvatar = m.senderId === 'gemini_bot' ? 'https://www.gstatic.com/lamda/images/sparkle_resting_v2_darkmode_2bdb7df2724e450073276.gif' : (usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User');
+                        const senderName = m.senderId === 'gemini_bot' ? 'Google Gemini' : (escapeHtml(m.senderName || 'Thành viên'));
                         box.innerHTML += `
                             <div style="align-self: flex-start; max-width: 85%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px;">
                                 <img src="${senderAvatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; cursor:pointer; border: 1px solid var(--border-color);" onclick="viewUserProfile('${m.senderId}')" loading="lazy">
                                 <div style="display: flex; flex-direction: column; align-items: flex-start; max-width: calc(100% - 36px);">
-                                    <span style="font-size: 0.75rem; color: var(--text-secondary); margin-left: 5px; margin-bottom: 3px; cursor:pointer;" onclick="viewUserProfile('${m.senderId}')">${escapeHtml(m.senderName || 'Thành viên')}</span>
+                                    <span style="font-size: 0.75rem; color: var(--text-secondary); margin-left: 5px; margin-bottom: 3px; cursor:pointer;" onclick="viewUserProfile('${m.senderId}')">${senderName}</span>
                                     <div class="msg-bubble received" style="max-width: 100%; margin: 0;"> 
                                         ${m.text ? `<div>${escapeHtml(m.text)} ${editedMark}</div>` : ''} 
                                         ${mediaHtml} 
@@ -2020,6 +2059,10 @@
         };
 
         window.handleChatHeaderClick = () => {
+            if (activeChatTargetId === 'gemini_bot') {
+                showToast("Không thể xem hồ sơ của Trợ lý AI.");
+                return;
+            }
             if (activeChatType === 'private') {
                 viewUserProfile(activeChatTargetId);
             } else if (activeChatType === 'group') {
@@ -2192,8 +2235,111 @@
         };
         
         async function sendMessageData(text = "", mediaUrl = "", mediaType = "text") { if (!currentUserDoc || !activeChatTargetId) return; const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); await addDoc(collection(db, "messages"), { chatId: chatId, senderId: currentUserDoc.uid, senderName: currentUserDoc.displayName || currentUserDoc.username, receiverId: activeChatTargetId, text: text, mediaUrl: mediaUrl, mediaType: mediaType, createdAt: serverTimestamp() }); }
-        window.sendChatText = async () => { if (!currentUserDoc || !activeChatTargetId) return; const input = document.getElementById('chat-text'); const text = input.value.trim(); if(!text) return; input.value = ''; const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); setDoc(doc(db, "typing_status", chatId), { [currentUserDoc.uid]: false }, { merge: true }); const box = document.getElementById('chat-messages-box'); const tempBubble = document.createElement('div'); tempBubble.className = 'msg-bubble sent sending'; tempBubble.innerHTML = `<div>${escapeHtml(text)}</div>`; box.appendChild(tempBubble); box.scrollTop = box.scrollHeight; try { await sendMessageData(text, "", "text"); } catch(e) { tempBubble.style.background = '#aa0000'; showToast("Không thể gửi: " + e.message); } };
-        window.sendChatFile = async (inputEl) => { if (!currentUserDoc || !activeChatTargetId) return; const file = inputEl.files[0]; if(!file) return; showLoading("Đang nén & gửi tập tin..."); try { let uploadFile = file; if(file.type.startsWith('image/')) uploadFile = await compressImage(file, 800, 0.7); const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia"); const mediaType = file.type.startsWith('video/') ? 'video' : 'image'; await sendMessageData("", mediaUrl, mediaType); } catch(e) { showToast("Lỗi gửi tập tin: " + e.message); } inputEl.value = ''; hideLoading(); };
+        
+        window.callGeminiAPI = async (userText, chatId) => {
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: [{ role: 'user', parts: [{ text: userText }] }],
+                    systemInstruction: { parts: [{ text: "Bạn là Google Gemini, một trợ lý AI thông minh trên 9c2network. Hãy trả lời ngắn gọn, thân thiện và hữu ích bằng tiếng Việt." }] }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                let aiText = "Xin lỗi, tôi không thể trả lời lúc này.";
+                if (result.candidates && result.candidates[0].content) {
+                    aiText = result.candidates[0].content.parts[0].text;
+                }
+                
+                await addDoc(collection(db, "messages"), { 
+                    chatId: chatId, senderId: 'gemini_bot', senderName: 'Google Gemini', 
+                    receiverId: currentUserDoc.uid, text: aiText, mediaUrl: "", mediaType: "text", 
+                    createdAt: serverTimestamp() 
+                });
+                
+                const wrap = document.getElementById('gemini-typing-wrap');
+                if (wrap) wrap.remove();
+            } catch (err) {
+                console.error(err);
+                const wrap = document.getElementById('gemini-typing-wrap');
+                if (wrap) wrap.remove();
+                await addDoc(collection(db, "messages"), { 
+                    chatId: chatId, senderId: 'gemini_bot', senderName: 'Google Gemini', 
+                    receiverId: currentUserDoc.uid, text: "Đã xảy ra lỗi khi kết nối với AI.", mediaUrl: "", mediaType: "text", 
+                    createdAt: serverTimestamp() 
+                });
+            }
+        };
+
+        window.sendChatText = async () => { 
+            if (!currentUserDoc || !activeChatTargetId) return; 
+            const input = document.getElementById('chat-text'); 
+            const text = input.value.trim(); 
+            if(!text) return; 
+            input.value = ''; 
+            const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); 
+            setDoc(doc(db, "typing_status", chatId), { [currentUserDoc.uid]: false }, { merge: true }); 
+            const box = document.getElementById('chat-messages-box'); 
+            const tempBubble = document.createElement('div'); 
+            tempBubble.className = 'msg-bubble sent sending'; 
+            tempBubble.innerHTML = `<div>${escapeHtml(text)}</div>`; 
+            box.appendChild(tempBubble); 
+            box.scrollTop = box.scrollHeight; 
+            try { 
+                await sendMessageData(text, "", "text"); 
+                
+                if (activeChatTargetId === 'gemini_bot') {
+                    const oldWrap = document.getElementById('gemini-typing-wrap');
+                    if(oldWrap) oldWrap.remove();
+
+                    const typingBubble = document.createElement('div');
+                    typingBubble.className = 'msg-bubble received';
+                    typingBubble.style.alignSelf = 'flex-start';
+                    typingBubble.style.padding = '8px 14px';
+                    typingBubble.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
+                    
+                    const wrap = document.createElement('div');
+                    wrap.id = 'gemini-typing-wrap';
+                    wrap.style = 'align-self: flex-start; max-width: 85%; display: flex; flex-direction: column; gap: 4px; margin-bottom: 5px; margin-top: 5px;';
+                    wrap.innerHTML = `<div style="display: flex; gap: 8px;"><img src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_darkmode_2bdb7df2724e450073276.gif" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; border: 1px solid var(--border-color);"></div>`;
+                    
+                    wrap.querySelector('div').appendChild(typingBubble);
+                    box.appendChild(wrap);
+                    box.scrollTop = box.scrollHeight;
+
+                    callGeminiAPI(text, chatId);
+                }
+            } catch(e) { tempBubble.style.background = '#aa0000'; showToast("Không thể gửi: " + e.message); } 
+        };
+        window.sendChatFile = async (inputEl) => { 
+            if (!currentUserDoc || !activeChatTargetId) return; 
+            const file = inputEl.files[0]; if(!file) return; 
+            showLoading("Đang nén & gửi tập tin..."); 
+            try { 
+                let uploadFile = file; 
+                if(file.type.startsWith('image/')) uploadFile = await compressImage(file, 800, 0.7); 
+                const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia"); 
+                const mediaType = file.type.startsWith('video/') ? 'video' : 'image'; 
+                await sendMessageData("", mediaUrl, mediaType); 
+
+                if (activeChatTargetId === 'gemini_bot') {
+                    const chatId = currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`;
+                    await addDoc(collection(db, "messages"), { 
+                        chatId: chatId, senderId: 'gemini_bot', senderName: 'Google Gemini', 
+                        receiverId: currentUserDoc.uid, text: "Tôi đã nhận được tệp của bạn, nhưng hiện tại tôi chỉ hỗ trợ phân tích văn bản.", mediaUrl: "", mediaType: "text", 
+                        createdAt: serverTimestamp() 
+                    });
+                }
+            } catch(e) { showToast("Lỗi gửi tập tin: " + e.message); } 
+            inputEl.value = ''; hideLoading(); 
+        };
 
         function listenIncomingCalls() { if (!auth.currentUser) return; if (unsubscribeIncomingCalls) unsubscribeIncomingCalls(); const q = query(collection(db, "calls"), where("receiverUid", "==", auth.currentUser.uid)); unsubscribeIncomingCalls = onSnapshot(q, (snapshot) => { snapshot.docChanges().forEach((change) => { if (change.type === "added") { const callData = { id: change.doc.id, ...change.doc.data() }; if (callData.status === "calling" && !currentCallId) { pendingIncomingCallDoc = callData; showIncomingCallModal(callData); } } }); }, (err) => console.error("Incoming call error:", err)); }
         function showIncomingCallModal(data) { document.getElementById('incoming-caller-avatar').src = data.callerAvatar || 'https://ui-avatars.com/api/?name=User'; document.getElementById('incoming-caller-name').innerText = data.callerName || 'Người dùng'; document.getElementById('incoming-call-type').innerText = data.type === 'video' ? 'Cuộc gọi Video đến...' : 'Cuộc gọi âm thanh đến...'; document.getElementById('incoming-call-modal').style.display = 'flex'; playRingtone(); const callRef = doc(db, "calls", data.id); const unsubTemp = onSnapshot(callRef, (docSnap) => { if (docSnap.exists()) { const st = docSnap.data().status; if (st === 'ended' || st === 'declined') { stopRingtone(); document.getElementById('incoming-call-modal').style.display = 'none'; pendingIncomingCallDoc = null; unsubTemp(); } } }); }
