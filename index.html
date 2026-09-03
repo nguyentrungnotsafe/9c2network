@@ -2685,20 +2685,33 @@
             const videoEl = document.getElementById('pocket-video-preview');
             const imgEl = document.getElementById('pocket-image-preview');
             
-            videoEl.style.transform = 'scale(1)';
+            // Xóa luồng camera và ép trình duyệt vẽ lại (force reflow) 
+            // Giúp fix triệt để lỗi đen nửa khung hình trên iOS Safari
+            videoEl.srcObject = null;
+            videoEl.style.display = 'none';
+            imgEl.style.display = 'none';
+            void videoEl.offsetWidth; 
 
             if (type === 'video') {
-                imgEl.style.display = 'none';
                 videoEl.style.display = 'block';
-                videoEl.srcObject = null;
                 videoEl.src = url;
                 videoEl.muted = false;
                 videoEl.loop = true;
-                videoEl.play();
+                
+                // Video ghi bằng MediaRecorder giữ nguyên điểm ảnh gốc. 
+                // Nếu quay bằng cam trước, ta cần lật gương lại để xem không bị ngược
+                videoEl.style.transform = pocketFacingMode === 'user' ? 'scaleX(-1)' : 'none';
+                
+                videoEl.load();
+                const playPromise = videoEl.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => console.warn("Lỗi Auto-play:", e));
+                }
             } else {
-                videoEl.style.display = 'none';
                 imgEl.style.display = 'block';
                 imgEl.src = url;
+                // Ảnh đã được xử lý lật gương trên Canvas ở hàm capturePocketPhoto rồi, nên trả về bình thường
+                imgEl.style.transform = 'none';
             }
         }
 
