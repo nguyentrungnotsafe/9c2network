@@ -2058,7 +2058,7 @@
                                 <img src="${senderAvatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; cursor:pointer; border: 1px solid var(--border-color);" onclick="viewUserProfile('${m.senderId}')" loading="lazy">
                                 <div style="display: flex; flex-direction: column; align-items: flex-start; max-width: calc(100% - 36px);">
                                     <span style="font-size: 0.75rem; color: var(--text-secondary); margin-left: 5px; margin-bottom: 3px; cursor:pointer;" onclick="viewUserProfile('${m.senderId}')">${senderName}</span>
-                                    <div class="msg-bubble received" style="margin: 0;"> 
+                                    <div class="msg-bubble received" style="margin: 0; display: inline-block; width: fit-content; max-width: 100%; align-self: flex-start;"> 
                                         ${m.text ? `${escapeHtml(m.text)} ${editedMark}` : ''} 
                                         ${mediaHtml} 
                                     </div>
