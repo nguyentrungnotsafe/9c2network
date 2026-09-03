@@ -487,8 +487,8 @@
                             </div>
 
                             <div id="normal-chat-controls" style="display: flex; width: 100%; gap: 8px; align-items: center;">
-                                <label for="chat-file" style="cursor: pointer; font-size: 1.2rem; padding: 5px;"><i class="fa-solid fa-image"></i></label>
-                                <input type="file" id="chat-file" accept="image/*,video/*" style="display: none;" onchange="sendChatFile(this)">
+                                <label for="chat-file" style="cursor: pointer; font-size: 1.2rem; padding: 5px;"><i class="fa-solid fa-paperclip"></i></label>
+                                <input type="file" id="chat-file" style="display: none;" onchange="sendChatFile(this)">
                                 
                                 <button onclick="startVoiceRecording()" style="border: none; background: none; font-size: 1.2rem; padding: 5px; color: var(--text-primary);" title="Gửi bản ghi âm">
                                     <i class="fa-solid fa-microphone"></i>
@@ -1897,16 +1897,16 @@
             const list = document.getElementById('chat-list'); 
             list.innerHTML = ''; 
             
-            // Bot AI Gemini
+            // Cloud (Lưu trữ cá nhân)
             list.innerHTML += `
-                <div class="chat-user-item" onclick="openChatById('gemini_bot')" style="background: rgba(168, 199, 250, 0.05);">
+                <div class="chat-user-item" onclick="openChatById('cloud_storage')" style="background: rgba(76, 175, 80, 0.05);">
                     <div class="avatar-wrapper">
-                        <img src="https://ui-avatars.com/api/?name=Gemini&background=a8c7fa&color=fff" class="avatar-sm" style="border: 1px solid #a8c7fa;">
-                        <div class="online-dot active" style="background-color: #a8c7fa;"></div>
+                        <img src="https://ui-avatars.com/api/?name=Cloud&background=4CAF50&color=fff" class="avatar-sm" style="border: 1px solid #4CAF50;">
+                        <div class="online-dot active" style="background-color: #4CAF50;"></div>
                     </div>
                     <div>
-                        <strong style="font-size:0.95rem; color: #a8c7fa;">Google Gemini <i class="fa-solid fa-wand-magic-sparkles"></i></strong>
-                        <p style="font-size:0.75rem; color:var(--text-secondary);">Trợ lý AI thông minh</p>
+                        <strong style="font-size:0.95rem; color: #4CAF50;">Cloud (Lưu trữ) <i class="fa-solid fa-cloud"></i></strong>
+                        <p style="font-size:0.75rem; color:var(--text-secondary);">Không gian lưu trữ cá nhân</p>
                     </div>
                 </div>
             `;
@@ -1949,9 +1949,9 @@
 
         let unsubscribeChat = null;
         window.openChatById = (uid) => { 
-            if (uid === 'gemini_bot') {
+            if (uid === 'cloud_storage') {
                 activeChatType = 'private';
-                openChat('gemini_bot', 'Google Gemini', 'https://ui-avatars.com/api/?name=Gemini&background=a8c7fa&color=fff');
+                openChat('cloud_storage', 'Cloud (Lưu trữ)', 'https://ui-avatars.com/api/?name=Cloud&background=4CAF50&color=fff');
                 return;
             }
             const u = usersCache[uid]; if (u) { activeChatType = 'private'; openChat(u.uid, u.displayName || u.username, u.avatar); } 
@@ -1974,7 +1974,7 @@
             const typeBadge = document.getElementById('chat-type-badge'); 
             const onlineDot = document.getElementById('chat-active-online-dot');
 
-            if (activeChatTargetId === 'gemini_bot') {
+            if (activeChatTargetId === 'cloud_storage') {
                 callAudioBtn.style.display = 'none'; 
                 callVideoBtn.style.display = 'none'; 
                 typeBadge.style.display = 'none';
@@ -2023,9 +2023,19 @@
                     
                     let mediaHtml = ''; 
                     if (m.mediaUrl) { 
-                        if (m.mediaType === 'audio') { mediaHtml = `<audio src="${m.mediaUrl}" controls style="margin-top:5px;"></audio>`; } 
-                        else if (m.mediaType === 'video') { mediaHtml = `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>`; } 
-                        else { mediaHtml = `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`; } 
+                        if (m.mediaType === 'audio') { 
+                            mediaHtml = `<audio src="${m.mediaUrl}" controls style="margin-top:5px;"></audio>`; 
+                        } else if (m.mediaType === 'video') { 
+                            mediaHtml = `<video src="${m.mediaUrl}" controls style="width:100%; border-radius:8px; margin-top:5px;"></video>`; 
+                        } else if (m.mediaType === 'image') { 
+                            mediaHtml = `<img src="${m.mediaUrl}" loading="lazy" style="width:100%; border-radius:8px; margin-top:5px;">`; 
+                        } else {
+                            mediaHtml = `<div style="margin-top:5px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-file-lines" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                                <span style="flex:1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; color: var(--text-secondary);">Tệp đính kèm</span>
+                            </div>`;
+                        }
+                        mediaHtml += `<div style="margin-top: 5px; text-align: right;"><a href="${m.mediaUrl}" target="_blank" download style="display: inline-block; color: var(--text-primary); font-size: 0.75rem; text-decoration: none; padding: 5px 10px; background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color);"><i class="fa-solid fa-download"></i> Tải về</a></div>`;
                     } 
                     
                     let optionsHtml = ''; 
@@ -2035,9 +2045,9 @@
                     
                     const editedMark = m.isEdited ? `<span style="font-size:0.7rem; opacity:0.6; margin-left:5px;">(đã sửa)</span>` : ''; 
                     
-                    if (m.senderId === 'gemini_bot' || (!isMe && activeChatType === 'group')) {
-                        const senderAvatar = m.senderId === 'gemini_bot' ? 'https://ui-avatars.com/api/?name=Gemini&background=a8c7fa&color=fff' : (usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User');
-                        const senderName = m.senderId === 'gemini_bot' ? 'Google Gemini' : (escapeHtml(m.senderName || 'Thành viên'));
+                    if (!isMe && activeChatType === 'group') {
+                        const senderAvatar = usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User';
+                        const senderName = escapeHtml(m.senderName || 'Thành viên');
                         box.innerHTML += `
                             <div style="align-self: flex-start; max-width: 85%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px;">
                                 <img src="${senderAvatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; cursor:pointer; border: 1px solid var(--border-color);" onclick="viewUserProfile('${m.senderId}')" loading="lazy">
@@ -2059,8 +2069,8 @@
         };
 
         window.handleChatHeaderClick = () => {
-            if (activeChatTargetId === 'gemini_bot') {
-                showToast("Không thể xem hồ sơ của Trợ lý AI.");
+            if (activeChatTargetId === 'cloud_storage') {
+                showToast("Đây là không gian lưu trữ cá nhân.");
                 return;
             }
             if (activeChatType === 'private') {
@@ -2236,48 +2246,6 @@
         
         async function sendMessageData(text = "", mediaUrl = "", mediaType = "text") { if (!currentUserDoc || !activeChatTargetId) return; const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); await addDoc(collection(db, "messages"), { chatId: chatId, senderId: currentUserDoc.uid, senderName: currentUserDoc.displayName || currentUserDoc.username, receiverId: activeChatTargetId, text: text, mediaUrl: mediaUrl, mediaType: mediaType, createdAt: serverTimestamp() }); }
         
-        window.callGeminiAPI = async (userText, chatId) => {
-            try {
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-                
-                const payload = {
-                    contents: [{ role: 'user', parts: [{ text: userText }] }],
-                    systemInstruction: { parts: [{ text: "Bạn là Google Gemini, một trợ lý AI thông minh trên 9c2network. Hãy trả lời ngắn gọn, thân thiện và hữu ích bằng tiếng Việt." }] }
-                };
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                let aiText = "Xin lỗi, tôi không thể trả lời lúc này.";
-                if (result.candidates && result.candidates[0].content) {
-                    aiText = result.candidates[0].content.parts[0].text;
-                }
-                
-                await addDoc(collection(db, "messages"), { 
-                    chatId: chatId, senderId: 'gemini_bot', senderName: 'Google Gemini', 
-                    receiverId: currentUserDoc.uid, text: aiText, mediaUrl: "", mediaType: "text", 
-                    createdAt: serverTimestamp() 
-                });
-                
-                const wrap = document.getElementById('gemini-typing-wrap');
-                if (wrap) wrap.remove();
-            } catch (err) {
-                console.error(err);
-                const wrap = document.getElementById('gemini-typing-wrap');
-                if (wrap) wrap.remove();
-                await addDoc(collection(db, "messages"), { 
-                    chatId: chatId, senderId: 'gemini_bot', senderName: 'Google Gemini', 
-                    receiverId: currentUserDoc.uid, text: "Đã xảy ra lỗi khi kết nối với AI.", mediaUrl: "", mediaType: "text", 
-                    createdAt: serverTimestamp() 
-                });
-            }
-        };
-
         window.sendChatText = async () => { 
             if (!currentUserDoc || !activeChatTargetId) return; 
             const input = document.getElementById('chat-text'); 
@@ -2294,50 +2262,31 @@
             box.scrollTop = box.scrollHeight; 
             try { 
                 await sendMessageData(text, "", "text"); 
-                
-                if (activeChatTargetId === 'gemini_bot') {
-                    const oldWrap = document.getElementById('gemini-typing-wrap');
-                    if(oldWrap) oldWrap.remove();
-
-                    const typingBubble = document.createElement('div');
-                    typingBubble.className = 'msg-bubble received';
-                    typingBubble.style.alignSelf = 'flex-start';
-                    typingBubble.style.padding = '8px 14px';
-                    typingBubble.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
-                    
-                    const wrap = document.createElement('div');
-                    wrap.id = 'gemini-typing-wrap';
-                    wrap.style = 'align-self: flex-start; max-width: 85%; display: flex; flex-direction: column; gap: 4px; margin-bottom: 5px; margin-top: 5px;';
-                    wrap.innerHTML = `<div style="display: flex; gap: 8px;"><img src="https://ui-avatars.com/api/?name=Gemini&background=a8c7fa&color=fff" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; border: 1px solid var(--border-color);"></div>`;
-                    
-                    wrap.querySelector('div').appendChild(typingBubble);
-                    box.appendChild(wrap);
-                    box.scrollTop = box.scrollHeight;
-
-                    callGeminiAPI(text, chatId);
-                }
             } catch(e) { tempBubble.style.background = '#aa0000'; showToast("Không thể gửi: " + e.message); } 
         };
+        
         window.sendChatFile = async (inputEl) => { 
             if (!currentUserDoc || !activeChatTargetId) return; 
             const file = inputEl.files[0]; if(!file) return; 
-            showLoading("Đang nén & gửi tập tin..."); 
+            showLoading("Đang tải lên..."); 
             try { 
                 let uploadFile = file; 
-                if(file.type.startsWith('image/')) uploadFile = await compressImage(file, 800, 0.7); 
-                const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia"); 
-                const mediaType = file.type.startsWith('video/') ? 'video' : 'image'; 
-                await sendMessageData("", mediaUrl, mediaType); 
-
-                if (activeChatTargetId === 'gemini_bot') {
-                    const chatId = currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`;
-                    await addDoc(collection(db, "messages"), { 
-                        chatId: chatId, senderId: 'gemini_bot', senderName: 'Google Gemini', 
-                        receiverId: currentUserDoc.uid, text: "Tôi đã nhận được tệp của bạn, nhưng hiện tại tôi chỉ hỗ trợ phân tích văn bản.", mediaUrl: "", mediaType: "text", 
-                        createdAt: serverTimestamp() 
-                    });
+                let mediaType = 'file';
+                
+                if (file.type.startsWith('image/')) {
+                    uploadFile = await compressImage(file, 800, 0.7); 
+                    mediaType = 'image';
+                } else if (file.type.startsWith('video/')) {
+                    mediaType = 'video';
+                } else if (file.type.startsWith('audio/')) {
+                    mediaType = 'audio';
                 }
-            } catch(e) { showToast("Lỗi gửi tập tin: " + e.message); } 
+                
+                const mediaUrl = await uploadFileToStorage(uploadFile, "chatMedia"); 
+                
+                const textMsg = mediaType === 'file' ? file.name : "";
+                await sendMessageData(textMsg, mediaUrl, mediaType); 
+            } catch(e) { showToast("Lỗi tải lên: " + e.message); } 
             inputEl.value = ''; hideLoading(); 
         };
 
