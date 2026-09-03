@@ -797,6 +797,7 @@
         let mediaRecorder = null, audioChunks = [], recordTimerInterval = null, recordStartTime = 0;
         const appStartTime = Date.now();
         let unreadMsgCount = 0, globalMsgUnsubscribe = null, typingTimeout = null, unsubscribeTyping = null;
+        window.unreadChats = {}; // Lưu trữ trạng thái tin nhắn chưa đọc cho từng đoạn chat
 
         const showLoading = (text) => { document.getElementById('loading-text').innerText = text; document.getElementById('loading-overlay').style.display = 'flex'; };
         const hideLoading = () => document.getElementById('loading-overlay').style.display = 'none';
@@ -1485,7 +1486,32 @@
             });
         }
 
-        function listenGlobalMessages() { if (!auth.currentUser) return; const globalMsgQ = query(collection(db, "messages")); globalMsgUnsubscribe = onSnapshot(globalMsgQ, (snap) => { snap.docChanges().forEach(change => { if (change.type === 'added') { const msg = change.doc.data(); const msgTime = msg.createdAt?.toMillis ? msg.createdAt.toMillis() : Date.now(); if (msgTime > appStartTime + 2000 && msg.senderId !== auth.currentUser.uid) { const isForMe = msg.receiverId === auth.currentUser.uid; const isMyGroup = groupsCache[msg.chatId] && groupsCache[msg.chatId].members.includes(auth.currentUser.uid); if (isForMe || isMyGroup) { const currentChatId = activeChatType === 'group' ? activeChatTargetId : (activeChatTargetId ? (auth.currentUser.uid < activeChatTargetId ? `${auth.currentUser.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${auth.currentUser.uid}`) : null); if (msg.chatId !== currentChatId) { showToast(`Tin nhắn mới từ ${msg.senderName}`); unreadMsgCount++; updateNavMsgBadge(); } } } } }); }); }
+        function listenGlobalMessages() { 
+            if (!auth.currentUser) return; 
+            const globalMsgQ = query(collection(db, "messages")); 
+            globalMsgUnsubscribe = onSnapshot(globalMsgQ, (snap) => { 
+                snap.docChanges().forEach(change => { 
+                    if (change.type === 'added') { 
+                        const msg = change.doc.data(); 
+                        const msgTime = msg.createdAt?.toMillis ? msg.createdAt.toMillis() : Date.now(); 
+                        if (msgTime > appStartTime + 2000 && msg.senderId !== auth.currentUser.uid) { 
+                            const isForMe = msg.receiverId === auth.currentUser.uid; 
+                            const isMyGroup = groupsCache[msg.chatId] && groupsCache[msg.chatId].members.includes(auth.currentUser.uid); 
+                            if (isForMe || isMyGroup) { 
+                                const currentChatId = activeChatType === 'group' ? activeChatTargetId : (activeChatTargetId ? (auth.currentUser.uid < activeChatTargetId ? `${auth.currentUser.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${auth.currentUser.uid}`) : null); 
+                                if (msg.chatId !== currentChatId) { 
+                                    showToast(`Tin nhắn mới từ ${msg.senderName}`); 
+                                    window.unreadChats[msg.chatId] = (window.unreadChats[msg.chatId] || 0) + 1;
+                                    unreadMsgCount++; 
+                                    updateNavMsgBadge(); 
+                                    renderCombinedChatList();
+                                } 
+                            } 
+                        } 
+                    } 
+                }); 
+            }); 
+        }
         function listenFriendRequests() { if (!auth.currentUser) return; const pendingQ = query(collection(db, "friend_requests"), where("receiverId", "==", auth.currentUser.uid), where("status", "==", "pending")); unsubscribePendingReqs = onSnapshot(pendingQ, (snap) => { window.myPendingRequests = snap.docs.map(d => ({id: d.id, ...d.data()})); updateNotificationBadge(); if (document.getElementById('modal-notifications').style.display === 'flex') { renderNotificationsList(); } if (document.getElementById('page-profile').classList.contains('active')) { if (window.currentViewedProfileUid) renderProfilePage(window.currentViewedProfileUid); } }); const sentQ = query(collection(db, "friend_requests"), where("senderId", "==", auth.currentUser.uid), where("status", "==", "pending")); unsubscribeSentReqs = onSnapshot(sentQ, (snap) => { window.mySentRequests = snap.docs.map(d => ({id: d.id, ...d.data()})); if (document.getElementById('page-profile').classList.contains('active')) { if (window.currentViewedProfileUid) renderProfilePage(window.currentViewedProfileUid); } }); }
         
         window.openNotifications = () => { renderNotificationsList(); document.getElementById('modal-notifications').style.display = 'flex'; };
@@ -1983,6 +2009,9 @@
             Object.values(groupsCache).forEach(g => { 
                 if (currentUserDoc && g.members && g.members.includes(currentUserDoc.uid)) { 
                     hasChats = true; 
+                    const chatId = g.id;
+                    const unreadBadge = (window.unreadChats && window.unreadChats[chatId]) ? `<div style="width: 10px; height: 10px; background: var(--danger-red); border-radius: 50%; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); box-shadow: 0 0 5px rgba(229,57,53,0.5);"></div>` : '';
+                    
                     list.innerHTML += ` 
                         <div class="chat-user-item" onclick="openGroupChat('${g.id}', '${escapeHtml(g.name)}', '${g.avatar}')"> 
                             <img src="${g.avatar || 'https://ui-avatars.com/api/?name=Group'}" class="avatar-sm" loading="lazy"> 
@@ -1991,6 +2020,7 @@
                                 <span class="group-badge">Nhóm (${g.members.length})</span> 
                                 <p style="font-size:0.75rem; color:var(--text-secondary);">Nhóm trò chuyện chung</p> 
                             </div> 
+                            ${unreadBadge}
                         </div> 
                     `; 
                 } 
@@ -2000,6 +2030,9 @@
                     const isFriend = currentUserDoc?.followers?.includes(u.uid) && currentUserDoc?.following?.includes(u.uid); 
                     if (isFriend) { 
                         hasChats = true; 
+                        const chatId = currentUserDoc.uid < u.uid ? `${currentUserDoc.uid}_${u.uid}` : `${u.uid}_${currentUserDoc.uid}`;
+                        const unreadBadge = (window.unreadChats && window.unreadChats[chatId]) ? `<div style="width: 10px; height: 10px; background: var(--danger-red); border-radius: 50%; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); box-shadow: 0 0 5px rgba(229,57,53,0.5);"></div>` : '';
+                        
                         list.innerHTML += ` 
                             <div class="chat-user-item" onclick="openChatById('${u.uid}')"> 
                                 ${window.getAvatarHtml(u.uid, u.avatar, 'avatar-sm', 'cursor:pointer;', `event.stopPropagation(); viewUserProfile('${u.uid}')`)}
@@ -2007,6 +2040,7 @@
                                     <strong style="font-size:0.95rem;">${escapeHtml(u.displayName || 'User')}</strong> 
                                     <p style="font-size:0.75rem; color:var(--text-secondary);">@${escapeHtml(u.username || 'user')}</p> 
                                 </div> 
+                                ${unreadBadge}
                             </div> 
                         `; 
                     } 
@@ -2062,17 +2096,33 @@
             
             const chatId = activeChatType === 'group' ? targetId : (currentUserDoc.uid < targetId ? `${currentUserDoc.uid}_${targetId}` : `${targetId}_${currentUserDoc.uid}`); 
             
+            // Xóa thông báo chấm đỏ khi mở chat
+            if (window.unreadChats && window.unreadChats[chatId]) {
+                unreadMsgCount -= window.unreadChats[chatId];
+                if (unreadMsgCount < 0) unreadMsgCount = 0;
+                delete window.unreadChats[chatId];
+                updateNavMsgBadge();
+                renderCombinedChatList();
+            }
+            
             if (unsubscribeTyping) unsubscribeTyping(); 
             unsubscribeTyping = onSnapshot(doc(db, "typing_status", chatId), (docSnap) => { 
                 const typingIndicator = document.getElementById('typing-indicator'); 
                 if (docSnap.exists()) { 
                     const data = docSnap.data(); 
-                    let someoneTyping = false; 
+                    let typingNames = [];
                     for (const [uid, isTyping] of Object.entries(data)) { 
-                        if (uid !== currentUserDoc.uid && isTyping) { someoneTyping = true; break; } 
+                        if (uid !== currentUserDoc.uid && isTyping) { 
+                            const u = usersCache[uid];
+                            if (u) typingNames.push(u.displayName || u.username);
+                        } 
                     } 
-                    typingIndicator.style.display = someoneTyping ? 'block' : 'none'; 
-                    if (someoneTyping) { const box = document.getElementById('chat-messages-box'); box.scrollTop = box.scrollHeight; } 
+                    if (typingNames.length > 0) {
+                        typingIndicator.innerHTML = `<strong>${escapeHtml(typingNames.join(', '))}</strong> đang soạn...`;
+                        typingIndicator.style.display = 'block'; 
+                        const box = document.getElementById('chat-messages-box'); 
+                        box.scrollTop = box.scrollHeight; 
+                    } else { typingIndicator.style.display = 'none'; }
                 } else { typingIndicator.style.display = 'none'; } 
             }); 
             
@@ -2420,7 +2470,9 @@
                     audio: true
                 });
                 videoEl.srcObject = pocketStream;
-                videoEl.style.transform = `scale(${pocketZoom})`;
+                
+                const scaleX = pocketFacingMode === 'user' ? -1 : 1;
+                videoEl.style.transform = `scale(${pocketZoom}) scaleX(${scaleX})`;
             } catch (err) {
                 console.warn("Pocket Camera Error:", err);
                 showToast("Không thể kết nối Camera!");
@@ -2441,7 +2493,8 @@
 
         window.togglePocketZoom = () => {
             pocketZoom = pocketZoom === 1 ? 2 : 1;
-            document.getElementById('pocket-video-preview').style.transform = `scale(${pocketZoom})`;
+            const scaleX = pocketFacingMode === 'user' ? -1 : 1;
+            document.getElementById('pocket-video-preview').style.transform = `scale(${pocketZoom}) scaleX(${scaleX})`;
             document.getElementById('pocket-zoom-btn').innerText = `${pocketZoom}x`;
         };
 
