@@ -127,7 +127,7 @@
         .btn-end-call { background: #c62828; color: #fff; border: none; }
         .btn-end-call:hover { background: #b71c1c; color: #fff; }
 
-        .msg-bubble { position: relative; max-width: 80%; width: fit-content; display: inline-block; padding: 8px 14px; border-radius: 20px; font-size: 0.95rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; white-space: pre-wrap; margin-bottom: 5px; }
+        .msg-bubble { position: relative; max-width: 80%; width: fit-content; display: inline-block; padding: 6px 12px; border-radius: 18px; font-size: 0.9rem; word-break: break-word; line-height: 1.4; animation: popIn 0.15s ease-out; white-space: pre-wrap; }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .msg-bubble.sent { align-self: flex-end; background: var(--accent-white); color: var(--accent-black); border-bottom-right-radius: 4px; }
         .msg-bubble.received { align-self: flex-start; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
@@ -2022,7 +2022,6 @@
                     
                     let mediaHtml = ''; 
                     if (m.mediaUrl) { 
-                        // Determine if download is allowed (only for cloud storage)
                         const allowDownload = activeChatTargetId === 'cloud_storage';
                         const controlsListAttr = allowDownload ? '' : 'controlsList="nodownload"';
 
@@ -2039,7 +2038,6 @@
                             </div>`;
                         }
                         
-                        // Thêm nút tải về thủ công nếu đang ở Cloud Storage
                         if (allowDownload) {
                             mediaHtml += `<div style="margin-top: 5px; text-align: right;"><a href="${m.mediaUrl}" target="_blank" download style="display: inline-block; color: var(--text-primary); font-size: 0.75rem; text-decoration: none; padding: 5px 10px; background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color);"><i class="fa-solid fa-download"></i> Tải về</a></div>`;
                         }
@@ -2056,8 +2054,8 @@
                         const senderAvatar = usersCache[m.senderId]?.avatar || 'https://ui-avatars.com/api/?name=User';
                         const senderName = escapeHtml(m.senderName || 'Thành viên');
                         box.innerHTML += `
-                            <div style="align-self: flex-start; max-width: 85%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px; align-items: flex-start;">
-                                <img src="${senderAvatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; cursor:pointer; border: 1px solid var(--border-color);" onclick="viewUserProfile('${m.senderId}')" loading="lazy">
+                            <div style="align-self: flex-start; max-width: 85%; display: flex; gap: 8px; margin-bottom: 5px; margin-top: 5px; align-items: flex-end;">
+                                <img src="${senderAvatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; cursor:pointer; border: 1px solid var(--border-color);" onclick="viewUserProfile('${m.senderId}')" loading="lazy">
                                 <div style="display: flex; flex-direction: column; align-items: flex-start; max-width: calc(100% - 36px);">
                                     <span style="font-size: 0.75rem; color: var(--text-secondary); margin-left: 5px; margin-bottom: 3px; cursor:pointer;" onclick="viewUserProfile('${m.senderId}')">${senderName}</span>
                                     <div class="msg-bubble received" style="margin: 0;"> 
@@ -2068,7 +2066,6 @@
                             </div>
                         `;
                     } else {
-                        // TRẢ LẠI CẤU TRÚC ĐƠN GIẢN CŨ CHO BẠN BÈ VÀ CLOUD
                         box.innerHTML += ` <div class="msg-bubble ${isMe ? 'sent' : 'received'}"> ${optionsHtml} ${m.text ? `${escapeHtml(m.text)} ${editedMark}` : ''} ${mediaHtml} </div> `; 
                     }
                 }); 
@@ -2263,12 +2260,9 @@
             const chatId = activeChatType === 'group' ? activeChatTargetId : (currentUserDoc.uid < activeChatTargetId ? `${currentUserDoc.uid}_${activeChatTargetId}` : `${activeChatTargetId}_${currentUserDoc.uid}`); 
             setDoc(doc(db, "typing_status", chatId), { [currentUserDoc.uid]: false }, { merge: true }); 
             const box = document.getElementById('chat-messages-box'); 
-            
-            // TRẢ LẠI CẤU TRÚC ĐƠN GIẢN CŨ KHI GỬI
             const tempBubble = document.createElement('div'); 
             tempBubble.className = 'msg-bubble sent sending'; 
-            tempBubble.innerText = text; // Dùng innerText, tuyệt đối KHÔNG bọc bằng <div>
-            
+            tempBubble.innerText = text; 
             box.appendChild(tempBubble); 
             box.scrollTop = box.scrollHeight; 
             try { 
